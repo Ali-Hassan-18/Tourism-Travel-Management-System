@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "./Dashboard.css";
+import PlanTrip from "./PlanTrip";
+
 import { FaHome, FaPlane, FaStar, FaCloudSun, FaRobot, FaMapMarkedAlt, FaBars } from "react-icons/fa";
 
 const Dashboard = () => {
@@ -11,24 +13,24 @@ const Dashboard = () => {
     setSidebarOpen(false); // auto-close sidebar
   };
 
-  const renderContent = () => {
-    switch (selectedOption) {
-      case "homepage":
-        return <h2>Welcome to Tourista!</h2>;
-      case "economical":
-        return <h2>Economical Packages will be displayed here.</h2>;
-      case "premium":
-        return <h2>Premium Packages will be displayed here.</h2>;
-      case "plan":
-        return <h2>Plan Your Trip section will be here.</h2>;
-      case "weather":
-        return <h2>Weather Update coming soon...</h2>;
-      case "chatbot":
-        return <h2>Chatbot Assistance coming soon...</h2>;
-      default:
-        return <h2>Select an option from the sidebar</h2>;
-    }
-  };
+ const renderContent = () => {
+  switch (selectedOption) {
+    case "homepage":
+      return <h2>Welcome to Tourista!</h2>;
+    case "economical":
+      return <h2>Economical Packages will be displayed here.</h2>;
+    case "premium":
+      return <h2>Premium Packages will be displayed here.</h2>;
+    case "plan":
+      return <PlanTrip />; // render the step-based planner
+    case "weather":
+      return <h2>Weather Update coming soon...</h2>;
+    case "chatbot":
+      return <h2>Chatbot Assistance coming soon...</h2>;
+    default:
+      return <h2>Select an option from the sidebar</h2>;
+  }
+};
 
   return (
     <div className="dashboard-container">

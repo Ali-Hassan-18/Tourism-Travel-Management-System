@@ -30,7 +30,7 @@ const LoginTemporary = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert(`Email: ${email}`);
+    // Removed alert, just navigate
     navigate("/dashboard");
   };
 
