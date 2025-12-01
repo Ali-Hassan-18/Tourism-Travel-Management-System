@@ -166,169 +166,197 @@
 
 /* Card */
 
-/* ================= TESTIMONIAL CARD NEW SHAPE ================= */
-.testimonial-card {
-  position: relative;
-  background: #ffffff;
-  padding: 30px 25px 25px 25px;
-  border-radius: 25px;
-  min-height: 180px;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-
-  box-shadow:
-    0 4px 10px rgba(0,0,0,0.05),
-    0 8px 25px rgba(0,128,128,0.08);
-
-  border: 1px solid rgba(0,128,128,0.12);
-  transition: 0.35s ease;
-}
-
-/* Hover effect */
-.testimonial-card:hover {
-  transform: translateY(-10px);
-  box-shadow:
-    0 10px 20px rgba(0,0,0,0.08),
-    0 20px 40px rgba(0,128,128,0.15);
-}
-
-.testimonial-header {
-  position: absolute;
-  top: -15px;
-  left: 0;
-  background: #287f8f;
-  color: #fff;
-  padding: 10px 20px;
-  border-top-left-radius: 25px;
-  border-top-right-radius: 25px;
-  font-weight: 700;
-  font-size: 16px;
-  z-index: 2;
-}
-
-/* Testimonial text styling */
-.testimonial-text {
-  margin-top: 25px; /* space for the header */
-  font-size: 17px;
-  color: #0e6f78;
-  line-height: 1.55;
-  position: relative;
-}
-
-/* Quote marks */
-.quote-mark {
-  font-size: 28px;
-  color: #008d8d;
-  vertical-align: top;
-}
-
-
-/* Arrows */
-.arrow-btn {
-  background: none;
-  border: none;
-  font-size: 45px;
-  font-weight: 700;
-  cursor: pointer;
-
-  color: #008d8d;
-  transition: 0.3s ease;
-}
-
-.arrow-btn:hover {
-  transform: scale(1.25);
-  color: #006f6f;
-}
-
-/* ================= WHY CHOOSE US ================= */
-.why-section {
+/* =================== TESTIMONIALS MATCHED TO PREMIUM WHY-SECTION =================== */
+.testimonials-section {
   width: 100%;
-  padding: 110px 60px;
-  background: linear-gradient(to bottom right, #eef7ff, #ffffff);
+  background: #f5fbfb;
+  padding: 80px 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.why-title {
+.section-title {
   font-size: 42px;
-  font-weight: 900;
-  margin-bottom: 65px;
-  color: #005fa3;
-  letter-spacing: 0.8px;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.07);
+  font-weight: 800;
+  color: #064f4f;
+  margin-bottom: 45px;
+  text-align: center;
 }
 
-/* Card container */
-.why-cards {
+/* Layout wrapper */
+.testimonial-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
   width: 100%;
-  max-width: 1250px;
+  max-width: 1200px;
+}
+
+/* Slider — keep 3 cards */
+.testimonial-slider {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 35px;
+  gap: 25px;
+  width: 100%;
 }
 
-/* Card */
-.why-card {
+/* =================== PREMIUM CARD MATCHING THE IMAGE =================== */
+.testimonial-card {
   background: #ffffff;
-  padding: 40px 30px;
-  border-radius: 22px;
+  padding: 30px 25px 35px 25px;
+  border-radius: 28px;
   text-align: center;
 
-  box-shadow:
-    0 8px 18px rgba(0, 120, 200, 0.08),
-    0 20px 40px rgba(0, 120, 200, 0.12);
-
-  border: 1px solid rgba(0, 120, 200, 0.15);
-
-  transition: 0.35s ease;
+  /* soft shadow exactly like your Why-section */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  transition: 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-/* On hover */
-.why-card:hover {
-  transform: translateY(-10px);
-  box-shadow:
-    0 14px 22px rgba(0, 120, 200, 0.12),
-    0 28px 55px rgba(0, 120, 200, 0.2);
+.testimonial-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
 }
 
-/* Icon Wrapper */
-.why-icon-box {
-  background: linear-gradient(to bottom right, #dff0ff, #eff7ff);
-  width: 95px;
-  height: 95px;
-  border-radius: 50%;
+/* Ribbon header replaced with icon-style circle */
+.testimonial-header {
+  position: relative;
+  top: 0;
+  left: 0;
+  transform: none;
+  width: 75px;
+  height: 75px;
+
   margin: 0 auto 20px auto;
+
+  background: #e6f6f5;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 26px;
+  font-weight: bold;
+  color: #007b7d;
+
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Text */
+.testimonial-text {
+  font-size: 15.5px;
+  line-height: 1.55;
+  color: #475d5d;
+  margin-top: 10px;
+  font-weight: 500;
+  padding: 0 5px;
+}
+
+/* Quote marks simplified to premium subtle look */
+.quote-mark {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00a0a0;
+}
+
+/* Arrows premium */
+.arrow-btn {
+  background: #ffffff;
+  border: 1px solid #00a0a0;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 32px;
+  cursor: pointer;
+  color: #007b7b;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  box-shadow:
-    0 5px 12px rgba(0, 150, 255, 0.18),
-    inset 0 0 10px rgba(255,255,255,0.6);
+  transition: 0.25s ease;
+  box-shadow: 0 5px 15px rgba(0, 130, 130, 0.15);
 }
 
-/* Icon */
+.arrow-btn:hover {
+  background: #00a0a0;
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* ================= WHY CHOOSE US – FIXED 4 CARDS IN ONE ROW ================= */
+
+.why-section {
+  padding: 60px 40px;
+  background: #f7fafa;
+}
+
+.why-title {
+  font-size: 34px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 40px;
+  color: #0b3d3b;
+}
+
+/* Make all cards fit in ONE ROW */
+.why-cards {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 25px;
+  width: 90%;
+  margin: 0 auto;
+  flex-wrap: nowrap;       /* IMPORTANT — keeps them in one row */
+}
+
+/* Smaller & premium cards */
+.why-card {
+  width: 22%;               /* 4 cards fit perfectly */
+  min-width: 250px;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 18px;
+  text-align: center;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.why-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
+}
+
+/* Icon styling */
+.why-icon-box {
+  background: #e8f6f5;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 15px auto;
+}
+
 .why-icon {
-  color: #007bce;
-  font-size: 48px;
+  font-size: 32px;
+  color: #007b7d;
 }
 
-/* Heading */
+/* Heading & text */
 .why-heading {
-  font-size: 23px;
-  font-weight: 800;
-  color: #004b78;
-  margin-bottom: 12px;
+  font-size: 20px;
+  font-weight: 600;
+  color: #006d6f;
+  margin-bottom: 10px;
 }
 
-/* Description */
 .why-text {
-  font-size: 16.5px;
-  color: #333;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #5b5b5b;
 }
-
-

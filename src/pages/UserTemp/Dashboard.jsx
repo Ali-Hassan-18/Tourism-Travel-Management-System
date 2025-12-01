@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "./Dashboard.css";
 import PlanTrip from "./PlanTrip";
+import Homepage from "./Homepage";
+
 
 import { FaHome, FaPlane, FaStar, FaCloudSun, FaRobot, FaMapMarkedAlt, FaBars } from "react-icons/fa";
 
@@ -16,13 +18,13 @@ const Dashboard = () => {
  const renderContent = () => {
   switch (selectedOption) {
     case "homepage":
-      return <h2>Welcome to Tourista!</h2>;
+      return <Homepage/>;
     case "economical":
       return <h2>Economical Packages will be displayed here.</h2>;
     case "premium":
       return <h2>Premium Packages will be displayed here.</h2>;
     case "plan":
-      return <PlanTrip />; // render the step-based planner
+      return <PlanTrip />;
     case "weather":
       return <h2>Weather Update coming soon...</h2>;
     case "chatbot":

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiDollarSign } from "react-icons/fi";
 import { MdOutlineAccessTimeFilled } from "react-icons/md";
 import { BsArrowRepeat } from "react-icons/bs";
 
@@ -46,16 +45,12 @@ const LandingPage = () => {
     });
   };
 
-  const loopedTestimonials = [
-    ...testimonials,
-    ...testimonials,
-    ...testimonials
-  ];
-
+  const loopedTestimonials = [...testimonials, ...testimonials, ...testimonials];
   const visibleCards = loopedTestimonials.slice(startIndex, startIndex + visible);
 
   return (
     <div className="landing-page flex flex-col min-h-screen">
+      
       {/* ================= NAVBAR ================= */}
       <div className="navbar">
         <div className="navbar-logo">Tourista</div>
@@ -65,9 +60,7 @@ const LandingPage = () => {
           <a href="#packages">Top Rated Packages</a>
           <a href="#why">Why Choose Us</a>
         </div>
-        <button className="login-btn" onClick={() => navigate("/login")}>
-          Login
-        </button>
+        <button className="login-btn" onClick={() => navigate("/login")}>Login</button>
       </div>
 
       {/* ================= HERO SECTION ================= */}
@@ -82,6 +75,7 @@ const LandingPage = () => {
             }}
           ></div>
         ))}
+
         <div className="landing-gradient"></div>
         <div className="landing-content">
           <h1 className="title">
@@ -90,6 +84,7 @@ const LandingPage = () => {
           <p className="subtitle">
             Personalized routes • Premium packages • Weather safety alerts
           </p>
+
           <div className="btn-group">
             <button className="primary-btn">Explore Packages</button>
             <button className="primary-btn" onClick={() => navigate("/login")}>
@@ -102,8 +97,10 @@ const LandingPage = () => {
       {/* ================= TESTIMONIAL SECTION ================= */}
       <div id="testimonials" className="testimonials-section">
         <h2 className="section-title">What Our Travelers Say</h2>
+
         <div className="testimonial-wrapper">
           <button className="arrow-btn" onClick={handlePrev}>{"<"}</button>
+
           <div className="testimonial-slider">
             {visibleCards.map((item, index) => (
               <div key={index} className="testimonial-card">
@@ -118,49 +115,72 @@ const LandingPage = () => {
               </div>
             ))}
           </div>
+
           <button className="arrow-btn" onClick={handleNext}>{">"}</button>
         </div>
       </div>
 
-      {/* ================= WHY CHOOSE US ================= */}
-      <div id="why" className="why-section">
-        <h2 className="why-title">Why Travelers Choose Tourista</h2>
-        <div className="why-cards">
-          <div className="why-card">
-            <div className="why-icon-box">
-              <FiDollarSign className="why-icon" />
-            </div>
-            <h3 className="why-heading">Best Price Guarantee</h3>
-            <p className="why-text">
-              Discover exclusive deals and clear pricing — no hidden costs. Travel smart and save big!
-            </p>
-          </div>
-          <div className="why-card">
-            <div className="why-icon-box">
-              <MdOutlineAccessTimeFilled className="why-icon" />
-            </div>
-            <h3 className="why-heading">Quick & Easy Booking</h3>
-            <p className="why-text">
-              Plan your adventure in minutes with instant confirmations. From flights to stays, we’ve got you covered.
-            </p>
-          </div>
-          <div className="why-card">
-            <div className="why-icon-box">
-              <BsArrowRepeat className="why-icon" />
-            </div>
-            <h3 className="why-heading">Flexible Travel Plans</h3>
-            <p className="why-text">
-              Modify your itinerary anytime! Free cancellations and flexible packages make travel stress-free.
-            </p>
-          </div>
-        </div>
+{/* ================= WHY CHOOSE US (PREMIUM) ================= */}
+<div id="why" className="why-section">
+  <h2 className="why-title">Why Travelers Choose Tourista</h2>
 
-        {/* ================= MINIMAL COPYRIGHT ================= */}
-        <p className="text-center text-gray-500 text-sm mt-6">
-          &copy; {new Date().getFullYear()} Tourista. All rights reserved.
-        </p>
+  <div className="why-cards">
+
+    {/* Best Price Advantage */}
+    <div className="why-card premium-card">
+      <div className="why-icon-box premium-icon-box">
+        <span className="why-icon premium-icon">💴</span>
       </div>
+      <h3 className="why-heading">Budget Friendly Packages</h3>
+      <p className="why-text">
+        We provide carefully curated premium and economical travel packages 
+        for North Pakistan, ensuring unforgettable experiences for every budget.
+      </p>
     </div>
+
+    {/* Real-Time Convenience */}
+    <div className="why-card premium-card">
+      <div className="why-icon-box premium-icon-box">
+        <MdOutlineAccessTimeFilled className="why-icon premium-icon" />
+      </div>
+      <h3 className="why-heading">Personalized Trip Recommendations</h3>
+      <p className="why-text">
+        Enjoy personalized trip planning based on your preferences
+        and real-time weather updates to make every journey seamless and enjoyable.
+      </p>
+    </div>
+
+ <div className="why-card premium-card">
+  <div className="why-icon-box premium-icon-box">
+    <BsArrowRepeat className="why-icon premium-icon" />
+  </div>
+  <h3 className="why-heading">Weather Updates & Announcements</h3>
+  <p className="why-text">
+    Stay informed with real-time weather alerts and important travel announcements, 
+    ensuring a safe and smooth journey throughout your trip.
+  </p>
+</div>
+
+
+   {/* Chatbot & Recommendations */}
+<div className="why-card premium-card">
+  <div className="why-icon-box premium-icon-box">
+    <span className="why-icon premium-icon">🤖</span>
+  </div>
+  <h3 className="why-heading"> Chatbot Recommendations</h3>
+  <p className="why-text">
+    Get instant personalized travel suggestions, itinerary guidance, and smart recommendations 
+    through our  chatbot — making your journey effortless and tailored to you.
+  </p>
+</div>
+
+  </div>
+
+  <p className="text-center text-gray-500 text-sm mt-6">
+    &copy; {new Date().getFullYear()} Tourista. All rights reserved.
+  </p>
+</div>
+</div>
   );
 };
 
