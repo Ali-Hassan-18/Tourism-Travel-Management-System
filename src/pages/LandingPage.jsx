@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MdOutlineAccessTimeFilled } from "react-icons/md";
 import { BsArrowRepeat } from "react-icons/bs";
@@ -8,6 +8,8 @@ import img2 from "../assets/img2.jpg";
 import img3 from "../assets/img3.jpg";
 import img4 from "../assets/img4.jpg";
 
+import axios from "axios";
+
 import "./LandingPage.css";
 
 const LandingPage = () => {
@@ -15,6 +17,7 @@ const LandingPage = () => {
 
   const images = [img1, img2, img3, img4];
 
+  // ================= TESTIMONIALS =================
   const testimonials = [
     { text: "Amazing experience! Tourista made my trip unforgettable.", name: "Ayesha Khan" },
     { text: "Highly recommended! Smooth planning and great support.", name: "Hoorain Nouman" },
@@ -48,6 +51,47 @@ const LandingPage = () => {
   const loopedTestimonials = [...testimonials, ...testimonials, ...testimonials];
   const visibleCards = loopedTestimonials.slice(startIndex, startIndex + visible);
 
+  // ================= DISCOUNTED PACKAGES =================
+  const [showPopup, setShowPopup] = useState(false);
+  const [discountedPackages, setDiscountedPackages] = useState([]);
+
+  const [pkgIndex, setPkgIndex] = useState(0);
+  const pkgVisible = 3;
+
+  const fetchPackages = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/packages"); // Backend URL
+      // Keep your original images for initial packages
+      const initialPackages = res.data.map((pkg, idx) => ({
+        ...pkg,
+        image: pkg.image ? pkg.image : [img1, img2, img3, img4][idx % 4],
+      }));
+      setDiscountedPackages(initialPackages);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchPackages();
+  }, []);
+
+  const pkgTotal = discountedPackages.length;
+
+  const handlePkgNext = () => {
+    setPkgIndex((prev) => (prev + pkgVisible) % pkgTotal);
+  };
+
+  const handlePkgPrev = () => {
+    setPkgIndex((prev) => {
+      let newIndex = prev - pkgVisible;
+      return newIndex < 0 ? pkgTotal + newIndex : newIndex;
+    });
+  };
+
+  const loopedPackages = [...discountedPackages, ...discountedPackages, ...discountedPackages];
+  const visiblePackages = loopedPackages.slice(pkgIndex, pkgIndex + pkgVisible);
+
   return (
     <div className="landing-page flex flex-col min-h-screen">
       
@@ -77,6 +121,7 @@ const LandingPage = () => {
         ))}
 
         <div className="landing-gradient"></div>
+
         <div className="landing-content">
           <h1 className="title">
             Explore Pakistan <br /> With Smart Guidance
@@ -120,67 +165,124 @@ const LandingPage = () => {
         </div>
       </div>
 
-{/* ================= WHY CHOOSE US (PREMIUM) ================= */}
-<div id="why" className="why-section">
-  <h2 className="why-title">Why Travelers Choose Tourista</h2>
+      {/* ================= DISCOUNTED PACKAGES SECTION ================= */}
+      <div id="packages" className="packages-section">
+        <h2 className="section-title">Top Rated Packages</h2>
 
-  <div className="why-cards">
+        <div className="testimonial-wrapper">
+          <button className="arrow-btn" onClick={handlePkgPrev}>{"<"}</button>
 
-    {/* Best Price Advantage */}
-    <div className="why-card premium-card">
-      <div className="why-icon-box premium-icon-box">
-        <span className="why-icon premium-icon">💴</span>
+          <div className="testimonial-slider">
+            {visiblePackages.map((pkg, index) => (
+              <div key={index} className="package-card">
+                <img src={pkg.image} alt="" className="package-img" />
+
+                <h3 className="package-title">{pkg.title}</h3>
+
+                <div className="price-box">
+                  <span className="old-price">Rs {pkg.oldPrice || pkg.originalPrice}</span>
+                  <span className="new-price">Rs {pkg.newPrice || pkg.discountedPrice}</span>
+                </div>
+
+                <button
+                  className="view-btn"
+                  onClick={() => setShowPopup(true)}
+                >
+                  View Details
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <button className="arrow-btn" onClick={handlePkgNext}>{">"}</button>
+        </div>
       </div>
-      <h3 className="why-heading">Budget Friendly Packages</h3>
-      <p className="why-text">
-        We provide carefully curated premium and economical travel packages 
-        for North Pakistan, ensuring unforgettable experiences for every budget.
-      </p>
-    </div>
 
-    {/* Real-Time Convenience */}
-    <div className="why-card premium-card">
-      <div className="why-icon-box premium-icon-box">
-        <MdOutlineAccessTimeFilled className="why-icon premium-icon" />
+      {/* ================= POPUP MODAL ================= */}
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-card">
+            <h3 className="popup-title">Login Required</h3>
+            <p className="popup-text">
+              To view detailed package information, please login first.
+            </p>
+
+            <div className="popup-buttons">
+              <button 
+                className="popup-login-btn"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+
+              <button 
+                className="popup-close-btn"
+                onClick={() => setShowPopup(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= WHY CHOOSE US ================= */}
+      <div id="why" className="why-section">
+        <h2 className="why-title">Why Travelers Choose Tourista</h2>
+
+        <div className="why-cards">
+
+          <div className="why-card premium-card">
+            <div className="why-icon-box premium-icon-box">
+              <span className="why-icon premium-icon">💴</span>
+            </div>
+            <h3 className="why-heading">Budget Friendly Packages</h3>
+            <p className="why-text">
+              We provide carefully curated premium and economical travel packages 
+              for North Pakistan, ensuring unforgettable experiences for every budget.
+            </p>
+          </div>
+
+          <div className="why-card premium-card">
+            <div className="why-icon-box premium-icon-box">
+              <MdOutlineAccessTimeFilled className="why-icon premium-icon" />
+            </div>
+            <h3 className="why-heading">Personalized Trip Recommendations</h3>
+            <p className="why-text">
+              Enjoy personalized trip planning based on your preferences
+              and real-time weather updates to make every journey seamless and enjoyable.
+            </p>
+          </div>
+
+          <div className="why-card premium-card">
+            <div className="why-icon-box premium-icon-box">
+              <BsArrowRepeat className="why-icon premium-icon" />
+            </div>
+            <h3 className="why-heading">Weather Updates & Announcements</h3>
+            <p className="why-text">
+              Stay informed with real-time weather alerts and important travel announcements, 
+              ensuring a safe and smooth journey throughout your trip.
+            </p>
+          </div>
+
+          <div className="why-card premium-card">
+            <div className="why-icon-box premium-icon-box">
+              <span className="why-icon premium-icon">🤖</span>
+            </div>
+            <h3 className="why-heading">Chatbot Recommendations</h3>
+            <p className="why-text">
+              Get instant personalized travel suggestions, itinerary guidance, and smart recommendations 
+              through our chatbot — making your journey effortless and tailored to you.
+            </p>
+          </div>
+
+        </div>
+
+        <p className="text-center text-gray-500 text-sm mt-6">
+          &copy; {new Date().getFullYear()} Tourista. All rights reserved.
+        </p>
       </div>
-      <h3 className="why-heading">Personalized Trip Recommendations</h3>
-      <p className="why-text">
-        Enjoy personalized trip planning based on your preferences
-        and real-time weather updates to make every journey seamless and enjoyable.
-      </p>
     </div>
-
- <div className="why-card premium-card">
-  <div className="why-icon-box premium-icon-box">
-    <BsArrowRepeat className="why-icon premium-icon" />
-  </div>
-  <h3 className="why-heading">Weather Updates & Announcements</h3>
-  <p className="why-text">
-    Stay informed with real-time weather alerts and important travel announcements, 
-    ensuring a safe and smooth journey throughout your trip.
-  </p>
-</div>
-
-
-   {/* Chatbot & Recommendations */}
-<div className="why-card premium-card">
-  <div className="why-icon-box premium-icon-box">
-    <span className="why-icon premium-icon">🤖</span>
-  </div>
-  <h3 className="why-heading"> Chatbot Recommendations</h3>
-  <p className="why-text">
-    Get instant personalized travel suggestions, itinerary guidance, and smart recommendations 
-    through our  chatbot — making your journey effortless and tailored to you.
-  </p>
-</div>
-
-  </div>
-
-  <p className="text-center text-gray-500 text-sm mt-6">
-    &copy; {new Date().getFullYear()} Tourista. All rights reserved.
-  </p>
-</div>
-</div>
   );
 };
 
