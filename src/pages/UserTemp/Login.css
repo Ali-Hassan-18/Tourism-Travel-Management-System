@@ -34,20 +34,35 @@
  100% { transform: scale(1); }
 }
 
-/* Card styling */
+/* Make the card shorter and slightly narrower */
 .login-card {
- position: relative;
- background: rgba(255, 255, 255, 0.15);
- backdrop-filter: blur(8px);
- border-radius: 2rem;
+  position: relative;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  border-radius: 2rem;
+  max-height: 600px; /* limit height */
+  width: 80%; /* reduce width from w-11/12 */
+  height: auto; /* allows card to shrink with content */
+  overflow: hidden;
 }
 
-
-
-
-/* Controls the inner padding for the left and right panels (Shorter height) */
+/* Reduce padding inside panels for compact look */
 .login-panel-padding {
-    padding: 2rem; 
+  padding: 1.5rem; /* reduced from 2rem */
+}
+
+/* Adjust the left panel content spacing */
+.login-card .hidden.md\\:block {
+  justify-content: space-between; /* makes top and bottom spacing tighter */
+}
+
+/* Optional: Slightly smaller headings to fit compact card */
+.login-card h1 {
+  font-size: 2.5rem; /* from 4xl */
+}
+
+.login-card h2 {
+  font-size: 2rem; /* from 3xl */
 }
 
 

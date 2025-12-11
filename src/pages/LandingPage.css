@@ -125,64 +125,25 @@
   text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
 }
 
-/* =================== TESTIMONIALS (ENHANCED) =================== */
-.testimonials-section {
-  height: 100vh;
-  width: 100%;
-  background: linear-gradient(to bottom, #e8f8f8, #f5fbfb);
-  padding: 80px 60px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 .section-title {
-  font-size: 45px;
-  font-weight: 900;
-  margin-bottom: 45px;
-  color: #007a7a;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  text-shadow: 1px 2px 8px rgba(0,0,0,0.1);
+  font-size: 32px;
+  font-weight: 700;
+  color: #0f5452;     
+  text-align: center;
+  margin-bottom: 30px;
+  position: relative;
 }
 
-/* Wrapper */
-.testimonial-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 30px;
-  width: 100%;
-  max-width: 1200px;
-}
-
-/* Slider grid */
-.testimonial-slider {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
-  width: 100%;
-}
-
-/* Card */
-
-/* =================== TESTIMONIALS MATCHED TO PREMIUM WHY-SECTION =================== */
+/* =================== PREMIUM TRAVEL TESTIMONIALS =================== */
 .testimonials-section {
+  height: auto;
+  padding: 120px 40px;
   width: 100%;
-  background: #f5fbfb;
-  padding: 80px 40px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.section-title {
-  font-size: 42px;
-  font-weight: 800;
-  color: #064f4f;
-  margin-bottom: 45px;
+  background: #f7fafa;
+  position: relative;
   text-align: center;
 }
+
 
 /* Layout wrapper */
 .testimonial-wrapper {
@@ -192,9 +153,10 @@
   gap: 25px;
   width: 100%;
   max-width: 1200px;
+  margin: auto;
 }
 
-/* Slider — keep 3 cards */
+/* Slider */
 .testimonial-slider {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -202,83 +164,77 @@
   width: 100%;
 }
 
-/* =================== PREMIUM CARD MATCHING THE IMAGE =================== */
+/* Card */
 .testimonial-card {
   background: #ffffff;
-  padding: 30px 25px 35px 25px;
-  border-radius: 28px;
+  padding: 30px 26px 40px 26px;
+  border-radius: 26px;
   text-align: center;
-
-  /* soft shadow exactly like your Why-section */
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 7px 22px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid #00a7a7;     /* premium turquoise top stripe */
   transition: 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  animation: fadeUp 0.8s ease forwards;
+  animation-delay: 0.1s;
 }
 
 .testimonial-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+  transform: translateY(-10px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
 }
 
-/* Ribbon header replaced with icon-style circle */
-.testimonial-header {
-  position: relative;
-  top: 0;
-  left: 0;
-  transform: none;
-  width: 75px;
-  height: 75px;
-
-  margin: 0 auto 20px auto;
-
-  background: #e6f6f5;
+/* Avatar Circle (No images, initials only) */
+.testimonial-avatar {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto 15px auto;
+  background: #dff7f7;
+  color: #008b8b;
+  font-size: 34px;
+  font-weight: 700;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 26px;
-  font-weight: bold;
-  color: #007b7d;
-
   border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* Text */
-.testimonial-text {
-  font-size: 15.5px;
-  line-height: 1.55;
-  color: #475d5d;
-  margin-top: 10px;
-  font-weight: 500;
-  padding: 0 5px;
-}
-
-/* Quote marks simplified to premium subtle look */
-.quote-mark {
-  font-size: 20px;
+/* Traveler Name */
+.traveler-name {
+  font-size: 18px;
   font-weight: 700;
-  color: #00a0a0;
+  color: #006f72;
+  margin-bottom: 4px;
 }
 
-/* Arrows premium */
+/* Stars */
+.stars {
+  font-size: 16px;
+  color: #f9a825;
+  margin-bottom: 14px;
+}
+
+.testimonial-date {
+  font-size: 13px;
+  color: #777;
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+/* Arrows */
 .arrow-btn {
   background: #ffffff;
-  border: 1px solid #00a0a0;
+  border: 1px solid #00a7a7;
   width: 55px;
   height: 55px;
   border-radius: 50%;
-  font-size: 32px;
+  font-size: 30px;
   cursor: pointer;
-  color: #007b7b;
-
+  color: #007879;
   display: flex;
   align-items: center;
   justify-content: center;
-
   transition: 0.25s ease;
-  box-shadow: 0 5px 15px rgba(0, 130, 130, 0.15);
+  box-shadow: 0 4px 15px rgba(0, 130, 130, 0.18);
 }
 
 .arrow-btn:hover {
@@ -287,12 +243,13 @@
   transform: scale(1.1);
 }
 
+
+
 /* ================= WHY CHOOSE US – FIXED 4 CARDS IN ONE ROW ================= */
 
 .why-section {
-  padding: 60px 40px;
   background: #f7fafa;
-   padding:10px
+   padding:120px ,40px;
 }
 
 .why-title {
@@ -362,82 +319,116 @@
   color: #5b5b5b;
 }
 
-/* ================= DISCOUNTED PACKAGES ================= */
+/* ================= PREMIUM TRAVEL PACKAGES SECTION ================= */
 
 .packages-section {
-  padding: 70px 50px;
-  background: #eef8f8;
+  padding: 120px 40px;
+  background: #f4fbfb;
 }
 
 .packages-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  gap: 25px;
   margin-top: 40px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .package-card {
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 18px;
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
   transition: 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .package-card:hover {
   transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
 .package-img {
   width: 100%;
-  height: 170px;
-  border-radius: 15px;
+  height: 150px;             
+  border-radius: 14px;
   object-fit: cover;
 }
 
+
 .package-title {
-  margin-top: 15px;
-  font-size: 20px;
+  margin-top: 12px;
+  font-size: 18px;
   font-weight: 700;
-  color: #004b4b;
+  color: #0b3d3b;;
 }
 
+/* Cleaner price layout */
 .price-box {
-  margin: 10px 0;
+  margin: 8px 0;
   display: flex;
   justify-content: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .old-price {
   text-decoration: line-through;
-  color: #888;
-  font-size: 15px;
+  color: #9b9b9b;
+  font-size: 14px;
 }
 
 .new-price {
-  color: #008080;
-  font-size: 18px;
+  color: #007b7d;
+  font-size: 17px;
   font-weight: 700;
 }
 
+/* Travel-style button */
 .view-btn {
-  margin-top: 12px;
-  padding: 8px 15px;
-  border-radius: 25px;
+  margin-top: 10px;
+  padding: 7px 18px;
+  border-radius: 20px;
   border: none;
-  background: #008080;
-  color: white;
+  background: #007b7d;
+  color: #ffffff;
   cursor: pointer;
+  font-size: 14px;
   font-weight: 600;
-  transition: 0.3s ease;
+  transition: 0.25s ease;
 }
 
 .view-btn:hover {
-  background: #006060;
+  background: #005f60;
+  transform: scale(1.05);
 }
 
+.rating-box {
+  margin-top: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #444;
+}
+
+.star {
+  color: #f4c542;
+  font-size: 16px;
+}
+
+.rating {
+  font-weight: 600;
+  color: #222;
+}
+
+.reviews {
+  color: #777;
+  font-size: 13px;
+}
 
 /* ================= POPUP MODAL ================= */
 
@@ -496,3 +487,6 @@
   border: none;
   font-weight: 600;
 }
+
+
+
