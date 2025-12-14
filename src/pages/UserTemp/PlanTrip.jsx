@@ -2,6 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import "./PlanTrip.css";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import heroMap from "../../assets/skardu.jpg"; // adjust path based on your folder structure
+
+
 
 const interestsOptions = [
   { key: "Adventure", label: "Adventure", icon: "🏔️" },
@@ -14,6 +17,10 @@ const interestsOptions = [
 
 const PlanTrip = () => {
   const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState({});
+  const [showWelcome, setShowWelcome] = useState(true);
+
+
   const [formData, setFormData] = useState({
     adults: 1,
     children: 0,
@@ -147,6 +154,58 @@ const PlanTrip = () => {
     });
   }, [pois]);
 
+
+  const validateStep = () => {
+  const e = {};
+
+  // Step 1: Adults
+  if (step === 1) {
+    if (formData.adults < 1) {
+      e.adults = "At least 1 adult is required";
+    }
+  }
+
+  // Step 2: Destination & Dates
+  if (step === 2) {
+    if (!formData.destination.trim()) {
+      e.destination = "Destination is required";
+    }
+    if (!formData.startDate) {
+      e.startDate = "Start date is required";
+    }
+    if (!formData.endDate) {
+      e.endDate = "End date is required";
+    }
+    if (
+      formData.startDate &&
+      formData.endDate &&
+      formData.endDate < formData.startDate
+    ) {
+      e.endDate = "End date cannot be before start date";
+    }
+  }
+
+  // Step 3: Email & Phone
+  if (step === 3) {
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      e.email = "Enter a valid email";
+    }
+    if (!formData.phone || formData.phone.length < 7) {
+      e.phone = "Enter a valid phone number";
+    }
+  }
+
+  // Step 4: Interests
+  if (step === 4) {
+    if (formData.interests.length === 0) {
+      e.interests = "Select at least one interest";
+    }
+  }
+
+  setErrors(e);
+  return Object.keys(e).length === 0; // true if valid
+};
+
   // Handlers
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -190,6 +249,7 @@ const PlanTrip = () => {
     }
   };
 
+
   const handleGenerateClick = () => setShowConfirm(true);
 
   return (
@@ -221,20 +281,49 @@ const PlanTrip = () => {
         </div>
       )}
 
+{showWelcome && (
+  <div className="welcome-screen">
+    <div className="welcome-map">
+      <img src={heroMap} alt="World Map" className="map-background" />
+      <div className="welcome-content">
+        <h1>Plan Trips With Friends</h1>
+        <p>Travel to the greatest places in the world with your friends</p>
+        <button className="btn highlight" onClick={() => setShowWelcome(false)}>
+          Get Started
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
       <div className="plan-trip-outer">
         <div className="plan-trip-card">
           <div className="plan-left">
             <div className="plan-header">
               <h2>Customize Your Trip</h2>
             </div>
+                   <div className="step-circles">
+                      {[1,2,3,4].map((s) => (
+                        <div
+                          key={s}
+                          className={`circle ${step === s ? "active" : ""}`}
+                        >
+                          {s}
+                        </div>
+                      ))}
+                    </div>
+
 
             <form className="plan-form">
               {step === 1 && (
                 <section className="form-step grid-2">
-                  <div className="field">
-                    <label>Adults</label>
-                    <input type="number" name="adults" min="1" value={formData.adults} onChange={handleChange} />
-                  </div>
+                <div className={`field ${errors.adults ? "error" : ""}`}>
+                     <label>Adults</label>
+                     <input type="number" name="adults" value={formData.adults} onChange={handleChange} />
+                      {errors.adults && <span className="error-msg">{errors.adults}</span>}
+                      </div>
+
                   <div className="field">
                     <label>Children</label>
                     <input type="number" name="children" min="0" value={formData.children} onChange={handleChange} />
@@ -252,10 +341,12 @@ const PlanTrip = () => {
 
               {step === 2 && (
                 <section className="form-step grid-2">
-                  <div className="field">
-                    <label>Destination</label>
-                    <input type="text" name="destination" value={formData.destination} onChange={handleChange} placeholder="City..." />
-                  </div>
+                 <div className={`field ${errors.destination ? "error" : ""}`}>
+                   <label>Destination</label>
+                   <input type="text" name="destination" value={formData.destination} onChange={handleChange} placeholder="City..." />
+                        {errors.destination && <span className="error-msg">{errors.destination}</span>}
+                         </div>
+
                   <div className="field">
                     <label>Travel Mode</label>
                     <select name="travelMode" value={formData.travelMode} onChange={handleChange}>
@@ -265,47 +356,69 @@ const PlanTrip = () => {
                       <option>Car</option>
                     </select>
                   </div>
-                  <div className="field">
-                    <label>Start Date</label>
-                    <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
-                  </div>
-                  <div className="field">
-                    <label>End Date</label>
-                    <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
-                  </div>
+                 <div className={`field ${errors.startDate ? "error" : ""}`}>
+                      <label>Start Date</label>
+                      <input type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
+                      {errors.startDate && <span className="error-msg">{errors.startDate}</span>}
+                       </div>
+
+                <div className={`field ${errors.endDate? "error" : ""}`}>
+                      <label>End Date</label>
+                        <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
+                        {errors.endDate && <span className="error-msg">{errors.endDate}</span>}
+                         </div>
+
                 </section>
               )}
 
               {step === 3 && (
                 <section className="form-step grid-2">
-                  <div className="field" style={{ gridColumn: "span 2" }}>
-                    <label>Email</label>
-                    <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="you@example.com" />
-                  </div>
-                  <div className="field" style={{ gridColumn: "span 2" }}>
-                    <label>Phone</label>
-                    <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+1..." />
-                  </div>
+                <div className={`field ${errors.email ? "error" : ""}`} style={{ gridColumn: "span 2" }}>
+  <label>Email</label>
+  <input
+    type="email"
+    name="email"
+    value={formData.email}
+    onChange={handleChange}
+    placeholder="you@example.com"
+  />
+  {errors.email && <span className="error-msg">{errors.email}</span>}
+</div>
+
+                      <div className={`field ${errors.phone ? "error" : ""}`} style={{ gridColumn: "span 2" }}>
+  <label>Phone</label>
+  <input
+    type="tel"
+    name="phone"
+    value={formData.phone}
+    onChange={handleChange}
+    placeholder="+1..."
+  />
+  {errors.phone && <span className="error-msg">{errors.phone}</span>}
+</div>
+
+
                 </section>
               )}
 
               {step === 4 && (
-                <section className="form-step">
-                  <h3 className="prefs-title">Pick your interests</h3>
-                  <div className="prefs-grid">
-                    {interestsOptions.map((opt) => (
-                      <button
-                        type="button"
-                        key={opt.key}
-                        className={`pref-card ${formData.interests.includes(opt.key) ? "active" : ""}`}
-                        onClick={() => toggleInterest(opt.key)}
-                      >
-                        <span className="pref-icon">{opt.icon}</span>
-                        <span className="pref-text">{opt.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </section>
+               <section className="form-step">
+  {errors.interests && <span className="error-msg">{errors.interests}</span>}
+  <div className="prefs-grid">
+    {interestsOptions.map((opt) => (
+      <button
+        type="button"
+        key={opt.key}
+        className={`pref-card ${formData.interests.includes(opt.key) ? "active" : ""}`}
+        onClick={() => toggleInterest(opt.key)}
+      >
+        <span className="pref-icon">{opt.icon}</span>
+        <span className="pref-text">{opt.label}</span>
+      </button>
+    ))}
+  </div>
+</section>
+
               )}
 
               <div className="form-nav">
@@ -313,9 +426,9 @@ const PlanTrip = () => {
                   <button type="button" className="btn secondary" onClick={prevStep}>Back</button>
                 ) : <div />}
                 {step < 4 ? (
-                  <button type="button" className="btn primary" onClick={nextStep}>Next Step</button>
+                  <button type="button" className="btn primary" onClick={() => { if (validateStep()) nextStep();}}>Next Step</button>
                 ) : (
-                  <button type="button" className="btn highlight" onClick={handleGenerateClick}>
+                  <button type="button" className="btn highlight" onClick={() => { if (validateStep()) handleGenerateClick() }}>
                     Generate Package
                   </button>
                 )}

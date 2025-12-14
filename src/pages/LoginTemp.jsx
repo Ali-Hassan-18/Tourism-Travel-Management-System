@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import backgroundImage from "../../assets/northern-pakistan.jpg";
+import backgroundImage from "../assets/northern-pakistan.jpg";
 import "./Login.css";
 import { useNavigate } from "react-router-dom";
 

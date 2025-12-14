@@ -1,0 +1,161 @@
+.dashboard {
+  background: #f5f7fa;
+  padding: 2rem;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+}
+
+/* HEADER */
+.page-header h1 {
+  font-size: 1.8rem;
+  color: #2c3e50;
+}
+.page-header span {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+
+/* KPI GRID */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.2rem;
+  margin-top: 1.5rem;
+}
+
+.kpi {
+  background: #ffffff;
+  padding: 1.4rem;
+  border-radius: 10px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+.kpi-icon {
+  background: #eef7f7;
+  color: #008080;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1.2rem;
+}
+
+.kpi p {
+  font-size: 0.85rem;
+  color: #7f8c8d;
+}
+.kpi h3 {
+  margin: 0;
+  color: #2c3e50;
+}
+
+/* ANALYTICS GRID */
+.analytics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.card {
+  background: #ffffff;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+}
+
+.card h3 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+/* TABLE */
+.table-card {
+  margin-top: 2rem;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.table-card table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-card th,
+.table-card td {
+  padding: 0.9rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.table-card th {
+  background: #f5f7fa;
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+/* STATUS */
+.status.confirmed {
+  color: #27ae60;
+  font-weight: 600;
+}
+.status.pending {
+  color: #e67e22;
+  font-weight: 600;
+}
+
+/* REVENUE END */
+.revenue-end {
+  margin-top: 2.5rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 1024px) {
+  .kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+}
+/* HEADER */
+.page-header h1 {
+  font-size: 1.8rem;
+  color: #008080; /* changed to Teal */
+}
+.page-header span {
+  font-size: 0.85rem;
+  color: #008080; /* changed to Teal */
+}
+
+/* KPI GRID */
+.kpi h3 {
+  margin: 0;
+  color: #008080; /* KPI title in Teal */
+}
+
+.kpi-icon {
+  background: #e0f7f7; /* subtle teal background */
+  color: #008080; /* icon color Teal */
+}
+
+/* ANALYTICS GRID */
+.card h3 {
+  margin-bottom: 1rem;
+  color: #008080; /* card titles in Teal */
+}
+
+/* TABLE */
+.table-card th {
+  background: #e0f7f7; /* light teal header */
+  color: #008080; /* header text Teal */
+}
+
+/* STATUS (optional to match teal theme) */
+.status.confirmed {
+  color: #008080; /* confirmed in Teal */
+}
