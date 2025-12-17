@@ -1,7 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import "./PlanTrip.css";
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
 import heroMap from "../../assets/skardu.jpg"; // adjust path based on your folder structure
 
 
@@ -37,122 +35,6 @@ const PlanTrip = () => {
 
   const [showConfirm, setShowConfirm] = useState(false);
 
-  // Map state
-  const mapContainer = useRef(null);
-  const mapInstance = useRef(null);
-  const markerRef = useRef(null);
-  const [coords, setCoords] = useState({ lat: 24.8607, lng: 67.0011 }); // Karachi default
-  const [allPOIs, setAllPOIs] = useState([]);
-  const [pois, setPois] = useState([]);
-  const poiMarkersRef = useRef([]);
-
-  // Initialize MapLibre map
-  useEffect(() => {
-    if (!mapContainer.current) return;
-
-    mapInstance.current = new maplibregl.Map({
-      container: mapContainer.current,
-      style: "https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json",
-      center: [coords.lng, coords.lat],
-      zoom: 5,
-    });
-
-    mapInstance.current.addControl(new maplibregl.NavigationControl(), "top-right");
-
-    // Initial city marker
-    markerRef.current = new maplibregl.Marker({ color: "cyan" })
-      .setLngLat([coords.lng, coords.lat])
-      .addTo(mapInstance.current);
-  }, []);
-
-  // Fetch city coordinates and POIs
-  useEffect(() => {
-    if (!formData.destination) return;
-
-    const getCoordsAndPOIs = async () => {
-      const url = `https://nominatim.openstreetmap.org/search?format=json&q=${formData.destination}`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        setCoords({ lat, lng: lon });
-
-        if (mapInstance.current) {
-          mapInstance.current.setCenter([lon, lat]);
-          mapInstance.current.setZoom(12);
-          markerRef.current.setLngLat([lon, lat]);
-        }
-
-        // Fetch POIs via Overpass API
-        const overpassQuery = `
-          [out:json][timeout:25];
-          (
-            node["tourism"](around:3000,${lat},${lon});
-            node["amenity"="restaurant"](around:3000,${lat},${lon});
-            node["tourism"="hotel"](around:3000,${lat},${lon});
-          );
-          out body;
-        `;
-        const overpassRes = await fetch('https://overpass-api.de/api/interpreter', {
-          method: 'POST',
-          body: overpassQuery,
-        });
-        const poisData = await overpassRes.json();
-
-        setAllPOIs(poisData.elements);
-      }
-    };
-
-    getCoordsAndPOIs();
-  }, [formData.destination]);
-
-  // Update displayed POIs based on zoom
-  useEffect(() => {
-    if (!mapInstance.current || allPOIs.length === 0) return;
-
-    const updatePOIs = () => {
-      const zoom = mapInstance.current.getZoom();
-      let maxPOIs = 2;
-      if (zoom >= 10 && zoom < 12) maxPOIs = 5;
-      if (zoom >= 12) maxPOIs = 8;
-
-      const shuffled = allPOIs.sort(() => 0.5 - Math.random());
-      const limitedPOIs = shuffled.slice(0, maxPOIs);
-      setPois(limitedPOIs);
-    };
-
-    updatePOIs();
-
-    mapInstance.current.on("zoom", updatePOIs);
-    return () => mapInstance.current.off("zoom", updatePOIs);
-  }, [allPOIs]);
-
-  // Render POI markers with fade effect
-  useEffect(() => {
-    if (!mapInstance.current) return;
-
-    // Remove old markers
-    poiMarkersRef.current.forEach((m) => m.remove());
-    poiMarkersRef.current = [];
-
-    pois.forEach((poi) => {
-      const el = document.createElement("div");
-      el.className = "poi-marker"; // initial hidden
-      el.title = poi.tags?.name || "POI";
-
-      const m = new maplibregl.Marker(el)
-        .setLngLat([poi.lon, poi.lat])
-        .setPopup(new maplibregl.Popup().setText(poi.tags?.name || "POI"))
-        .addTo(mapInstance.current);
-
-      // Fade in after small delay
-      setTimeout(() => el.classList.add("visible"), 50);
-
-      poiMarkersRef.current.push(m);
-    });
-  }, [pois]);
 
 
   const validateStep = () => {
@@ -224,30 +106,13 @@ const PlanTrip = () => {
     }));
   };
 
+  const handleFinalContinue = () => {
+  setShowConfirm(false);
+  console.log("Trip data (frontend only):", formData);
+};
+
   const nextStep = () => setStep((p) => Math.min(p + 1, 4));
   const prevStep = () => setStep((p) => Math.max(p - 1, 1));
-
-  // Updated: Continue button handler
-  const handleFinalContinue = async () => {
-    setShowConfirm(false); // Close modal
-
-    try {
-      const response = await fetch("https://your-backend-api.com/generate-package", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await response.json();
-      console.log("Package generated:", data);
-
-      // Optional: handle frontend state update, toast, or redirect here
-    } catch (err) {
-      console.error("Error generating package:", err);
-    }
-  };
 
 
   const handleGenerateClick = () => setShowConfirm(true);
@@ -437,9 +302,18 @@ const PlanTrip = () => {
           </div>
 
           <div className="plan-right">
-            <div className="map-wrap">
-              <div ref={mapContainer} className="map-canvas"></div>
-            </div>
+          <div className="map-wrap">
+  <iframe
+    title="Google Map"
+    className="map-canvas"
+    src={`https://www.google.com/maps?q=${encodeURIComponent(
+      formData.destination
+    )}&z=12&output=embed`}
+    loading="lazy"
+    referrerPolicy="no-referrer-when-downgrade"
+  />
+</div>
+
           </div>
         </div>
       </div>

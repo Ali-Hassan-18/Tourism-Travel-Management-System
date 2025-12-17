@@ -110,7 +110,6 @@
     transform: translateY(-1px);
 }
 
-/* =================== TOP SEARCHED SECTION =================== */
 .top-searched-section {
     text-align: center;
 }
@@ -131,69 +130,184 @@
     line-height: 1.7;
 }
 
-/* ===== GRID ===== */
+/* ================= GRID ================= */
 .enhanced-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
 }
 
-/* ===== CARD ===== */
+/* ================= CARD (PERFECT SQUARE) ================= */
 .city-card {
-  background: #fff;
-  border-radius: 6px;                 /* flatter corners */
-  overflow: hidden;
-  border: 1px solid #eee;
-  box-shadow: none;                   /* image is flat */
-  transition: box-shadow 0.2s ease;
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid #ececec;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+
+  /* 🔥 PERFECT SQUARE */
+  aspect-ratio: 1 / 1;
+
+  display: flex;
+  flex-direction: column;
+
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
 .city-card:hover {
-  transform: none;                    /* remove lift */
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
 }
 
-/* ===== IMAGE ===== */
+/* ================= IMAGE (KEEP PERFECT) ================= */
 .city-card-img {
-  width: 100%;
-  height: 170px;
+  height: 48%;                 /* balanced square layout */
+  margin: 16px;
+  border-radius: 14px;
   background-size: cover;
   background-position: center;
   position: relative;
+  overflow: hidden;
 }
 
-.city-card:hover .city-card-img {
-  transform: none;
-}
-
-/* ===== IMAGE TITLE (BOTTOM LEFT) ===== */
+/* title on image */
 .city-card-overlay {
   position: absolute;
-  bottom: 10px;
-  left: 12px;
-  background: transparent;
-  color: #fff;
-  padding: 0;
+  bottom: 12px;
+  left: 14px;
+}
+
+.city-card-overlay h3 {
+  margin: 0;
   font-size: 15px;
   font-weight: 600;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-/* ===== BODY ===== */
+/* ================= CONTENT ================= */
 .city-card-content {
-  padding: 14px 16px 18px;
-  gap: 8px;
+  flex: 1;
+  padding: 8px 20px 18px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
 }
 
-/* DESCRIPTION / FEATURES */
+/* description */
 .city-card-content p {
-  font-size: 13px;
-  color: #666;
   margin: 0;
-  line-height: 1.5;
+  font-size: 13.5px;
+  color: #5f6368;
+  line-height: 1.6;
 }
 
-/* REMOVE MODERN BUTTON FEEL */
+/* ================= BUTTON ================= */
 .explore-btn {
-  display: none;
+  align-self: center;
+  background: transparent;
+  border: 1px solid #008080;
+  color: #008080;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: all 0.2s ease;
+}
+
+.explore-btn:hover {
+  background: #008080;
+  color: #ffffff;
+}
+
+/* ================= FEATURE INTRO ================= */
+.feature-intro {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 60px;
+    align-items: center;
+    margin: 120px 0 80px;
+}
+
+.feature-left h2 {
+    font-size: 44px;
+    font-weight: 800;
+    color: #0b2c3d;
+}
+
+.feature-subtitle {
+    margin: 12px 0 35px;
+    font-size: 16px;
+    color: #555;
+}
+
+.feature-points {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.point {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+}
+
+.point-icon {
+    min-width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.point-icon.blue { background: #4da6ff; }
+.point-icon.purple { background: #8e44ad; }
+.point-icon.green { background: #2ecc71; }
+
+.point h4 {
+    margin: 0;
+    font-size: 15px;
+    color: #0b2c3d;
+}
+
+.point p {
+    margin: 4px 0 0;
+    font-size: 13.5px;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* button */
+.start-btn {
+    margin-top: 30px;
+    padding: 12px 28px;
+    border-radius: 30px;
+    border: none;
+    background: #008080;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.start-btn:hover {
+    background: #006666;
+}
+
+/* image side */
+.feature-right img {
+    width: 100%;
+    border-radius: 26px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
 }

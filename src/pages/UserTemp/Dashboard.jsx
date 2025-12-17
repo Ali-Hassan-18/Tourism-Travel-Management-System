@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import "./Dashboard.css";
 import PlanTrip from "./PlanTrip";
 import Homepage from "./Homepage";
+import EconomicalPackages from "./EconomicalPackages";
 
 import {
   FaHome,
@@ -46,7 +47,7 @@ const Dashboard = () => {
       case "special":
         return <h2>Special Deals will be displayed here.</h2>;
       case "economical":
-        return <h2>Economical Packages will be displayed here.</h2>;
+        return <EconomicalPackages/>;;
       case "premium":
         return <h2>Premium Packages will be displayed here.</h2>;
       case "plan":

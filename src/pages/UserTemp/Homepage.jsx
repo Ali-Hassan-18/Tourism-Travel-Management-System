@@ -1,19 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./Homepage.css";
 import { FaSearch, FaArrowRight } from "react-icons/fa";
 import heroImg from "../../assets/img5.jpg";
 import murreeImg from "../../assets/khunjareeb.jpg";
 import naranImg from "../../assets/kaghan.jpg";
 import hunzaImg from "../../assets/khunjareeb.jpg";
-import swatImg from "../../assets/khunjareeb.jpg"; // make sure to have images in assets
+import swatImg from "../../assets/khunjareeb.jpg";
 import shogranImg from "../../assets/skardu.jpg";
 import azadKashmirImg from "../../assets/Swat-Kalam-Lake.jpg";
 
-const handleCityClick = (city) => {
-    alert(`You clicked on ${city.name}. Show details here.`);
-};
+
 
 const Homepage = () => {
+
+    const [showAll, setShowAll] = useState(false);
+    const navigate = useNavigate();
+
     const northernCities = [
         { name: "Hunza Valley", img: hunzaImg, description: "Famous for breathtaking views and Karimabad fort." },
         { name: "Naran Kaghan", img: naranImg, description: "Beautiful valleys with lakes and mountains." },
@@ -25,7 +29,7 @@ const Homepage = () => {
         { name: "Fairy Meadows", img: naranImg, description: "Iconic camping site with a view of Nanga Parbat." },
         { name: "Galiyat", img: murreeImg, description: "Cluster of hill stations with pine forests and resorts." },
         { name: "Bagrot Valley", img: shogranImg, description: "Less explored valley with stunning scenery." },
-       { name: "Kalash Valley", img: hunzaImg, description: "Unique culture and colorful festivals of the Kalash people." },
+        { name: "Kalash Valley", img: hunzaImg, description: "Unique culture and colorful festivals of the Kalash people." },
         { name: "Chitral", img: naranImg, description: "Home of the majestic Trich Mir mountain and traditional heritage." },
         { name: "Ratti Gali Lake", img: shogranImg, description: "High-altitude alpine lake with pristine surroundings." },
         { name: "Deosai Plains", img: murreeImg, description: "The Land of Giants, famous for wildlife and flat landscapes." },
@@ -35,8 +39,13 @@ const Homepage = () => {
         { name: "Rama Lake", img: murreeImg, description: "Beautiful lake in Skardu region surrounded by meadows." },
         { name: "Passu Cones", img: hunzaImg, description: "Famous mountain peaks in northern Hunza Valley." },
         { name: "Naltar Valley", img: naranImg, description: "Known for ski resort and vibrant natural beauty." },
-      
     ];
+
+    const visibleCities = showAll ? northernCities : northernCities.slice(0, 8);
+
+    const handleCityClick = (city) => {
+    navigate(`/city/${encodeURIComponent(city.name)}`);
+  };
 
     return (
         <div className="homepage-container">
@@ -66,7 +75,7 @@ const Homepage = () => {
                 </div>
             </div>
 
-            {/* ================= CITY DETAIL CARDS ================= */}
+            {/* CITY CARDS */}
             <div className="top-searched-section">
                 <h2 className="top-title">Northern Pakistan Cities</h2>
                 <p className="top-subtitle">
@@ -74,7 +83,7 @@ const Homepage = () => {
                 </p>
 
                 <div className="top-cards enhanced-cards">
-                    {northernCities.map((city, index) => (
+                    {visibleCities.map((city, index) => (
                         <div
                             className="city-card"
                             key={index}
@@ -90,13 +99,38 @@ const Homepage = () => {
                             </div>
                             <div className="city-card-content">
                                 <p>{city.description}</p>
-                                <button onClick={() => handleCityClick(city)} className="explore-btn">
-                                    Explore <FaArrowRight />
-                                </button>
+                    <button 
+                        onClick={() => handleCityClick(city)} 
+                        className="explore-btn"
+                        >
+                        Explore <FaArrowRight />
+                        </button>
+
                             </div>
                         </div>
                     ))}
                 </div>
+
+                {/* SHOW MORE BUTTON */}
+                {northernCities.length > 8 && (
+                    <div style={{ marginTop: "40px" }}>
+                        <button
+                            onClick={() => setShowAll(!showAll)}
+                            style={{
+                                padding: "12px 28px",
+                                borderRadius: "30px",
+                                border: "1px solid #008080",
+                                background: "#008080",
+                                color: "#fff",
+                                fontSize: "15px",
+                                cursor: "pointer"
+                            }}
+                        >
+                            {showAll ? "Show Less" : "Show More"}
+                        </button>
+                    </div>
+                )}
+
             </div>
         </div>
     );
