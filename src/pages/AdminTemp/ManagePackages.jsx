@@ -43,12 +43,10 @@ const ManagePackages = () => {
     imagePreviews: [],
   });
 
-  // Save to localStorage whenever packages change
   useEffect(() => {
     savePackagesToLS(packages);
   }, [packages]);
 
-  // Handle form inputs
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
@@ -57,7 +55,6 @@ const ManagePackages = () => {
       setFormData({ ...formData, imageFiles: fileArray, imagePreviews: previews });
     } else {
       setFormData({ ...formData, [name]: value });
-      // Auto-update discounted price
       if (name === "price" && formData.discount) {
         const discountedPrice = Number(value) * (1 - Number(formData.discount) / 100);
         setFormData((prev) => ({ ...prev, discountedPrice: Math.round(discountedPrice) }));
@@ -138,120 +135,132 @@ const ManagePackages = () => {
     }
   };
 
+  // Custom file input like AddCity
+  const renderFileInput = () => (
+    <div className="file-input-wrapper">
+      <input type="file" accept="image/*" multiple onChange={handleChange} name="imageFiles" />
+    </div>
+  );
+
   return (
-    <div className="packages-manager">
-      <h1 className="admin-page-title">{isEditing ? "Edit Package" : "Manage Travel Packages"}</h1>
+    <div className="mp-outer">
+      <div className="mp-card">
+        {/* Page Title */}
+        <h1 className="mp-title">{isEditing ? "Edit Package" : "Manage Travel Packages"}</h1>
 
-      <div className="admin-card-form">
-        <h2 className="card-form-title">{isEditing ? "Edit Package Details" : "Create New Package"}</h2>
+        {/* Form Card */}
+        <div className="admin-card-form">
+          <h2 className="card-form-title">{isEditing ? "Edit Package Details" : "Create New Package"}</h2>
 
-        <form onSubmit={handleSubmit} className="package-form-grid">
-          <select name="type" value={formData.type} onChange={handleChange} required>
-            <option value="Premium">Premium</option>
-            <option value="Economical">Economical</option>
-          </select>
+          <form onSubmit={handleSubmit} className="package-form-grid">
+            <select name="type" value={formData.type} onChange={handleChange} required>
+              <option value="Premium">Premium</option>
+              <option value="Economical">Economical</option>
+            </select>
 
-          <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="City" required />
+            <input type="text" name="city" value={formData.city} onChange={handleChange} placeholder="City" required />
 
-          <input
-            type="text"
-            name="stops"
-            value={formData.stops}
-            onChange={handleChange}
-            placeholder="Journey Stops (comma separated)"
-            required
-          />
+            <input
+              type="text"
+              name="stops"
+              value={formData.stops}
+              onChange={handleChange}
+              placeholder="Journey Stops (comma separated)"
+              required
+            />
 
-          <input
-            type="text"
-            name="travelMode"
-            value={formData.travelMode}
-            onChange={handleChange}
-            placeholder="Mode of Travel"
-            required
-          />
+            <input
+              type="text"
+              name="travelMode"
+              value={formData.travelMode}
+              onChange={handleChange}
+              placeholder="Mode of Travel"
+              required
+            />
 
-          <input type="number" name="days" value={formData.days} onChange={handleChange} placeholder="No. of Days" required min="1" />
+            <input type="number" name="days" value={formData.days} onChange={handleChange} placeholder="No. of Days" required min="1" />
 
-          <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Original Price (PKR)" required min="1000" />
+            <input type="number" name="price" value={formData.price} onChange={handleChange} placeholder="Original Price (PKR)" required min="1000" />
 
-          <input
-            type="number"
-            name="discount"
-            value={formData.discount}
-            onChange={handleChange}
-            placeholder="Discount % (optional)"
-            min="0"
-            max="99"
-          />
+            <input
+              type="number"
+              name="discount"
+              value={formData.discount}
+              onChange={handleChange}
+              placeholder="Discount % (optional)"
+              min="0"
+              max="99"
+            />
 
-          <input type="file" name="imageFiles" accept="image/*" multiple onChange={handleChange} />
+            {renderFileInput()}
 
-          {formData.imagePreviews.length > 0 && (
-            <div className="form-image-preview">
-              {formData.imagePreviews.map((img, i) => (
-                <img key={i} src={img} alt="Preview" />
-              ))}
-            </div>
-          )}
-
-          <div className="form-action-buttons">
-            {isEditing && (
-              <button type="button" className="admin-btn-cancel" onClick={resetForm}>
-                Cancel Edit
-              </button>
-            )}
-            <button type="submit" className="admin-btn-submit">
-              {isEditing ? "Save Changes" : "Add Package"}
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <h2 className="admin-list-title">Existing Packages ({packages.length})</h2>
-      <div className="package-cards-container">
-        {packages.length === 0 && <p style={{ color: "#777", fontStyle: "italic" }}>No packages created yet.</p>}
-
-        {packages.map((pkg) => (
-          <div className="package-card" key={pkg.id}>
-            <div className="package-images">
-              {(pkg.images || []).map((img, i) => (
-                <img key={i} src={img} alt="Package" />
-              ))}
-            </div>
-            <div className="package-details">
-              <h3>
-                {pkg.type} Package – {pkg.city}
-              </h3>
-              <p>
-                <strong>Price:</strong> PKR {pkg.price}
-                {pkg.discount ? ` (Discount: ${pkg.discountedPrice} PKR)` : ""}
-              </p>
-              <p>
-                <strong>Travel Mode:</strong> {pkg.travelMode}
-              </p>
-              <p>
-                <strong>Days:</strong> {pkg.days}
-              </p>
-              <p>
-                <strong>Journey Stops:</strong>
-              </p>
-              <ul>
-                {(pkg.stops || []).map((s, i) => (
-                  <li key={i}>{s}</li>
+            {formData.imagePreviews.length > 0 && (
+              <div className="form-image-preview">
+                {formData.imagePreviews.map((img, i) => (
+                  <img key={i} src={img} alt="Preview" />
                 ))}
-              </ul>
-              <div className="package-actions">
-                <button className="icon-btn edit-btn" onClick={() => handleEdit(pkg)}>
-                  <FaEdit />
+              </div>
+            )}
+
+            <div className="form-action-buttons">
+              {isEditing && (
+                <button type="button" className="admin-btn-cancel" onClick={resetForm}>
+                  Cancel Edit
                 </button>
-                <button className="icon-btn delete-btn" onClick={() => handleDelete(pkg.id)}>
-                  <FaTrashAlt />
-                </button>
+              )}
+              <button type="submit" className="admin-btn-submit">
+                {isEditing ? "Save Changes" : "Add Package"}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Package List */}
+        <h2 className="mp-subtitle">Existing Packages ({packages.length})</h2>
+        <div className="package-cards-container">
+          {packages.length === 0 && <p className="mp-empty">No packages created yet.</p>}
+
+          {packages.map((pkg) => (
+            <div className="package-card" key={pkg.id}>
+              <div className="package-images">
+                {(pkg.images || []).map((img, i) => (
+                  <img key={i} src={img} alt="Package" />
+                ))}
+              </div>
+              <div className="package-details">
+                <h3>
+                  {pkg.type} Package – {pkg.city}
+                </h3>
+                <p>
+                  <strong>Price:</strong> PKR {pkg.price}
+                  {pkg.discount ? ` (Discount: ${pkg.discountedPrice} PKR)` : ""}
+                </p>
+                <p>
+                  <strong>Travel Mode:</strong> {pkg.travelMode}
+                </p>
+                <p>
+                  <strong>Days:</strong> {pkg.days}
+                </p>
+                <p>
+                  <strong>Journey Stops:</strong>
+                </p>
+                <ul>
+                  {(pkg.stops || []).map((s, i) => (
+                    <li key={i}>{s}</li>
+                  ))}
+                </ul>
+                <div className="package-actions">
+                  <button className="icon-btn edit-btn" onClick={() => handleEdit(pkg)}>
+                    <FaEdit />
+                  </button>
+                  <button className="icon-btn delete-btn" onClick={() => handleDelete(pkg.id)}>
+                    <FaTrashAlt />
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );

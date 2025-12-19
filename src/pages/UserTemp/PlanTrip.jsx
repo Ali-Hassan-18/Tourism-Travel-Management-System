@@ -2,8 +2,6 @@ import React, { useState } from "react";
 import "./PlanTrip.css";
 import heroMap from "../../assets/skardu.jpg"; // adjust path based on your folder structure
 
-
-
 const interestsOptions = [
   { key: "Adventure", label: "Adventure", icon: "🏔️" },
   { key: "Nature", label: "Nature", icon: "🌲" },

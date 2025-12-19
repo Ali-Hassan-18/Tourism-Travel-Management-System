@@ -18,7 +18,10 @@ const AddCity = () => {
 
   const handleSaveCity = (e) => {
     e.preventDefault();
-    if (!cityName) return alert("City name required");
+    if (!cityName) {
+      alert("City name required");
+      return;
+    }
 
     setCities([
       ...cities,
@@ -32,7 +35,7 @@ const AddCity = () => {
       },
     ]);
 
-    // Reset fields
+    // Reset form
     setCityName("");
     setTouristSpots("");
     setRestaurants("");
@@ -41,9 +44,19 @@ const AddCity = () => {
     setRestaurantImages([]);
   };
 
+  const renderFileInput = (setter) => (
+    <div className="file-input-wrapper">
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        onChange={(e) => handleImages(e, setter)}
+      />
+    </div>
+  );
+
   return (
     <div className="mp-outer">
-      {/* ================= FORM ================= */}
       <div className="mp-card">
         <h2 className="mp-title">Add New City (Pakistan)</h2>
 
@@ -61,16 +74,11 @@ const AddCity = () => {
 
           <div className="fld">
             <label>City Images</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => handleImages(e, setCityImages)}
-            />
+            {renderFileInput(setCityImages)}
           </div>
 
           <div className="fld">
-            <label>Tourist Spots (comma separated)</label>
+            <label>Tourist Spots</label>
             <input
               type="text"
               value={touristSpots}
@@ -81,16 +89,11 @@ const AddCity = () => {
 
           <div className="fld">
             <label>Tourist Spot Images</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => handleImages(e, setTouristImages)}
-            />
+            {renderFileInput(setTouristImages)}
           </div>
 
           <div className="fld">
-            <label>Restaurants (comma separated)</label>
+            <label>Restaurants</label>
             <input
               type="text"
               value={restaurants}
@@ -101,12 +104,7 @@ const AddCity = () => {
 
           <div className="fld">
             <label>Restaurant Images</label>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => handleImages(e, setRestaurantImages)}
-            />
+            {renderFileInput(setRestaurantImages)}
           </div>
 
           <button className="btn primary" type="submit">
@@ -115,11 +113,9 @@ const AddCity = () => {
         </form>
       </div>
 
-      {/* ================= SAVED CITIES ================= */}
       {cities.length > 0 && (
         <div className="mp-card">
           <h3>Added Cities</h3>
-
           <div className="cities-grid">
             {cities.map((city, idx) => (
               <div key={idx} className="added-city-card">
@@ -136,10 +132,7 @@ const AddCity = () => {
                   ))}
                 </div>
 
-                <p>
-                  <strong>Tourist Spots:</strong>{" "}
-                  {city.touristSpots.join(", ")}
-                </p>
+                <p>Tourist Spots: {city.touristSpots.join(", ")}</p>
 
                 <div className="image-preview">
                   {city.touristImages.map((img, i) => (
@@ -152,10 +145,7 @@ const AddCity = () => {
                   ))}
                 </div>
 
-                <p>
-                  <strong>Restaurants:</strong>{" "}
-                  {city.restaurants.join(", ")}
-                </p>
+                <p>Restaurants: {city.restaurants.join(", ")}</p>
 
                 <div className="image-preview">
                   {city.restaurantImages.map((img, i) => (

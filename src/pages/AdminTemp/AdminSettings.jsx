@@ -1,49 +1,49 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./AdminSettings.css";
 
 const AdminSettings = () => {
-  const [theme, setTheme] = useState("Light Mode");
-  const [password, setPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  // Toggle dark mode class on body
-  useEffect(() => {
-    if (theme === "Dark Mode") {
-      document.body.classList.add("dark-mode");
-    } else {
-      document.body.classList.remove("dark-mode");
-    }
-  }, [theme]);
-
   const handleSave = () => {
-    if (password && password !== confirmPassword) {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all fields.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-    alert("Settings saved successfully!");
+    alert("Password changed successfully!");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   return (
     <div className="mp-outer">
       <div className="mp-card settings-card">
-        <h2 className="mp-title">Admin Settings</h2>
+        <h1 className="mp-title">Admin Settings</h1>
 
         <div className="mp-form">
           <div className="fld">
-            <label>Website Theme</label>
-            <select value={theme} onChange={(e) => setTheme(e.target.value)}>
-              <option>Light Mode</option>
-              <option>Dark Mode</option>
-            </select>
+            <label>Current Password</label>
+            <input
+              type="password"
+              placeholder="Enter current password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
           </div>
 
           <div className="fld">
-            <label>Change Password</label>
+            <label>New Password</label>
             <input
               type="password"
               placeholder="Enter new password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
             />
           </div>
 
@@ -58,7 +58,7 @@ const AdminSettings = () => {
           </div>
 
           <button className="btn primary" onClick={handleSave}>
-            Save Settings
+            Save Changes
           </button>
         </div>
       </div>

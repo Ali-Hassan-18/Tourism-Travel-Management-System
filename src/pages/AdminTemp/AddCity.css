@@ -1,8 +1,5 @@
 :root {
-  --teal: #008080;
-  --teal-dark: #006666;
   --border: #d9e6e6;
-  --muted: #5f6b6b;
   --bg: #f4f7f6;
   --shadow: 0 12px 28px rgba(0,0,0,0.06);
   --radius: 14px;
@@ -14,6 +11,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: var(--bg);
   font-family: "Segoe UI", sans-serif;
 }
 
@@ -29,11 +27,11 @@
 
 .mp-title {
   font-size: 1.8rem;
-  color: var(--teal);
   font-weight: 600;
   margin-bottom: 20px;
 }
 
+/* FORM */
 .mp-form .fld {
   margin-bottom: 18px;
   display: flex;
@@ -42,46 +40,82 @@
 
 .mp-form label {
   margin-bottom: 6px;
-  font-weight: 600;
+  font-weight: 500;
   color: #555;
 }
 
-.mp-form input {
-  width: 100%;
-  padding: 12px;
+/* TEXT INPUT */
+.mp-form input[type="text"] {
+  height: 46px;
+  padding: 0 12px;
   border-radius: 12px;
   border: 1px solid var(--border);
-  outline: none;
-  transition: 0.25s;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
 
-.mp-form input:focus {
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(0,128,128,0.15);
+.file-input-container {
+  display: flex;
+  justify-content: center;  /* horizontal centering */
+  align-items: center;      /* vertical centering */
+  margin-top: 5px;          /* optional spacing */
 }
 
+
+/* CUSTOM FILE INPUT */
+.file-input-wrapper {
+  height: 46px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;        
+  padding: 0 12px;
+  box-sizing: border-box;
+  background: #f0f0f0;       /* grey like default file input */
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.file-input-wrapper input[type="file"] {
+  opacity: 0;                 
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.file-input-wrapper::before {
+  content: "Choose Files";
+  display: inline-block;
+  pointer-events: none;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* BUTTON */
 .btn {
   padding: 12px 18px;
   border-radius: 12px;
   border: none;
   cursor: pointer;
   font-weight: 600;
-  transition: 0.3s ease;
 }
 
 .btn.primary {
-  background-color: var(--teal);
+  background: #008080;
   color: white;
 }
 
-.btn.primary:hover {
-  background-color: var(--teal-dark);
-}
-
+/* PREVIEW */
 .image-preview {
   display: flex;
-  flex-wrap: wrap;
   gap: 10px;
+  flex-wrap: wrap;
   margin-top: 10px;
 }
 
@@ -93,7 +127,7 @@
   box-shadow: 0 3px 6px rgba(0,0,0,0.1);
 }
 
-/* Display cities vertically */
+/* CITIES */
 .cities-grid {
   display: flex;
   flex-direction: column;
@@ -102,14 +136,13 @@
 
 .added-city-card {
   padding: 18px;
-  background: #fdfdfd;
   border-radius: 14px;
+  background: #fdfdfd;
   box-shadow: 0 6px 16px rgba(0,0,0,0.06);
 }
 
 .city-title {
   font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--teal);
+  font-weight: 600;
   margin-bottom: 12px;
 }

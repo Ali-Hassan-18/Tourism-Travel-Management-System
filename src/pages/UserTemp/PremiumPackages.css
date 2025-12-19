@@ -1,0 +1,173 @@
+.prem-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+}
+
+/* Hero Section Styling */
+.prem-hero {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.prem-hero-text { flex: 1; }
+.prem-label { color: #d4af37; font-weight: 700; font-size: 0.75rem; letter-spacing: 2px; }
+.prem-hero-text h1 { font-size: 2.2rem; margin: 10px 0; font-weight: 800; }
+.prem-hero-text p { color: #666; font-size: 0.95rem; line-height: 1.5; }
+
+.prem-mini-feats { display: flex; gap: 15px; margin-top: 20px; }
+.m-feat { background: #f9f9f9; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
+
+.prem-hero-visual img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 15px 15px 0px #d4af37;
+}
+
+/* 3-Column Grid */
+.prem-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.p-card {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #eee;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.p-card:hover { transform: translateY(-5px); }
+.p-card-img img { width: 100%; height: 180px; object-fit: cover; }
+
+.p-card-content { padding: 18px; }
+.p-card-content h3 { font-size: 1.1rem; margin-bottom: 5px; font-weight: 700; }
+.p-loc { color: #888; font-size: 0.8rem; margin-bottom: 12px; }
+.p-list { list-style: none; padding: 0; font-size: 0.85rem; color: #555; margin-bottom: 15px; }
+.p-list li { margin-bottom: 4px; border-left: 2px solid #d4af37; padding-left: 8px; }
+
+/* Buttons & Footer */
+.p-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f5f5f5;
+  padding-top: 12px;
+}
+
+.p-price { font-weight: 800; color: #1e3a8a; font-size: 1rem; }
+.p-price sub { font-weight: 400; color: #aaa; }
+
+.p-req-btn {
+  background: #1e3a8a;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* --- UPDATED MODAL SECTION (Fixes Head Cut Off) --- */
+.p-modal-overlay {
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.7);
+  /* Change alignment to ensure scrolling works for the whole page if needed */
+  display: flex; 
+  align-items: flex-start; /* Starts at top to prevent head cut-off */
+  justify-content: center; 
+  z-index: 100;
+  padding: 20px;
+  overflow-y: auto; /* Allows the overlay itself to scroll */
+}
+
+.p-modal {
+  background: #fff; 
+  padding: 25px; 
+  border-radius: 20px; 
+  
+  /* Compact Sizing */
+  width: 100%; 
+  max-width: 420px;
+  margin: auto; /* This vertically centers it safely */
+  
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  
+  /* Internal scroll safety */
+  max-height: 85vh; 
+  overflow-y: auto;
+}
+
+/* Compact Headers */
+.p-modal-header h2 { margin: 0; font-size: 1.3rem; } /* Smaller font */
+.p-modal-header p { color: #d4af37; font-weight: 700; font-size: 0.75rem; margin-top: 4px; }
+
+/* Tighter Form Grid */
+.p-form { 
+  display: grid; 
+  grid-template-columns: 1fr 1fr; 
+  gap: 10px; /* Smaller gap */
+  margin: 15px 0; 
+}
+
+.p-group label { display: block; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; color: #666; }
+.p-group input, .p-group select { 
+  width: 100%; 
+  padding: 8px; /* Compact padding */
+  border: 1px solid #ddd; 
+  border-radius: 6px; 
+  font-size: 0.85rem; 
+  background-color: #fff;
+}
+
+/* Slimmer Total Bill Box */
+.p-total-box {
+  background: #1a1a1a; 
+  color: #fff; 
+  padding: 10px; /* Reduced padding */
+  border-radius: 10px; 
+  text-align: center; 
+  margin-bottom: 12px;
+}
+
+.p-total-box span { font-size: 0.6rem; letter-spacing: 1px; color: #d4af37; font-weight: 700; }
+.p-total-box h3 { font-size: 1.3rem; margin-top: 2px; margin-bottom: 0; }
+
+.p-confirm-btn {
+  width: 100%; background: #d4af37; color: #fff; border: none;
+  padding: 10px; /* Slimmer button */
+  border-radius: 8px; font-weight: 700; cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.p-close { 
+  position: absolute; 
+  top: 15px; 
+  right: 15px; 
+  border: none; 
+  background: none; 
+  font-size: 1.2rem; 
+  cursor: pointer; 
+  color: #ccc; 
+}
+
+@media (max-width: 900px) {
+  .prem-grid { grid-template-columns: 1fr 1fr; }
+  .prem-hero { flex-direction: column; text-align: center; }
+  
+  .p-modal {
+      padding: 20px;
+      max-width: 100%; /* Full width on tiny screens */
+  }
+}
