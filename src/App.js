@@ -9,6 +9,7 @@ import CustomItinerary from "./pages/UserTemp/CustomItinerary"
 import CityDetail from "./pages/UserTemp/CityDetail";
 import EconomicalPackages from "./pages/UserTemp/EconomicalPackages"; 
 function App()
+
 {
   return (
     <Router>
@@ -20,6 +21,7 @@ function App()
          <Route path="/city/:cityName" element={<CityDetail />} />
        <Route path="/custom-itinerary" element={<CustomItinerary />} />
        <Route path="/economical-packages" element={<EconomicalPackages />} />
+       
       </Routes>
     </Router>
   );

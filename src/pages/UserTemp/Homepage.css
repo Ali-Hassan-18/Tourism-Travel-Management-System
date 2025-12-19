@@ -1,11 +1,10 @@
 /* =================== CONTAINER =================== */
 .homepage-container {
-    /* This container manages the overall page content width */
-    max-width: 1200px;
+    width: 100%; /* Changed from max-width 1200px to allow shrinkage */
     margin: 0 auto;
     padding: 0 15px;
-    /* Use a standard, clean font */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    box-sizing: border-box;
 }
 
 /* =================== HERO SECTION WRAPPER =================== */
@@ -13,12 +12,10 @@
     position: relative; 
     width: 100%;
     height: 360px; 
-    /* Increased margin-bottom to pull the next section down further,
-       giving the floating search bar more visual space. */
     margin-bottom: 70px; 
 }
 
-/* =================== HERO SECTION (INNER CONTENT) =================== */
+/* =================== HERO SECTION =================== */
 .homepage-hero {
     width: 100%;
     height: 100%; 
@@ -29,17 +26,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    
     border-radius: 25px; 
     overflow: hidden; 
-    /* Adding a subtle inner shadow for depth, visible only if the image is bright */
     box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
 }
 
 .hero-overlay {
     width: 100%;
     height: 100%;
-    /* Slightly darker overlay for better text contrast */
     background: rgba(0, 0, 0, 0.45); 
     display: flex;
     align-items: center;
@@ -49,65 +43,51 @@
 }
 
 .hero-title {
-    font-size: 56px; /* Slightly larger title for impact */
-    font-weight: 900; /* Extra bold */
+    font-size: 56px; 
+    font-weight: 900; 
     color: #fff;
-    /* Add text shadow for better readability over complex image backgrounds */
     text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.5); 
 }
 
 /* =================== SEARCH BAR =================== */
 .homepage-search-bar {
     position: absolute;
-    bottom: -35px; /* Floats 35px below the bottom edge */
+    bottom: -35px; 
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    max-width: 600px; /* Increased max width for a more prominent bar */
+    max-width: 600px; 
     width: 90%;
     background: #ffffff;
     border-radius: 50px;
-    padding: 10px 15px; /* Slightly more padding */
-    /* Enhanced shadow for a lifted, prominent look */
+    padding: 10px 15px; 
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
     z-index: 10;
-    border: 1px solid #e0e0e0; /* Subtle border */
+    border: 1px solid #e0e0e0; 
 }
 
 .city-input {
     flex: 1;
     border: none;
     outline: none;
-    padding: 10px 16px; /* Adjusted padding */
+    padding: 10px 16px; 
     font-size: 17px;
     border-radius: 50px;
     background: #ffffff;
     color: #333;
 }
 
-.city-input::placeholder {
-    color: #a0a0a0;
-}
-
 .search-btn {
-    /* Changed button color to the brand teal */
     background: #008080; 
-    color: #ffffff; /* White text for contrast */
+    color: #ffffff; 
     padding: 10px 20px;
     border-radius: 50px;
     border: none;
     font-size: 18px;
     cursor: pointer;
-    transition: background 0.2s ease, transform 0.1s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-.search-btn:hover {
-    /* Darker shade on hover */
-    background: #006666; 
-    transform: translateY(-1px);
 }
 
 .top-searched-section {
@@ -115,52 +95,40 @@
 }
 
 .top-title {
-    font-size: 40px; /* Slightly larger title */
+    font-size: 40px; 
     font-weight: 800;
     color: #0b2c3d;
-    margin-top: 20px; /* Ensure good spacing */
+    margin-top: 20px; 
 }
 
-
 .top-subtitle {
-    max-width: 750px; /* Slightly wider text block */
-    margin: 15px auto 60px; /* Increased margin-bottom for space before cards */
+    max-width: 750px; 
+    margin: 15px auto 60px; 
     font-size: 16px;
     color: #555;
     line-height: 1.7;
 }
 
-/* ================= GRID ================= */
+/* ================= GRID (KEEPING 4 COLUMNS) ================= */
 .enhanced-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr); /* 🛑 KEEPING THIS EXACTLY AS REQUESTED */
   gap: 28px;
 }
 
-/* ================= CARD (PERFECT SQUARE) ================= */
 .city-card {
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid #ececec;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
-
-  /* 🔥 PERFECT SQUARE */
   aspect-ratio: 1 / 1;
-
   display: flex;
   flex-direction: column;
-
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.city-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.12);
-}
-
-/* ================= IMAGE (KEEP PERFECT) ================= */
 .city-card-img {
-  height: 48%;                 /* balanced square layout */
+  height: 48%; 
   margin: 16px;
   border-radius: 14px;
   background-size: cover;
@@ -169,7 +137,6 @@
   overflow: hidden;
 }
 
-/* title on image */
 .city-card-overlay {
   position: absolute;
   bottom: 12px;
@@ -181,21 +148,17 @@
   font-size: 15px;
   font-weight: 600;
   color: #ffffff;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
-/* ================= CONTENT ================= */
 .city-card-content {
   flex: 1;
   padding: 8px 20px 18px;
-
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
 }
 
-/* description */
 .city-card-content p {
   margin: 0;
   font-size: 13.5px;
@@ -203,7 +166,6 @@
   line-height: 1.6;
 }
 
-/* ================= BUTTON ================= */
 .explore-btn {
   align-self: center;
   background: transparent;
@@ -214,12 +176,9 @@
   font-size: 12.5px;
   font-weight: 500;
   cursor: pointer;
-
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
-  transition: all 0.2s ease;
 }
 
 .explore-btn:hover {
@@ -227,87 +186,8 @@
   color: #ffffff;
 }
 
-/* ================= FEATURE INTRO ================= */
-.feature-intro {
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 60px;
-    align-items: center;
-    margin: 120px 0 80px;
+/* When announcement panel is open, reduce cards to 3 per row */
+.dashboard-main.panel-open .enhanced-cards {
+  grid-template-columns: repeat(3, 1fr);
 }
 
-.feature-left h2 {
-    font-size: 44px;
-    font-weight: 800;
-    color: #0b2c3d;
-}
-
-.feature-subtitle {
-    margin: 12px 0 35px;
-    font-size: 16px;
-    color: #555;
-}
-
-.feature-points {
-    display: flex;
-    flex-direction: column;
-    gap: 22px;
-}
-
-.point {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-}
-
-.point-icon {
-    min-width: 34px;
-    height: 34px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-}
-
-.point-icon.blue { background: #4da6ff; }
-.point-icon.purple { background: #8e44ad; }
-.point-icon.green { background: #2ecc71; }
-
-.point h4 {
-    margin: 0;
-    font-size: 15px;
-    color: #0b2c3d;
-}
-
-.point p {
-    margin: 4px 0 0;
-    font-size: 13.5px;
-    color: #666;
-    line-height: 1.6;
-}
-
-/* button */
-.start-btn {
-    margin-top: 30px;
-    padding: 12px 28px;
-    border-radius: 30px;
-    border: none;
-    background: #008080;
-    color: #fff;
-    font-size: 15px;
-    cursor: pointer;
-}
-
-.start-btn:hover {
-    background: #006666;
-}
-
-/* image side */
-.feature-right img {
-    width: 100%;
-    border-radius: 26px;
-    box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-}
