@@ -11,11 +11,9 @@ import swatImg from "../../assets/khunjareeb.jpg";
 import shogranImg from "../../assets/skardu.jpg";
 import azadKashmirImg from "../../assets/Swat-Kalam-Lake.jpg";
 
-
-
 const Homepage = () => {
-
     const [showAll, setShowAll] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(""); // Added search state
     const navigate = useNavigate();
 
     const northernCities = [
@@ -41,11 +39,16 @@ const Homepage = () => {
         { name: "Naltar Valley", img: naranImg, description: "Known for ski resort and vibrant natural beauty." },
     ];
 
-    const visibleCities = showAll ? northernCities : northernCities.slice(0, 8);
+    // Filter logic
+    const filteredCities = northernCities.filter((city) =>
+        city.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const visibleCities = showAll ? filteredCities : filteredCities.slice(0, 8);
 
     const handleCityClick = (city) => {
-    navigate(`/city/${encodeURIComponent(city.name)}`);
-  };
+        navigate(`/city/${encodeURIComponent(city.name)}`);
+    };
 
     return (
         <div className="homepage-container">
@@ -68,6 +71,8 @@ const Homepage = () => {
                         type="text"
                         placeholder="Search for a city..."
                         className="city-input"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                     />
                     <button className="search-btn">
                         <FaSearch />
@@ -99,20 +104,19 @@ const Homepage = () => {
                             </div>
                             <div className="city-card-content">
                                 <p>{city.description}</p>
-                    <button 
-                        onClick={() => handleCityClick(city)} 
-                        className="explore-btn"
-                        >
-                        Explore <FaArrowRight />
-                        </button>
-
+                                <button 
+                                    onClick={(e) => { e.stopPropagation(); handleCityClick(city); }} 
+                                    className="explore-btn"
+                                >
+                                    Explore <FaArrowRight />
+                                </button>
                             </div>
                         </div>
                     ))}
                 </div>
 
                 {/* SHOW MORE BUTTON */}
-                {northernCities.length > 8 && (
+                {searchTerm === "" && northernCities.length > 8 && (
                     <div style={{ marginTop: "40px" }}>
                         <button
                             onClick={() => setShowAll(!showAll)}
@@ -130,7 +134,6 @@ const Homepage = () => {
                         </button>
                     </div>
                 )}
-
             </div>
         </div>
     );

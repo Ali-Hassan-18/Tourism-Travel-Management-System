@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./PlanTrip.css";
+import "./CityDetail.jsx";
 import heroMap from "../../assets/skardu.jpg"; // adjust path based on your folder structure
 
 const interestsOptions = [
