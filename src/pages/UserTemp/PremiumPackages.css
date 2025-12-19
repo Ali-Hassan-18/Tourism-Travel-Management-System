@@ -82,13 +82,15 @@
   position: fixed; 
   inset: 0; 
   background: rgba(0,0,0,0.7);
-  /* Change alignment to ensure scrolling works for the whole page if needed */
   display: flex; 
-  align-items: flex-start; /* Starts at top to prevent head cut-off */
+  /* 🛑 CHANGED: 'flex-start' forces it to start layout from top, not center */
+  align-items: flex-start; 
   justify-content: center; 
-  z-index: 100;
-  padding: 20px;
-  overflow-y: auto; /* Allows the overlay itself to scroll */
+  z-index: 1500;
+  /* 🛑 CHANGED: Added generous top padding to push the box down below the header */
+  padding-top: 100px; 
+  padding-bottom: 30px; /* Space at bottom for scrolling */
+  overflow-y: auto; 
 }
 
 .p-modal {
@@ -135,7 +137,7 @@
 .p-total-box {
   background: #1a1a1a; 
   color: #fff; 
-  padding: 10px; /* Reduced padding */
+  padding: 8px; /* Reduced padding */
   border-radius: 10px; 
   text-align: center; 
   margin-bottom: 12px;
