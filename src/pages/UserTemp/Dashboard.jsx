@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./Dashboard.css";
+import { FaSuitcase } from "react-icons/fa";
 
 // Import your page components
 import PlanTrip from "./PlanTrip";
@@ -94,12 +95,22 @@ const Dashboard = () => {
 
   const renderContent = () => {
     switch (selectedOption) {
-      case "homepage": return <Homepage />;
-      case "special": return <h2>Special Deals will be displayed here.</h2>;
-      case "economical": return <EconomicalPackages />;
-      case "premium": return <h2>Premium Packages will be displayed here.</h2>;
-      case "plan": return <PlanTrip />;
-      default: return <Homepage />;
+      case "homepage":
+        return <Homepage />;
+      case "special":
+        return <DiscountPackages />;
+      case "economical":
+        return <EconomicalPackages />;
+      case "premium":
+        return <PremiumPackages />;
+      case "plan":
+        return <PlanTrip />;
+      case "bookings": // <--- NEW CASE
+        return <MyBookings />;
+      case "chatbot":
+        return <h2>Chatbot Assistance coming soon...</h2>;
+      default:
+        return <h2>Select an option from the sidebar</h2>;
     }
   };
 
@@ -145,19 +156,30 @@ const Dashboard = () => {
         <aside className={`dashboard-sidebar ${sidebarOpen ? "open" : ""}`}>
           <ul>
             <li className={selectedOption === "homepage" ? "active" : ""} onClick={() => handleMenuClick("homepage")}>
-              <FaHome className="sidebar-icon" /> Homepage
+              <FaHome className="sidebar-icon" />
+              <span className="sidebar-text">Homepage</span>
             </li>
+
+            {/* 🛑 NEW MY BOOKINGS ITEM */}
+            {/* <li className={selectedOption === "bookings" ? "active" : ""} onClick={() => handleMenuClick("bookings")}>
+              <FaSuitcase className="sidebar-icon" />
+              <span className="sidebar-text">My Bookings</span>
+            </li> */}
             <li className={selectedOption === "special" ? "active" : ""} onClick={() => handleMenuClick("special")}>
-              <FaTags className="sidebar-icon" /> Special Deals
+              <FaTags className="sidebar-icon" />
+              <span className="sidebar-text">Special Deals</span>
             </li>
             <li className={selectedOption === "economical" ? "active" : ""} onClick={() => handleMenuClick("economical")}>
-              <FaPlane className="sidebar-icon" /> Economical
+              <FaPlane className="sidebar-icon" />
+              <span className="sidebar-text">Economical</span>
             </li>
             <li className={selectedOption === "premium" ? "active" : ""} onClick={() => handleMenuClick("premium")}>
-              <FaStar className="sidebar-icon" /> Premium
+              <FaStar className="sidebar-icon" />
+              <span className="sidebar-text">Premium</span>
             </li>
             <li className={selectedOption === "plan" ? "active" : ""} onClick={() => handleMenuClick("plan")}>
-              <FaMapMarkedAlt className="sidebar-icon" /> Plan Your Trip
+              <FaMapMarkedAlt className="sidebar-icon" />
+              <span className="sidebar-text">Plan Your Trip</span>
             </li>
 
             {/* 🛑 MOVED TO BOTTOM */}
