@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "utilities.h" // Added to access centralized path logic
+#include <iomanip>
+#include "utilities.h"
 
 using namespace std;
 
@@ -33,9 +34,7 @@ private:
 public:
     user_manager() : head(nullptr), current_user(nullptr) {}
 
-    user_node* get_all_users_head() {
-        return head;
-    }
+    user_node* get_all_users_head() { return head; }
 
     user_node* find_by_email(string e) {
         user_node* temp = head;
@@ -81,26 +80,41 @@ public:
     void display_users() {
         if (!head) { cout << "[System] No users registered.\n"; return; }
         user_node* temp = head;
-        cout << "\n--- REGISTERED USERS DATABASE ---\n";
+        cout << "\n" << string(60, '=') << "\n";
+        cout << left << setw(20) << "NAME" << setw(25) << "EMAIL" << setw(10) << "TRIPS" << "\n";
+        cout << string(60, '-') << "\n";
         while (temp) {
-            cout << "Name: " << temp->full_name << " | Email: " << temp->email 
-                 << " | Role: " << temp->role << " | Trips: " << temp->packages_availed << "\n";
+            cout << left << setw(20) << temp->full_name 
+                 << setw(25) << temp->email 
+                 << setw(10) << temp->packages_availed << "\n";
             temp = temp->next;
         }
+        cout << string(60, '=') << "\n";
     }
 
-    // --- PERSISTENCE LOGIC (Updated for Centralized Path) ---
-
-    void save_users() {
-        // Uses tourista_utils::get_path() to find the correct directory
-        string path = tourista_utils::get_path() + "users.txt";
-        ofstream out(path);
-        
-        if (!out) {
-            cout << "[Error] Could not open path: " << path << ". Check if folder exists.\n";
+    // SEARCH LOGIC: Profiles individual users for the Admin
+    void search_and_display_user(string email_to_find) {
+        user_node* target = find_by_email(email_to_find);
+        if (!target) {
+            cout << "\n[Error] Traveler not found with email: " << email_to_find << "\n";
             return;
         }
+        cout << "\n" << string(45, '=') << "\n";
+        cout << "          TRAVELER PROFILE CARD          \n";
+        cout << string(45, '=') << "\n";
+        cout << "Full Name   : " << target->full_name << "\n";
+        cout << "Email       : " << target->email << "\n";
+        cout << "Account Type: " << target->role << "\n";
+        cout << "Trips Taken : " << target->packages_availed << "\n";
+        cout << string(45, '-') << "\n";
+        cout << "Status: " << (target->role == "admin" ? "Staff" : "Customer") << "\n";
+        cout << string(45, '=') << "\n";
+    }
 
+    void save_users() {
+        string path = tourista_utils::get_path() + "users.txt";
+        ofstream out(path);
+        if (!out) return;
         user_node* temp = head;
         while (temp) {
             out << temp->full_name << "|" << temp->email << "|" << temp->password << "|" 
@@ -113,11 +127,10 @@ public:
     void load_users() {
         string path = tourista_utils::get_path() + "users.txt";
         ifstream in(path);
-        
         if (!in) return; 
-
         string line;
         while (getline(in, line)) {
+            if (line.empty()) continue; 
             size_t p1 = line.find('|');
             size_t p2 = line.find('|', p1 + 1);
             size_t p3 = line.find('|', p2 + 1);

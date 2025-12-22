@@ -4,7 +4,9 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include "utilities.h" // Essential for centralized path logic
+#include <vector>
+#include "../crow_all.h" // Essential for crow::json types
+#include "utilities.h" 
 
 using namespace std;
 
@@ -45,7 +47,62 @@ private:
 public:
     city_manager() : head(nullptr) {}
 
-    // Adds a new city node to the end of the list
+    // --- FRONTEND LINKAGE: JSON SERIALIZATION ---
+
+    // 1. Returns all cities in a simple list for the main "Explore" gallery
+    crow::json::wvalue get_all_cities_json() {
+        vector<crow::json::wvalue> city_list;
+        city_node* temp = head;
+        while (temp) {
+            crow::json::wvalue c;
+            c["name"] = temp->city_name;
+            c["overview"] = temp->overview_text;
+            c["image"] = temp->image_path;
+            city_list.push_back(std::move(c));
+            temp = temp->next;
+        }
+        return crow::json::wvalue(city_list);
+    }
+
+    // 2. Returns deep details for a single city, including its nested Linked List of Stays
+    crow::json::wvalue get_city_details_json(string name) {
+        city_node* target = search_city(name);
+        if (!target) return crow::json::wvalue(); // Return empty if not found
+
+        crow::json::wvalue res;
+        res["name"] = target->city_name;
+        res["overview"] = target->overview_text;
+        res["image"] = target->image_path;
+
+        // Convert nested stays (Linked List) into a JSON array
+        vector<crow::json::wvalue> stay_list;
+        stay_node* s = target->stays_head;
+        while (s) {
+            crow::json::wvalue stay;
+            stay["hotel"] = s->hotel_name;
+            stay["price"] = s->price_per_night;
+            stay_list.push_back(std::move(stay));
+            s = s->next;
+        }
+        res["stays"] = std::move(stay_list);
+        
+        // Convert nested dining (Linked List) into a JSON array
+        vector<crow::json::wvalue> dining_list;
+        dining_node* d = target->dining_head;
+        while (d) {
+            crow::json::wvalue din;
+            din["restaurant"] = d->restaurant_name;
+            din["price"] = d->price_for_two;
+            dining_list.push_back(std::move(din));
+            d = d->next;
+        }
+        res["dining"] = std::move(dining_list);
+
+        return res;
+    }
+
+    // --- CORE LOGIC ---
+
     void add_city(string name, string info, string img = "default.jpg") {
         city_node* new_node = new city_node(name, info, img);
         if (!head) {
@@ -57,7 +114,6 @@ public:
         }
     }
 
-    // Helper: Finds a city by name to link internal stays/dining
     city_node* search_city(string name) {
         city_node* temp = head;
         while (temp) {
@@ -67,44 +123,33 @@ public:
         return nullptr;
     }
 
-    // Adds a stay to a specific city's nested list
     void add_stay_to_city(string city_target, string h_name, string price) {
         city_node* target = search_city(city_target);
-
-        if (!target) {
-            cout << "[Error] Cannot add stay. City '" << city_target << "' not found.\n";
-            return;
-        }
+        if (!target) return;
 
         stay_node* new_stay = new stay_node(h_name, price);
         new_stay->next = target->stays_head;
         target->stays_head = new_stay;
-        cout << "[Success] Stay '" << h_name << "' added to " << city_target << ".\n";
     }
 
-    // Displays full detailed info for the "Explore" page
+    // --- CONSOLE DISPLAY METHODS ---
+
     void display_city_details(string name) {
         city_node* target = search_city(name);
-
         if (!target) {
             cout << "\n[Error] City not found.\n";
             return;
         }
-
         cout << "\n--- EXPLORING " << target->city_name << " ---\n";
         cout << "Overview: " << target->overview_text << "\n";
-        cout << "Image Path: " << target->image_path << "\n";
-        
-        cout << "\nTop Stays:\n";
+        cout << "Top Stays:\n";
         stay_node* s = target->stays_head;
-        if (!s) cout << "   No stays added yet.\n";
         while (s) {
             cout << "- " << s->hotel_name << " (Rs. " << s->price_per_night << ")\n";
             s = s->next;
         }
     }
 
-    // Admin view for quick city database check
     void display_all_cities() {
         if (!head) { cout << "[System] No cities in database.\n"; return; }
         city_node* temp = head;
@@ -115,21 +160,16 @@ public:
         }
     }
 
-    // --- PERSISTENCE LOGIC (Updated for Centralized Path) ---
+    // --- PERSISTENCE LOGIC ---
 
     void save_cities() {
         string path = tourista_utils::get_path() + "cities.txt";
         ofstream out(path);
-        
-        if (!out) {
-            cout << "[Error] Could not open path: " << path << ". Check if folder exists.\n";
-            return;
-        }
+        if (!out) return;
 
         city_node* temp = head;
         while (temp) {
             out << "CITY|" << temp->city_name << "|" << temp->overview_text << "|" << temp->image_path << endl;
-            
             stay_node* s = temp->stays_head;
             while (s) {
                 out << "STAY|" << temp->city_name << "|" << s->hotel_name << "|" << s->price_per_night << endl;
@@ -143,7 +183,6 @@ public:
     void load_cities() {
         string path = tourista_utils::get_path() + "cities.txt";
         ifstream in(path);
-        
         if (!in) return;
         
         string line;
@@ -153,7 +192,6 @@ public:
             if (p1 == string::npos) continue;
 
             string type = line.substr(0, p1);
-            
             if (type == "CITY") {
                 size_t p3 = line.find('|', p2 + 1);
                 string c_name = line.substr(p1 + 1, p2 - p1 - 1);

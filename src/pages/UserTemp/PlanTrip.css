@@ -409,106 +409,107 @@ body {
   border-color: #008080;
   color: #fff;
 }
+
+/* -------------------- Refined Welcome Screen -------------------- */
 .welcome-screen {
-
   position: fixed;
-
   top: 0;
-
   left: 0;
-
   width: 100%;
-
   height: 100%;
-
-  z-index: 999;
-
+  z-index: 10000; 
   display: flex;
-
-  justify-content: center;
-
   align-items: center;
-
+  justify-content: flex-start;
+  background-color: #000;
+  overflow: hidden;
 }
-
-
 
 .welcome-map {
-
-  position: relative;
-
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-
   height: 100%;
-
-  overflow: hidden;
-
+  z-index: 1; /* Background layer */
 }
-
-
 
 .map-background {
-
   width: 100%;
-
   height: 100%;
-
   object-fit: cover;
-
-  filter: brightness(0.7); /* dark overlay for text readability */
-
+  filter: brightness(0.5) contrast(1.1);
+  transform: scale(1.05);
 }
 
-
+.welcome-map::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg, 
+    rgba(0, 20, 20, 0.9) 0%, 
+    rgba(0, 0, 0, 0.4) 50%, 
+    transparent 100%
+  );
+  z-index: 2; /* Overlay layer */
+}
 
 .welcome-content {
-
-  position: absolute;
-
-  top: 50%;
-
-  left: 15%; /* aligned left like your design */
-
-  transform: translateY(-50%);
-
-  color: #fff;
-
-  text-align: left;
-
-  max-width: 500px;
-
+  position: relative;
+  z-index: 10; /* Text and Button layer - MUST be higher than z-index 2 */
+  margin-left: 10%;
+  max-width: 600px;
+  animation: welcomeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto; /* Ensures button is clickable */
 }
-
-
 
 .welcome-content h1 {
-
-  font-size: 2.5rem;
-
-  margin-bottom: 10px;
-
+  font-size: 3.5rem;
+  line-height: 1.1;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #ffffff;
+  letter-spacing: -1px;
 }
 
-
+.welcome-content h1 span {
+  color: var(--teal-2);
+}
 
 .welcome-content p {
-
   font-size: 1.2rem;
-
-  margin-bottom: 20px;
-
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 300;
 }
 
-
-
-.welcome-content .btn {
-
-  padding: 12px 25px;
-
+/* Button Styling */
+.welcome-content .btn.highlight {
+  display: inline-block; /* Ensure it renders properly */
+  padding: 16px 40px;
   font-size: 1rem;
-
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-color: var(--teal) !important;
+  color: white !important;
   cursor: pointer;
+  border: none;
+  box-shadow: 0 10px 20px rgba(0, 128, 128, 0.3);
+  transition: all 0.3s ease;
+}
 
-  margin-right: 10px;
+.welcome-content .btn.highlight:hover {
+  background-color: var(--teal-2) !important;
+  transform: translateY(-2px);
+}
 
+@keyframes welcomeSlideIn {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
 }

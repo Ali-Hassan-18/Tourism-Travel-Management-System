@@ -1,3 +1,2 @@
 Admin|admin@tourista.com|admin123|admin|0
-ALI|ali@example.com|ali123|user|0
-Ali|ali@example.com|ali123|user|0
+ALI|ali@example.com|ali123|user|1

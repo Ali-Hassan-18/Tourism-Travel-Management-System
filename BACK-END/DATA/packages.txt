@@ -1,0 +1,3 @@
+500|Eco|Isb|exploring isb|23412|5|BUS|0|
+501|Premium|Isb|Exploring isb|43593|5|car|0|Luxury car with more perks
+502|Special|Isb|EXPLORING ISB|32429|5|Car|20|Bonfire

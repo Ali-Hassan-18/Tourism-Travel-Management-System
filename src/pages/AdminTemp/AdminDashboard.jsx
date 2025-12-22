@@ -10,7 +10,6 @@ import {
   FaTimes,
   FaEdit,
   FaTrash,
-  FaHome,
 } from "react-icons/fa";
 
 import ManagePackages from "./ManagePackages";
@@ -22,11 +21,9 @@ import AdminSettings from "./AdminSettings";
 const AdminDashboard = () => {
   const [selectedOption, setSelectedOption] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const [announcementOpen, setAnnouncementOpen] = useState(false);
   const [announcementText, setAnnouncementText] = useState("");
   const [announcements, setAnnouncements] = useState([]);
-
   const messagesEndRef = useRef(null);
 
   const handleMenuClick = (option) => {
@@ -35,12 +32,13 @@ const AdminDashboard = () => {
   };
 
   const handleSendAnnouncement = () => {
-    if (!announcementText.trim()) return;
-    setAnnouncements((prev) => [
-      ...prev,
-      { text: announcementText, time: new Date() },
-    ]);
-    setAnnouncementText("");
+    if (announcementText.trim() !== "") {
+      setAnnouncements((prev) => [
+        ...prev,
+        { text: announcementText, time: new Date() },
+      ]);
+      setAnnouncementText("");
+    }
   };
 
   const handleDeleteAnnouncement = (index) => {
@@ -48,16 +46,21 @@ const AdminDashboard = () => {
   };
 
   const handleEditAnnouncement = (index) => {
-    const updated = prompt("Edit announcement", announcements[index].text);
-    if (updated?.trim()) {
+    const newText = prompt(
+      "Edit announcement:",
+      announcements[index].text
+    );
+    if (newText !== null && newText.trim() !== "") {
       setAnnouncements((prev) =>
-        prev.map((a, i) => (i === index ? { ...a, text: updated } : a))
+        prev.map((a, i) => (i === index ? { ...a, text: newText } : a))
       );
     }
   };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [announcements]);
 
   const renderContent = () => {
@@ -68,10 +71,10 @@ const AdminDashboard = () => {
         return <ManagePackages />;
       case "users":
         return <ManageUsers />;
+      case "settings":
+        return <AdminSettings/>;
       case "add-city":
         return <AddCity />;
-      case "settings":
-        return <AdminSettings />;
       default:
         return <DashboardAnalytics />;
     }
@@ -79,7 +82,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-container">
-      {/* NAVBAR */}
+      {/* Navbar */}
       <header className="admin-navbar">
         <div className="navbar-left">
           <FaBars
@@ -96,103 +99,113 @@ const AdminDashboard = () => {
           />
           <button
             className="logout-btn"
-            onClick={() => (window.location.href = "/pages/LandingPage.jsx")}
+            onClick={() => (window.location.href = "/admin/login")}
           >
             Logout
           </button>
         </div>
       </header>
 
-      {/* OVERLAY */}
+      {/* Overlay */}
       {sidebarOpen && (
         <div className="overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* SIDEBAR */}
-      <aside className={`admin-sidebar ${sidebarOpen ? "open" : ""}`}>
+      {/* Sidebar */}
+      <aside className={`admin-sidebar ${sidebarOpen ? "open" : "closed"}`}>
         <ul>
           <li
             className={selectedOption === "dashboard" ? "active" : ""}
             onClick={() => handleMenuClick("dashboard")}
           >
-            <FaHome /> Dashboard
+            <span className="sidebar-text">Dashboard</span>
           </li>
-
           <li
             className={selectedOption === "packages" ? "active" : ""}
             onClick={() => handleMenuClick("packages")}
           >
-            <FaBox /> Manage Packages
+            <FaBox className="sidebar-icon" />
+            <span className="sidebar-text">Manage Packages</span>
           </li>
-
           <li
             className={selectedOption === "users" ? "active" : ""}
             onClick={() => handleMenuClick("users")}
           >
-            <FaUser /> Manage Users
+            <FaUser className="sidebar-icon" />
+            <span className="sidebar-text">Manage Users</span>
           </li>
-
           <li
             className={selectedOption === "add-city" ? "active" : ""}
             onClick={() => handleMenuClick("add-city")}
           >
-            <FaCity /> Add City
+            <FaCity className="sidebar-icon" />
+            <span className="sidebar-text">Add City</span>
           </li>
-
           <li
             className={selectedOption === "settings" ? "active" : ""}
             onClick={() => handleMenuClick("settings")}
           >
-            <FaCog /> Settings
+            <FaCog className="sidebar-icon" />
+            <span className="sidebar-text">Settings</span>
           </li>
         </ul>
       </aside>
 
-      {/* MAIN CONTENT */}
+      {/* Main Content */}
       <main className={`admin-main ${sidebarOpen ? "sidebar-open" : ""}`}>
         {renderContent()}
       </main>
 
-      {/* ANNOUNCEMENTS */}
+      {/* Announcement Panel */}
       <div className={`announcement-slider ${announcementOpen ? "open" : ""}`}>
         <div className="announcement-header">
           <h3>Announcements</h3>
-          <FaTimes onClick={() => setAnnouncementOpen(false)} />
+          <FaTimes
+            className="close-icon"
+            onClick={() => setAnnouncementOpen(false)}
+          />
         </div>
 
         <div className="announcement-body">
-          {announcements.map((msg, i) => (
-            <div key={i} className="announcement-message">
-              <div className="message-bubble">
-                <p>{msg.text}</p>
-                <span>
-                  {msg.time.toLocaleTimeString([], {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </span>
+          <div className="announcement-messages">
+            {announcements.map((a, i) => (
+              <div key={i} className="announcement-message admin-bubble">
+                <span>{a.text}</span>
+                <div className="announcement-footer">
+                  <small>
+                    {a.time.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </small>
+                  <div className="announcement-icons">
+                    <FaEdit
+                      className="edit-icon"
+                      onClick={() => handleEditAnnouncement(i)}
+                    />
+                    <FaTrash
+                      className="delete-icon"
+                      onClick={() => handleDeleteAnnouncement(i)}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className="announcement-actions">
-                <button onClick={() => handleEditAnnouncement(i)}>
-                  <FaEdit />
-                </button>
-                <button onClick={() => handleDeleteAnnouncement(i)}>
-                  <FaTrash />
-                </button>
-              </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
+            ))}
+            <div ref={messagesEndRef}></div>
+          </div>
 
-        <div className="announcement-input">
-          <input
-            placeholder="Type announcement..."
-            value={announcementText}
-            onChange={(e) => setAnnouncementText(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendAnnouncement()}
-          />
-          <button onClick={handleSendAnnouncement}>Send</button>
+          <div className="announcement-input">
+            <input
+              type="text"
+              placeholder="Type announcement..."
+              value={announcementText}
+              onChange={(e) => setAnnouncementText(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && handleSendAnnouncement()
+              }
+            />
+            <button onClick={handleSendAnnouncement}>Send</button>
+          </div>
         </div>
       </div>
     </div>

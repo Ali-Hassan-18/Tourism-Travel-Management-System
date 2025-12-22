@@ -1,7 +1,9 @@
 // #include <iostream>
 // #include <string>
 // #include <fstream>
-// #include <cstdlib> // For system("cls")
+// #include <cstdlib> 
+// #include <iomanip>
+// #include <limits> 
 // #include "HEADERS/users.h"
 // #include "HEADERS/announcements.h"
 // #include "HEADERS/cities.h"
@@ -22,10 +24,12 @@
 // #endif
 // }
 
-// // --- Helper: Pause for user ---
+// // --- Helper: The "One-Enter" Pause ---
 // void pause() {
-//     cout << "\nPress Enter to continue...";
-//     cin.get();
+//     cout << "\n[System] Press Enter to return to menu...";
+//     // Since we flush the buffer after every 'cin >>', 
+//     // this will now always wait for exactly one Enter.
+//     cin.get(); 
 // }
 
 // // --- Global Sync Helper ---
@@ -77,12 +81,18 @@
 //             cout << "        WELCOME TO TOURISTA 2025         \n";
 //             cout << "==========================================\n";
 //             cout << "1. Login\n2. Signup\n3. View Traveler Stories\n0. Exit & Save\nSelection: ";
-//             cin >> choice; cin.ignore();
+            
+//             if(!(cin >> choice)) {
+//                 cin.clear();
+//                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//                 continue;
+//             }
+//             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // FLUSH BUFFER
 
 //             if (choice == 1) {
 //                 cout << "Email: "; getline(cin, email);
 //                 cout << "Password: "; getline(cin, pass);
-//                 if (user_sys.login(email, pass)) pause(); else { pause(); }
+//                 if (user_sys.login(email, pass)) pause(); else pause();
 //             } else if (choice == 2) {
 //                 cout << "Full Name: "; getline(cin, name);
 //                 cout << "Email: "; getline(cin, email);
@@ -109,17 +119,18 @@
 //             cout << "==========================================\n";
 
 //             if (user->role == "admin") {
-//                 cout << "1. Manage Announcements\n2. Manage Cities & Stays\n3. Manage Packages\n4. View Booking Queue\n5. Confirm Booking\n6. Analytics Report\n0. Logout\nSelection: ";
-//                 cin >> choice; cin.ignore();
+//                 cout << "1. Manage Announcements\n2. Manage Cities & Stays\n3. Manage Packages\n4. View Booking Queue\n5. Confirm Booking\n6. Analytics Report\n7. Manage Travelers\n0. Logout\nSelection: ";
+//                 cin >> choice;
+//                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // FLUSH BUFFER
 
 //                 switch (choice) {
 //                     case 1: 
 //                         clear();
 //                         cout << "1. New Broadcast\n2. Edit\n3. Delete\n4. View All\nChoice: ";
-//                         int ac; cin >> ac; cin.ignore();
+//                         int ac; cin >> ac; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                         if (ac == 1) { cout << "Msg: "; getline(cin, input_text); ann_sys.add_announcement(input_text); }
-//                         else if (ac == 2) { cout << "ID: "; cin >> id_to_modify; cin.ignore(); cout << "New Msg: "; getline(cin, input_text); ann_sys.edit_announcement(id_to_modify, input_text); }
-//                         else if (ac == 3) { cout << "ID: "; cin >> id_to_modify; ann_sys.delete_announcement(id_to_modify); }
+//                         else if (ac == 2) { cout << "ID: "; cin >> id_to_modify; cin.ignore(numeric_limits<streamsize>::max(), '\n'); cout << "New Msg: "; getline(cin, input_text); ann_sys.edit_announcement(id_to_modify, input_text); }
+//                         else if (ac == 3) { cout << "ID: "; cin >> id_to_modify; cin.ignore(numeric_limits<streamsize>::max(), '\n'); ann_sys.delete_announcement(id_to_modify); }
 //                         else if (ac == 4) ann_sys.display_all();
 //                         ann_sys.save_to_file();
 //                         pause(); break;
@@ -127,7 +138,7 @@
 //                     case 2:
 //                         clear();
 //                         cout << "1. Add City\n2. Add Stay to City\n3. List Cities\nChoice: ";
-//                         int cc; cin >> cc; cin.ignore();
+//                         int cc; cin >> cc; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                         if (cc == 1) { cout << "City: "; getline(cin, city_name); cout << "Info: "; getline(cin, input_text); cout << "Img Path: "; getline(cin, img_path); city_sys.add_city(city_name, input_text, img_path); }
 //                         else if (cc == 2) { cout << "Target City: "; getline(cin, city_name); cout << "Hotel: "; getline(cin, name); cout << "Price: "; getline(cin, input_text); city_sys.add_stay_to_city(city_name, name, input_text); }
 //                         else if (cc == 3) city_sys.display_all_cities();
@@ -138,41 +149,54 @@
 //                         clear();
 //                         pack_sys.display_all_admin();
 //                         cout << "\n1. New Package\n2. Edit Package\n3. Delete Package\nChoice: ";
-//                         int pc; cin >> pc; cin.ignore();
+//                         int pc; cin >> pc; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                         if (pc == 1) {
 //                             cout << "Type (Eco/Premium): "; getline(cin, input_text);
 //                             cout << "City: "; getline(cin, city_name);
 //                             if (city_sys.search_city(city_name)) {
 //                                 cout << "Title: "; getline(cin, name);
-//                                 double p, d; cout << "Price: "; cin >> p; cout << "Disc%: "; cin >> d; cin.ignore();
+//                                 double p, d; cout << "Price: "; cin >> p; cout << "Disc%: "; cin >> d; 
+//                                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                                 cout << "Transport: "; getline(cin, pass);
 //                                 elite_input = (input_text == "Premium") ? (cout << "Elite Perks: ", getline(cin, elite_input), elite_input) : "";
 //                                 pack_sys.add_package(input_text, city_name, name, p, 5, pass, d, elite_input);
 //                             } else cout << "City not found!\n";
 //                         } else if (pc == 2) {
-//                             cout << "ID: "; cin >> id_to_modify; cin.ignore();
+//                             cout << "ID: "; cin >> id_to_modify; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                             cout << "New Title: "; getline(cin, name);
-//                             double np, nd; cout << "New Price: "; cin >> np; cout << "New Disc: "; cin >> nd; cin.ignore();
+//                             double np, nd; cout << "New Price: "; cin >> np; cout << "New Disc: "; cin >> nd; 
+//                             cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                             cout << "New Elite: "; getline(cin, elite_input);
 //                             pack_sys.edit_package(id_to_modify, name, np, nd, elite_input);
-//                         } else if (pc == 3) { cout << "ID: "; cin >> id_to_modify; pack_sys.delete_package(id_to_modify); }
+//                         } else if (pc == 3) { cout << "ID: "; cin >> id_to_modify; cin.ignore(numeric_limits<streamsize>::max(), '\n'); pack_sys.delete_package(id_to_modify); }
 //                         pack_sys.save_packages();
 //                         pause(); break;
 
 //                     case 4: clear(); book_sys.display_admin_queue(); pause(); break;
 //                     case 5: 
 //                         cout << "Enter Booking ID to Confirm: "; cin >> id_to_modify;
+//                         cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                         book_sys.confirm_booking(id_to_modify, user_sys);
 //                         book_sys.save_all_bookings(user_sys);
 //                         user_sys.save_users();
 //                         pause(); break;
 //                     case 6: clear(); book_sys.generate_report(); pause(); break;
+                    
+//                     case 7: 
+//                         clear(); 
+//                         cout << "--- TRAVELER DATABASE ---\n";
+//                         cout << "1. View All Users\n2. Search by Email\nSelection: ";
+//                         int uc; cin >> uc; cin.ignore(numeric_limits<streamsize>::max(), '\n');
+//                         if (uc == 1) user_sys.display_users();
+//                         else if (uc == 2) { cout << "Email: "; getline(cin, email); user_sys.search_and_display_user(email); }
+//                         pause(); break;
+
 //                     case 0: user_sys.logout(); break;
 //                 }
 //             } else {
 //                 // --- USER DASHBOARD ---
 //                 cout << "1. Explore Cities\n2. Browse Packages\n3. Ask Tourista AI Bot\n4. Plan Custom Trip\n5. My Trip History\n6. Write a Review\n7. Notifications\n0. Logout\nChoice: ";
-//                 cin >> choice; cin.ignore();
+//                 cin >> choice; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
 //                 if (choice == 1) { 
 //                     clear(); cout << "Enter City to Explore: "; getline(cin, city_name); 
@@ -185,7 +209,8 @@
 //                 else if (choice == 3) { clear(); bot.chat(); pause(); }
 //                 else if (choice == 4) {
 //                     int a, k; string m, s, ints;
-//                     cout << "Number of Adults: "; cin >> a; cout << "Number of Kids: "; cin >> k; cin.ignore();
+//                     cout << "Number of Adults: "; cin >> a; cout << "Number of Kids: "; cin >> k;
+//                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                     cout << "Target City: "; getline(cin, city_name);
 //                     cout << "Travel Mode (Flight/Car): "; getline(cin, m);
 //                     cout << "Preferred Dates: "; getline(cin, s);
@@ -204,7 +229,7 @@
 //                 else if (choice == 6) {
 //                     string rev; int rt;
 //                     cout << "Your Story: "; getline(cin, rev);
-//                     cout << "Rating (1-5): "; cin >> rt; cin.ignore();
+//                     cout << "Rating (1-5): "; cin >> rt; cin.ignore(numeric_limits<streamsize>::max(), '\n');
 //                     test_sys.add_testimonial(user->full_name, rev, rt);
 //                     test_sys.save_testimonials();
 //                     pause();
