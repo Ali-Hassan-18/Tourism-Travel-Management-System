@@ -1,126 +1,218 @@
-#include <iostream>
-#include <string>
-#include "users.h"
-#include "announcements.h"
-#include "cities.h"
-#include "packages.h"
-#include "bookings.h"
+// #include <iostream>
+// #include <string>
+// #include <fstream>
+// #include <cstdlib> // For system("cls")
+// #include "HEADERS/users.h"
+// #include "HEADERS/announcements.h"
+// #include "HEADERS/cities.h"
+// #include "HEADERS/packages.h"
+// #include "HEADERS/bookings.h"
+// #include "HEADERS/testimonials.h"
+// #include "HEADERS/utilities.h"
+// #include "HEADERS/chatbot.h"
 
-using namespace std;
+// using namespace std;
 
-int main() {
-    user_manager user_sys;
-    announcement_manager ann_sys;
-    city_manager city_sys;
-    package_manager pack_sys;
-    booking_manager book_sys;
+// // --- Helper: UI Clear Screen ---
+// void clear() {
+// #ifdef _WIN32
+//     system("cls");
+// #else
+//     system("clear");
+// #endif
+// }
 
-    user_sys.register_user("Admin", "admin@tourista.com", "admin123", "admin");
+// // --- Helper: Pause for user ---
+// void pause() {
+//     cout << "\nPress Enter to continue...";
+//     cin.get();
+// }
 
-    int choice;
-    string name, email, pass, input_text, city_name, elite_input;
-    int id_to_modify;
+// // --- Global Sync Helper ---
+// void save_all_data(user_manager& u, city_manager& c, package_manager& p, announcement_manager& a, booking_manager& b, testimonial_manager& t) {
+//     u.save_users();
+//     c.save_cities();
+//     p.save_packages();
+//     a.save_to_file();
+//     b.save_all_bookings(u);
+//     t.save_testimonials();
+//     cout << "\n[System] Database synchronized successfully.\n";
+// }
 
-    while (true) {
-        if (user_sys.get_logged_in_user() == nullptr) {
-            cout<<"\n--- TOURISTA WELCOME ---\n1. Login\n2. Signup\n0. Exit\nSelection: ";
-            cin>>choice; cin.ignore();
-            if (choice == 1) {
-                cout<<"Email: "; getline(cin, email);
-                cout<<"Password: "; getline(cin, pass);
-                user_sys.login(email, pass);
-            } else if (choice == 2) {
-                cout<<"Full Name: "; getline(cin, name);
-                cout<<"Email: "; getline(cin, email);
-                cout<<"Password: "; getline(cin, pass);
-                user_sys.register_user(name, email, pass);
-            } else if (choice == 0) return 0;
-        } 
-        else {
-            user_node* session_user = user_sys.get_logged_in_user();
-            cout<<"\n--- DASHBOARD ("<<session_user->full_name<<" | "<<session_user->role<<") ---\n";
+// int main() {
+//     // --- System Initializations ---
+//     user_manager user_sys;
+//     announcement_manager ann_sys;
+//     city_manager city_sys;
+//     package_manager pack_sys;
+//     booking_manager book_sys;
+//     testimonial_manager test_sys;
+//     tourista_bot bot;
 
-            if (session_user->role == "admin") {
-                cout<<"1. Announcements\n2. Cities\n3. Packages\n4. View Queue\n5. Confirm Booking\n0. Logout\nSelection: ";
-                cin>>choice; cin.ignore();
+//     // --- Startup Sync ---
+//     clear();
+//     cout << "==========================================\n";
+//     cout << "   TOURISTA: CONNECTING TO DATABASE...    \n";
+//     cout << "==========================================\n";
+//     user_sys.load_users();
+//     ann_sys.load_from_file();
+//     city_sys.load_cities();
+//     pack_sys.load_packages();
+//     book_sys.load_bookings(user_sys);
+//     test_sys.load_testimonials();
 
-                switch (choice) {
-                    case 1: // Announcements
-                        cout<<"\n1. Broadcast\n2. Edit\n3. Delete\n4. View\nSelection: ";
-                        int ac; cin>>ac; cin.ignore();
-                        if (ac == 1) { cout<<"Msg: "; getline(cin, input_text); ann_sys.add_announcement(input_text); }
-                        else if (ac == 2) { 
-                            cout<<"ID: "; cin>>id_to_modify; cin.ignore();
-                            cout<<"New Msg: "; getline(cin, input_text); ann_sys.edit_announcement(id_to_modify, input_text);
-                        }
-                        else if (ac == 3) { cout<<"ID: "; cin>>id_to_modify; ann_sys.delete_announcement(id_to_modify); }
-                        else if (ac == 4) ann_sys.display_all();
-                        break;
+//     // Default Admin Creation
+//     if (user_sys.find_by_email("admin@tourista.com") == nullptr) {
+//         user_sys.register_user("Admin", "admin@tourista.com", "admin123", "admin");
+//     }
 
-                    case 2: // Cities
-                        cout<<"\n1. Add City\n2. Add Stay\n3. View Details\nSelection: ";
-                        int cc; cin>>cc; cin.ignore();
-                        if (cc == 1) { cout<<"Name: "; getline(cin, city_name); cout<<"Info: "; getline(cin, input_text); city_sys.add_city(city_name, input_text); }
-                        else if (cc == 2) { 
-                            cout<<"City: "; getline(cin, city_name);
-                            cout<<"Hotel: "; getline(cin, name);
-                            cout<<"Price: "; getline(cin, input_text);
-                            city_sys.add_stay_to_city(city_name, name, input_text);
-                        }
-                        else if (cc == 3) { cout<<"City: "; getline(cin, city_name); city_sys.display_city_details(city_name); }
-                        break;
+//     int choice;
+//     string name, email, pass, input_text, city_name, elite_input, img_path;
+//     int id_to_modify;
 
-                    case 3: // Packages
-                        cout<<"\n1. Create\n2. View All\n3. Edit\n4. Delete\nSelection: ";
-                        int pc; cin>>pc; cin.ignore();
-                        if (pc == 1) {
-                            cout<<"Base Category (Eco/Premium): "; getline(cin, input_text);
-                            cout<<"City: "; getline(cin, city_name);
-                            if (!city_sys.search_city(city_name)) { cout<<"[Error] City not found.\n"; }
-                            else {
-                                cout<<"Title: "; getline(cin, name);
-                                double p; cout<<"Price: "; cin>>p;
-                                double d; cout<<"Discount %: "; cin>>d;
-                                int dys; cout<<"Days: "; cin>>dys; cin.ignore();
-                                cout<<"Mode: "; getline(cin, pass);
-                                elite_input = "";
-                                if (input_text == "Premium") { cout<<"Elite: "; getline(cin, elite_input); }
-                                pack_sys.add_package(input_text, city_name, name, p, dys, pass, d, elite_input);
-                            }
-                        } else if (pc == 2) pack_sys.display_all_admin();
-                        else if (pc == 3) {
-                            cout<<"ID: "; cin>>id_to_modify; cin.ignore();
-                            cout<<"Title: "; getline(cin, name);
-                            double np, nd; cout<<"Price: "; cin>>np; cout<<"Disc %: "; cin>>nd; cin.ignore();
-                            cout<<"Elite: "; getline(cin, elite_input);
-                            pack_sys.edit_package(id_to_modify, name, np, nd, elite_input);
-                        } else if (pc == 4) { cout<<"ID: "; cin>>id_to_modify; pack_sys.delete_package(id_to_modify); }
-                        break;
+//     while (true) {
+//         if (user_sys.get_logged_in_user() == nullptr) {
+//             clear();
+//             cout << "==========================================\n";
+//             cout << "        WELCOME TO TOURISTA 2025         \n";
+//             cout << "==========================================\n";
+//             cout << "1. Login\n2. Signup\n3. View Traveler Stories\n0. Exit & Save\nSelection: ";
+//             cin >> choice; cin.ignore();
 
-                    case 4: book_sys.display_admin_queue(); break;
-                    case 5: 
-                        cout<<"ID to Confirm: "; cin>>id_to_modify; 
-                        book_sys.confirm_booking(id_to_modify, user_sys); 
-                        break;
-                    case 0: user_sys.logout(); break;
-                }
-            } 
-            else {
-                // User Interface
-                cout<<"1. Explore\n2. Packages\n3. Plan Trip\n4. Notifications\n0. Logout\nSelection: ";
-                cin>>choice; cin.ignore();
-                if (choice == 1) { cout<<"City: "; getline(cin, city_name); city_sys.display_city_details(city_name); }
-                else if (choice == 2) { cout<<"Tier: "; getline(cin, input_text); pack_sys.display_by_category(input_text); }
-                else if (choice == 3) {
-                    int a, k, i, c; string m, s, e, ints;
-                    cout<<"Adults: "; cin>>a; cout<<"Kids: "; cin>>k; cout<<"Infants: "; cin>>i; cout<<"Couples: "; cin>>c; cin.ignore();
-                    cout<<"City: "; getline(cin, city_name); cout<<"Mode: "; getline(cin, m); cout<<"Start: "; getline(cin, s); cout<<"End: "; getline(cin, e);
-                    cout<<"Interests: "; getline(cin, ints);
-                    book_sys.create_booking(session_user->email, city_name, "Custom Plan", 0, a, k, i, c, m, s, e, ints);
-                }
-                else if (choice == 4) ann_sys.display_all();
-                else if (choice == 0) user_sys.logout();
-            }
-        }
-    }
-}
+//             if (choice == 1) {
+//                 cout << "Email: "; getline(cin, email);
+//                 cout << "Password: "; getline(cin, pass);
+//                 if (user_sys.login(email, pass)) pause(); else { pause(); }
+//             } else if (choice == 2) {
+//                 cout << "Full Name: "; getline(cin, name);
+//                 cout << "Email: "; getline(cin, email);
+//                 if (tourista_utils::is_valid_email(email)) {
+//                     cout << "Password: "; getline(cin, pass);
+//                     user_sys.register_user(name, email, pass);
+//                     user_sys.save_users();
+//                 } else cout << "[Error] Invalid Email format.\n";
+//                 pause();
+//             } else if (choice == 3) {
+//                 test_sys.display_landing_page_reviews();
+//                 pause();
+//             } else if (choice == 0) {
+//                 save_all_data(user_sys, city_sys, pack_sys, ann_sys, book_sys, test_sys);
+//                 break;
+//             }
+//         } 
+//         else {
+//             user_node* user = user_sys.get_logged_in_user();
+//             clear();
+//             cout << "==========================================\n";
+//             cout << "   TOURISTA " << (user->role == "admin" ? "ADMIN PANEL" : "USER DASHBOARD") << "\n";
+//             cout << "   Logged in as: " << user->full_name << "\n";
+//             cout << "==========================================\n";
+
+//             if (user->role == "admin") {
+//                 cout << "1. Manage Announcements\n2. Manage Cities & Stays\n3. Manage Packages\n4. View Booking Queue\n5. Confirm Booking\n6. Analytics Report\n0. Logout\nSelection: ";
+//                 cin >> choice; cin.ignore();
+
+//                 switch (choice) {
+//                     case 1: 
+//                         clear();
+//                         cout << "1. New Broadcast\n2. Edit\n3. Delete\n4. View All\nChoice: ";
+//                         int ac; cin >> ac; cin.ignore();
+//                         if (ac == 1) { cout << "Msg: "; getline(cin, input_text); ann_sys.add_announcement(input_text); }
+//                         else if (ac == 2) { cout << "ID: "; cin >> id_to_modify; cin.ignore(); cout << "New Msg: "; getline(cin, input_text); ann_sys.edit_announcement(id_to_modify, input_text); }
+//                         else if (ac == 3) { cout << "ID: "; cin >> id_to_modify; ann_sys.delete_announcement(id_to_modify); }
+//                         else if (ac == 4) ann_sys.display_all();
+//                         ann_sys.save_to_file();
+//                         pause(); break;
+
+//                     case 2:
+//                         clear();
+//                         cout << "1. Add City\n2. Add Stay to City\n3. List Cities\nChoice: ";
+//                         int cc; cin >> cc; cin.ignore();
+//                         if (cc == 1) { cout << "City: "; getline(cin, city_name); cout << "Info: "; getline(cin, input_text); cout << "Img Path: "; getline(cin, img_path); city_sys.add_city(city_name, input_text, img_path); }
+//                         else if (cc == 2) { cout << "Target City: "; getline(cin, city_name); cout << "Hotel: "; getline(cin, name); cout << "Price: "; getline(cin, input_text); city_sys.add_stay_to_city(city_name, name, input_text); }
+//                         else if (cc == 3) city_sys.display_all_cities();
+//                         city_sys.save_cities();
+//                         pause(); break;
+
+//                     case 3:
+//                         clear();
+//                         pack_sys.display_all_admin();
+//                         cout << "\n1. New Package\n2. Edit Package\n3. Delete Package\nChoice: ";
+//                         int pc; cin >> pc; cin.ignore();
+//                         if (pc == 1) {
+//                             cout << "Type (Eco/Premium): "; getline(cin, input_text);
+//                             cout << "City: "; getline(cin, city_name);
+//                             if (city_sys.search_city(city_name)) {
+//                                 cout << "Title: "; getline(cin, name);
+//                                 double p, d; cout << "Price: "; cin >> p; cout << "Disc%: "; cin >> d; cin.ignore();
+//                                 cout << "Transport: "; getline(cin, pass);
+//                                 elite_input = (input_text == "Premium") ? (cout << "Elite Perks: ", getline(cin, elite_input), elite_input) : "";
+//                                 pack_sys.add_package(input_text, city_name, name, p, 5, pass, d, elite_input);
+//                             } else cout << "City not found!\n";
+//                         } else if (pc == 2) {
+//                             cout << "ID: "; cin >> id_to_modify; cin.ignore();
+//                             cout << "New Title: "; getline(cin, name);
+//                             double np, nd; cout << "New Price: "; cin >> np; cout << "New Disc: "; cin >> nd; cin.ignore();
+//                             cout << "New Elite: "; getline(cin, elite_input);
+//                             pack_sys.edit_package(id_to_modify, name, np, nd, elite_input);
+//                         } else if (pc == 3) { cout << "ID: "; cin >> id_to_modify; pack_sys.delete_package(id_to_modify); }
+//                         pack_sys.save_packages();
+//                         pause(); break;
+
+//                     case 4: clear(); book_sys.display_admin_queue(); pause(); break;
+//                     case 5: 
+//                         cout << "Enter Booking ID to Confirm: "; cin >> id_to_modify;
+//                         book_sys.confirm_booking(id_to_modify, user_sys);
+//                         book_sys.save_all_bookings(user_sys);
+//                         user_sys.save_users();
+//                         pause(); break;
+//                     case 6: clear(); book_sys.generate_report(); pause(); break;
+//                     case 0: user_sys.logout(); break;
+//                 }
+//             } else {
+//                 // --- USER DASHBOARD ---
+//                 cout << "1. Explore Cities\n2. Browse Packages\n3. Ask Tourista AI Bot\n4. Plan Custom Trip\n5. My Trip History\n6. Write a Review\n7. Notifications\n0. Logout\nChoice: ";
+//                 cin >> choice; cin.ignore();
+
+//                 if (choice == 1) { 
+//                     clear(); cout << "Enter City to Explore: "; getline(cin, city_name); 
+//                     city_sys.display_city_details(city_name); pause(); 
+//                 }
+//                 else if (choice == 2) { 
+//                     clear(); cout << "Tier (Premium/Economical/Special): "; getline(cin, input_text); 
+//                     pack_sys.display_by_category(input_text); pause(); 
+//                 }
+//                 else if (choice == 3) { clear(); bot.chat(); pause(); }
+//                 else if (choice == 4) {
+//                     int a, k; string m, s, ints;
+//                     cout << "Number of Adults: "; cin >> a; cout << "Number of Kids: "; cin >> k; cin.ignore();
+//                     cout << "Target City: "; getline(cin, city_name);
+//                     cout << "Travel Mode (Flight/Car): "; getline(cin, m);
+//                     cout << "Preferred Dates: "; getline(cin, s);
+//                     cout << "Special Interests (Adventure/Relaxing): "; getline(cin, ints);
+//                     book_sys.create_booking(user->email, city_name, "Custom Adventure", 0, a, k, 0, 0, m, s, s, ints);
+//                     book_sys.save_all_bookings(user_sys);
+//                     pause();
+//                 }
+//                 else if (choice == 5) {
+//                     clear(); cout << "--- MY TRAVEL HISTORY ---\n";
+//                     booking_node* h = user->history_head;
+//                     if (!h) cout << "No confirmed trips yet.\n";
+//                     while(h) { cout << "[" << h->booking_id << "] " << h->package_title << " in " << h->city_name << " (" << h->status << ")\n"; h = h->next; }
+//                     pause();
+//                 }
+//                 else if (choice == 6) {
+//                     string rev; int rt;
+//                     cout << "Your Story: "; getline(cin, rev);
+//                     cout << "Rating (1-5): "; cin >> rt; cin.ignore();
+//                     test_sys.add_testimonial(user->full_name, rev, rt);
+//                     test_sys.save_testimonials();
+//                     pause();
+//                 }
+//                 else if (choice == 7) { clear(); ann_sys.display_all(); pause(); }
+//                 else if (choice == 0) user_sys.logout();
+//             }
+//         }
+//     }
+//     return 0;
+// }
