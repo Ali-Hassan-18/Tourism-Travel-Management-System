@@ -1,6 +1,5 @@
 #ifndef CITIES_H
 #define CITIES_H
-
 #include <iostream>
 #include <string>
 
