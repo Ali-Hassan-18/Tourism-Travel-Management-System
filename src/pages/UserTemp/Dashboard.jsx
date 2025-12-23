@@ -29,34 +29,9 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [announceOpen, setAnnounceOpen] = useState(false);
   const [chatbotOpen, setChatbotOpen] = useState(false);
-
-  /* ================= ANNOUNCEMENT & NOTIFICATION LOGIC ================= */
-  const [announcements, setAnnouncements] = useState([
-    { id: 1, title: "Winter Discount!", message: "Get 20% off on all trips." },
-    { id: 2, title: "Weather Update", message: "Light rain expected tomorrow." },
-    { id: 3, title: "New City Added!", message: "Hunza packages are now live." }
-  ]);
   
+  // NEW STATE: Tracks if the red dot should be visible
   const [hasNewNotifications, setHasNewNotifications] = useState(true);
-  const [lastViewedCount, setLastViewedCount] = useState(0);
-
-  // Re-show red dot if the number of announcements increases
-  useEffect(() => {
-    if (announcements.length > lastViewedCount) {
-      setHasNewNotifications(true);
-    }
-  }, [announcements.length, lastViewedCount]);
-
-  const handleAnnounceToggle = () => {
-    const isOpening = !announceOpen;
-    setAnnounceOpen(isOpening);
-    setChatbotOpen(false);
-    
-    if (isOpening) {
-      setHasNewNotifications(false);
-      setLastViewedCount(announcements.length);
-    }
-  };
 
   /* ================= CHATBOT STATE ================= */
   const [chatInput, setChatInput] = useState("");
@@ -67,6 +42,7 @@ const Dashboard = () => {
   
   const messagesEndRef = useRef(null);
 
+  // Auto-scroll to latest message
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -76,6 +52,12 @@ const Dashboard = () => {
       scrollToBottom();
     }
   }, [messages, isTyping, chatbotOpen]);
+
+  const announcements = [
+    { id: 1, title: "Winter Discount!", message: "Get 20% off on all trips." },
+    { id: 2, title: "Weather Update", message: "Light rain expected tomorrow." },
+    { id: 3, title: "New City Added!", message: "Hunza packages are now live." }
+  ];
 
   const handleMenuClick = (option) => {
     setSelectedOption(option);
@@ -107,6 +89,7 @@ const Dashboard = () => {
     setChatInput("");
     setIsTyping(true);
 
+    // Simulate network delay
     setTimeout(() => {
       const response = botReply(userMessage.text);
       setMessages((prev) => [...prev, { sender: "bot", text: response }]);
@@ -132,6 +115,7 @@ const Dashboard = () => {
         return <h2>Chatbot Assistance coming soon...</h2>;
       case "feedback":
         return <Testimonials />;
+
       default:
         return <h2>Select an option from the sidebar</h2>;
     }
@@ -156,14 +140,16 @@ const Dashboard = () => {
 
           <div 
             className={`bell-wrapper ${announceOpen ? "active-nav" : ""}`} 
-            onClick={handleAnnounceToggle}
+            onClick={() => { 
+              setAnnounceOpen(!announceOpen); 
+              setChatbotOpen(false); 
+              // Clear the red dot when the user opens announcements
+              setHasNewNotifications(false); 
+            }}
           >
             <FaBell className="announcement-bell" />
-            {hasNewNotifications && (
-              <span className="bell-dot">
-                {announcements.length - lastViewedCount > 0 ? announcements.length - lastViewedCount : "!"}
-              </span>
-            )}
+            {/* Red dot is only rendered if hasNewNotifications is true */}
+            {hasNewNotifications && <span className="bell-dot">3</span>}
           </div>
 
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
@@ -186,6 +172,7 @@ const Dashboard = () => {
               <FaHome className="sidebar-icon" />
               <span className="sidebar-text">Homepage</span>
             </li>
+
             <li className={selectedOption === "special" ? "active" : ""} onClick={() => handleMenuClick("special")}>
               <FaTags className="sidebar-icon" />
               <span className="sidebar-text">Special Deals</span>
@@ -202,11 +189,15 @@ const Dashboard = () => {
               <FaMapMarkedAlt className="sidebar-icon" />
               <span className="sidebar-text">Plan Your Trip</span>
             </li>
+
             <li className={selectedOption === "bookings" ? "active" : ""} onClick={() => handleMenuClick("bookings")}>
               <FaSuitcase className="sidebar-icon" />
               <span className="sidebar-text">My Bookings</span>
             </li>
-            <li className={selectedOption === "feedback" ? "active" : ""} onClick={() => handleMenuClick("feedback")}>
+            <li
+              className={selectedOption === "feedback" ? "active" : ""}
+              onClick={() => handleMenuClick("feedback")}
+            >
               <FaStar className="sidebar-icon" />
               <span className="sidebar-text">Feedback</span>
             </li>
@@ -224,11 +215,13 @@ const Dashboard = () => {
           ))}
         </aside>
 
-        {/* CHATBOT PANEL */}
+        {/* ENHANCED CHATBOT PANEL */}
         <aside className={`announcement-panel chatbot-panel ${chatbotOpen ? "open" : ""}`}>
           <div className="chat-header">
             <div className="header-info">
-              <div className="bot-profile-icon"><FaRobot /></div>
+              <div className="bot-profile-icon">
+                <FaRobot />
+              </div>
               <div className="header-text">
                 <h2>Tourista AI</h2>
                 <span className="status-indicator">Online</span>
@@ -239,14 +232,26 @@ const Dashboard = () => {
           <div className="chat-messages-container">
             {messages.map((m, i) => (
               <div key={i} className={`message-row ${m.sender === "user" ? "user-row" : "bot-row"}`}>
-                {m.sender === "bot" && <div className="message-avatar bot-avatar"><FaRobot /></div>}
-                <div className={`chat-bubble ${m.sender}`}>{m.text}</div>
-                {m.sender === "user" && <div className="message-avatar user-avatar"><FaUser /></div>}
+                {m.sender === "bot" && (
+                  <div className="message-avatar bot-avatar">
+                    <FaRobot />
+                  </div>
+                )}
+                <div className={`chat-bubble ${m.sender}`}>
+                  {m.text}
+                </div>
+                {m.sender === "user" && (
+                  <div className="message-avatar user-avatar">
+                    <FaUser />
+                  </div>
+                )}
               </div>
             ))}
             {isTyping && (
               <div className="message-row bot-row">
-                <div className="message-avatar bot-avatar"><FaRobot /></div>
+                <div className="message-avatar bot-avatar">
+                  <FaRobot />
+                </div>
                 <div className="chat-bubble bot typing">...</div>
               </div>
             )}
@@ -262,7 +267,9 @@ const Dashboard = () => {
                 onChange={(e) => setChatInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && sendMessage()}
               />
-              <button className="chat-send-btn" onClick={sendMessage}><FaPaperPlane /></button>
+              <button className="chat-send-btn" onClick={sendMessage}>
+                <FaPaperPlane />
+              </button>
             </div>
           </div>
         </aside>
