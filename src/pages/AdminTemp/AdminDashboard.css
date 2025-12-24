@@ -41,15 +41,48 @@
   cursor: pointer;
 }
 
+.navbar-left, .navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.announcement-icon {
+  font-size: 1.4rem;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.announcement-icon:hover {
+  transform: scale(1.1);
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1.5px solid #fff;
+  color: #fff;
+  padding: 6px 15px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.logout-btn:hover {
+  background: #fff;
+  color: var(--teal);
+}
+
 /* ================= MAIN CONTENT ================= */
 .admin-main {
   margin-top: 70px;
   padding: 1.5rem;
   background-color: var(--bg);
   min-height: calc(100vh - 70px);
+  transition: margin-left 0.35s ease;
 }
 
-/* ================= SIDEBAR (SLIDE OVER PAGE) ================= */
+/* ================= SIDEBAR ================= */
 .admin-sidebar {
   position: fixed;
   top: 70px;
@@ -63,12 +96,10 @@
   z-index: 8000;
 }
 
-/* open state */
 .admin-sidebar.open {
   left: 0;
 }
 
-/* Sidebar list */
 .admin-sidebar ul {
   list-style: none;
   padding: 0;
@@ -99,15 +130,6 @@
   font-weight: 600;
 }
 
-.sidebar-icon {
-  font-size: 1.3rem;
-}
-
-.sidebar-text {
-  white-space: nowrap;
-}
-
-/* ================= SIDEBAR OVERLAY ================= */
 .sidebar-overlay {
   position: fixed;
   inset: 70px 0 0 0;
@@ -115,25 +137,20 @@
   z-index: 7500;
 }
 
-/* ================================================================= */
-/* ================= ANNOUNCEMENTS (UNCHANGED) ===================== */
-/* ================================================================= */
-
+/* ================= ANNOUNCEMENT SLIDER ================= */
 .announcement-slider {
   position: fixed !important;
   top: 70px;
-  right: -360px;
-  width: 360px;
+  right: -380px;
+  width: 380px;
   bottom: 0;
   background: #fff;
-  box-shadow: -6px 0 20px rgba(0,0,0,0.25);
+  box-shadow: -6px 0 20px rgba(0,0,0,0.15);
   transition: right 0.3s ease;
-  z-index: 9999;
+  z-index: 9000;
   display: flex;
   flex-direction: column;
   border-left: 1px solid #eee;
-  border-radius: 0 8px 8px 0;
-  overflow: hidden;
 }
 
 .announcement-slider.open {
@@ -141,11 +158,9 @@
 }
 
 .announcement-header {
-  padding: 1rem;
+  padding: 1.2rem;
   border-bottom: 1px solid #eee;
   background: #f9f9f9;
-  font-weight: 600;
-  font-size: 1.1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -154,85 +169,102 @@
 .announcement-body {
   flex: 1;
   overflow-y: auto;
-  padding: 1rem;
+  padding: 1.2rem;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 15px;
   background: #fafafa;
 }
 
-.announcement-message {
+/* ================= MESSAGE BUBBLES ================= */
+.admin-bubble {
+  background: #fff;
+  border: 1px solid var(--border);
+  padding: 12px 15px;
+  border-radius: 12px;
+  box-shadow: 2px 2px 10px rgba(0,0,0,0.03);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.message-bubble {
-  max-width: 80%;
-  background-color: var(--teal);
-  color: #fff;
-  padding: 0.6rem 1rem;
-  border-radius: 18px;
-  position: relative;
-  font-size: 0.85rem;
+.announcement-text {
+  font-size: 0.95rem;
+  color: #333;
+  line-height: 1.4;
   word-wrap: break-word;
 }
 
-.message-bubble p {
-  margin: 0;
-}
+/* ================= FOOTER & HORIZONTAL ICONS ================= */
+/* This section fixes the stacking issue seen in your previous screenshot */
 
-.message-bubble .announcement-time {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.7);
-  margin-left: 8px;
-  float: right;
-}
-
-.announcement-actions {
+.announcement-footer {
   display: flex;
-  gap: 4px;
-  margin-left: 4px;
+  justify-content: space-between; /* Keeps time left, icons right */
+  align-items: center;
+  width: 100%;
+  margin-top: 5px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
-.action-btn {
-  background: transparent;
-  border: none;
+.announcement-icons {
+  display: flex;
+  flex-direction: row; /* Horizontal alignment fix */
+  gap: 15px;           /* Spacing between edit and delete */
+  align-items: center;
+}
+
+.announcement-footer small {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.edit-icon, .delete-icon {
   cursor: pointer;
-  color: #555;
-  padding: 2px;
+  font-size: 1.05rem;
+  transition: all 0.2s ease;
 }
 
-.action-btn:hover {
-  color: var(--teal-dark);
+.edit-icon { color: #555; }
+.edit-icon:hover { 
+  color: var(--teal); 
+  transform: scale(1.2); 
 }
 
+.delete-icon { color: #555; }
+.delete-icon:hover { 
+  color: #e74c3c; /* Red for delete */
+  transform: scale(1.2); 
+}
+
+/* ================= INPUT AREA ================= */
 .announcement-input {
   display: flex;
-  gap: 8px;
-  padding: 0.75rem 1rem;
+  gap: 10px;
+  padding: 1rem;
   border-top: 1px solid #eee;
-  background: #f9f9f9;
+  background: #fff;
 }
 
 .announcement-input input {
   flex: 1;
-  padding: 0.5rem 0.8rem;
+  padding: 10px 15px;
   border-radius: 25px;
-  border: 1px solid #d9e6e6;
+  border: 1px solid var(--border);
   outline: none;
   font-size: 0.9rem;
-  background: #fff;
 }
 
 .announcement-input button {
-  padding: 0.5rem 1rem;
+  padding: 8px 20px;
   border-radius: 25px;
   border: none;
   background: var(--teal);
   color: #fff;
   cursor: pointer;
   font-weight: 600;
+  transition: 0.2s;
 }
 
 .announcement-input button:hover {

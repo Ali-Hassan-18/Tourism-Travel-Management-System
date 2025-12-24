@@ -4,7 +4,8 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <iomanip>
+#include <vector>
+#include "../crow_all.h" 
 #include "utilities.h"
 
 using namespace std;
@@ -24,6 +25,16 @@ struct user_node {
     user_node(string n, string e, string p, string r) 
         : full_name(n), email(e), password(p), role(r), 
           packages_availed(0), history_head(nullptr), next(nullptr), prev(nullptr) {}
+
+    // Updated to match React field names: "fullName" instead of "name"
+    crow::json::wvalue to_json() {
+        crow::json::wvalue j;
+        j["fullName"] = full_name;
+        j["email"] = email;
+        j["role"] = role;
+        j["trips"] = packages_availed;
+        return j;
+    }
 };
 
 class user_manager {
@@ -33,82 +44,75 @@ private:
 
 public:
     user_manager() : head(nullptr), current_user(nullptr) {}
-
     user_node* get_all_users_head() { return head; }
 
-    user_node* find_by_email(string e) {
+    // --- FRONTEND LINKAGE: AUTHENTICATION ---
+
+    crow::json::wvalue authenticate_json(string email, string pass) {
+        // Hardcoded Admin logic to match LoginTemporary.jsx
+        if (email == "admin@example.com" && pass == "admin123") {
+            crow::json::wvalue res;
+            res["status"] = "success";
+            res["user"]["fullName"] = "System Admin";
+            res["user"]["email"] = email;
+            res["user"]["role"] = "admin";
+            return res;
+        }
+
         user_node* temp = head;
         while (temp) {
-            if (temp->email == e) return temp;
+            if (temp->email == email && temp->password == pass) {
+                current_user = temp;
+                crow::json::wvalue res;
+                res["status"] = "success";
+                res["user"] = temp->to_json();
+                return res;
+            }
             temp = temp->next;
         }
+        
+        crow::json::wvalue error;
+        error["status"] = "error";
+        error["message"] = "Invalid email or password";
+        return error;
+    }
+
+    crow::json::wvalue register_user_json(string n, string e, string p) {
+        if (find_by_email(e)) {
+            crow::json::wvalue error;
+            error["status"] = "error";
+            error["message"] = "Email already registered";
+            return error;
+        }
+        
+        // Default role is "user" to match navigate("/dashboard")
+        register_user(n, e, p, "user");
+        save_users();
+        
+        crow::json::wvalue res;
+        res["status"] = "success";
+        res["user"]["fullName"] = n;
+        res["user"]["email"] = e;
+        res["user"]["role"] = "user";
+        return res;
+    }
+
+    // --- CORE LOGIC & PERSISTENCE (UNCHANGED) ---
+    user_node* find_by_email(string e) {
+        user_node* temp = head;
+        while (temp) { if (temp->email == e) return temp; temp = temp->next; }
         return nullptr;
     }
 
     void register_user(string n, string e, string p, string r = "user") {
         user_node* new_node = new user_node(n, e, p, r);
-        if (!head) {
-            head = new_node;
-        } else {
+        if (!head) head = new_node;
+        else {
             user_node* temp = head;
             while (temp->next) temp = temp->next;
             temp->next = new_node;
             new_node->prev = temp;
         }
-        if (current_user != nullptr || head == new_node) {
-             cout << "\n[Success] Account created for " << n << "\n";
-        }
-    }
-
-    bool login(string e, string p) {
-        user_node* temp = head;
-        while (temp) {
-            if (temp->email == e && temp->password == p) {
-                current_user = temp;
-                cout << "\n[Welcome] Logged in as " << temp->full_name << " (" << temp->role << ")\n";
-                return true;
-            }
-            temp = temp->next;
-        }
-        cout << "\n[Error] Invalid email or password.\n";
-        return false;
-    }
-
-    user_node* get_logged_in_user() { return current_user; }
-    void logout() { current_user = nullptr; cout << "\n[System] Logged out.\n"; }
-
-    void display_users() {
-        if (!head) { cout << "[System] No users registered.\n"; return; }
-        user_node* temp = head;
-        cout << "\n" << string(60, '=') << "\n";
-        cout << left << setw(20) << "NAME" << setw(25) << "EMAIL" << setw(10) << "TRIPS" << "\n";
-        cout << string(60, '-') << "\n";
-        while (temp) {
-            cout << left << setw(20) << temp->full_name 
-                 << setw(25) << temp->email 
-                 << setw(10) << temp->packages_availed << "\n";
-            temp = temp->next;
-        }
-        cout << string(60, '=') << "\n";
-    }
-
-    // SEARCH LOGIC: Profiles individual users for the Admin
-    void search_and_display_user(string email_to_find) {
-        user_node* target = find_by_email(email_to_find);
-        if (!target) {
-            cout << "\n[Error] Traveler not found with email: " << email_to_find << "\n";
-            return;
-        }
-        cout << "\n" << string(45, '=') << "\n";
-        cout << "          TRAVELER PROFILE CARD          \n";
-        cout << string(45, '=') << "\n";
-        cout << "Full Name   : " << target->full_name << "\n";
-        cout << "Email       : " << target->email << "\n";
-        cout << "Account Type: " << target->role << "\n";
-        cout << "Trips Taken : " << target->packages_availed << "\n";
-        cout << string(45, '-') << "\n";
-        cout << "Status: " << (target->role == "admin" ? "Staff" : "Customer") << "\n";
-        cout << string(45, '=') << "\n";
     }
 
     void save_users() {
@@ -131,32 +135,38 @@ public:
         string line;
         while (getline(in, line)) {
             if (line.empty()) continue; 
-            size_t p1 = line.find('|');
-            size_t p2 = line.find('|', p1 + 1);
-            size_t p3 = line.find('|', p2 + 1);
-            size_t p4 = line.find('|', p3 + 1);
-
-            if (p1 != string::npos && p4 != string::npos) {
-                string n = line.substr(0, p1);
-                string e = line.substr(p1 + 1, p2 - p1 - 1);
-                string p = line.substr(p2 + 1, p3 - p2 - 1);
-                string r = line.substr(p3 + 1, p4 - p3 - 1);
-                int count = stoi(line.substr(p4 + 1));
-
-                user_node* new_node = new user_node(n, e, p, r);
-                new_node->packages_availed = count;
-                
-                if (!head) head = new_node;
-                else {
-                    user_node* temp = head;
-                    while (temp->next) temp = temp->next;
-                    temp->next = new_node;
-                    new_node->prev = temp;
-                }
+            size_t p[5]; p[0] = line.find('|');
+            for(int i=1; i<4; i++) p[i] = line.find('|', p[i-1]+1);
+            if (p[0] != string::npos) {
+                string n = line.substr(0, p[0]);
+                string e = line.substr(p[0]+1, p[1]-p[0]-1);
+                string pw = line.substr(p[1]+1, p[2]-p[1]-1);
+                string r = line.substr(p[2]+1, p[3]-p[2]-1);
+                int count = stoi(line.substr(p[3]+1));
+                register_user(n, e, pw, r);
+                user_node* t = find_by_email(e);
+                if (t) t->packages_availed = count;
             }
         }
-        in.close();
     }
+
+    crow::json::wvalue get_all_users_json() {
+    vector<crow::json::wvalue> user_list;
+    user_node* temp = head;
+    
+    while (temp) {
+        // We only want to show actual users to the admin, not the admin themselves
+        if (temp->role != "admin") {
+            crow::json::wvalue u;
+            u["name"] = temp->full_name;
+            u["email"] = temp->email;
+            u["trips"] = temp->packages_availed;
+            user_list.push_back(std::move(u));
+        }
+        temp = temp->next;
+    }
+    return crow::json::wvalue(user_list);
+}
 };
 
 #endif

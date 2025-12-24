@@ -1,26 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './EconomicalPackages.css';
 
 const EconomicalPackages = () => {
-  // Northern Pakistan Data
-  const [packages] = useState([
-    { id: 1, title: "Skardu Valley Escape", basePrice: 150, location: "Skardu", img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2" },
-    { id: 2, title: "Hunza Fairy Meadows", basePrice: 120, location: "Hunza", img: "https://images.unsplash.com/photo-1548013146-72479768bbaa" },
-    { id: 3, title: "Naran Kaghan Special", basePrice: 95, location: "Kaghan", img: "https://images.unsplash.com/photo-1621255106365-181f62136015" },
-    { id: 4, title: "Swat Valley Wonders", basePrice: 110, location: "Swat", img: "https://images.unsplash.com/photo-1627440406023-7a915159021a" },
-  ]);
-
+  const [packages, setPackages] = useState([]); 
   const [selectedPkg, setSelectedPkg] = useState(null);
+  const [currency, setCurrency] = useState('USD'); // 'USD' or 'PKR'
+  const [exchangeRate] = useState(280); // 1 USD = 280 PKR
   
-  // Detailed Booking State
+  // Fetch from C++ Doubly Linked List
+  useEffect(() => {
+    fetch('http://localhost:18080/api/packages/Economical')
+      .then(res => res.json())
+      .then(data => setPackages(data))
+      .catch(err => console.error("Failed to load packages:", err));
+  }, []);
+  
   const [bookingForm, setBookingForm] = useState({
     members: 1,
     nights: 1,
+    travelDate: '', 
     diet: 'Standard',
     transport: 'Bus',
   });
 
-  // Calculate Total based on user selections
+  // Format price based on selected currency ONLY
+  const formatPrice = (priceInUSD) => {
+    if (currency === 'PKR') {
+      const priceInPKR = Math.round(priceInUSD * exchangeRate);
+      return `Rs ${priceInPKR.toLocaleString('en-PK')}`;
+    } else {
+      return `$ ${priceInUSD}`;
+    }
+  };
+
   const calculateTotal = () => {
     if (!selectedPkg) return 0;
     let total = selectedPkg.basePrice * bookingForm.members * bookingForm.nights;
@@ -29,18 +41,84 @@ const EconomicalPackages = () => {
     return total;
   };
 
-  const handleBookingConfirm = () => {
-    alert(`Successfully Booked ${selectedPkg.title} for ${bookingForm.members} members! Total: $${calculateTotal()}`);
-    setSelectedPkg(null);
+  const handleBookingConfirm = async () => {
+    if(!bookingForm.travelDate) {
+      alert("Please select a travel date.");
+      return;
+    }
+
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (!userData) {
+      alert("Please login to book a trip!");
+      return;
+    }
+
+    // UPDATED: Full dynamic payload from text boxes
+    const payload = {
+      email: userData.email,
+      city: selectedPkg.location,
+      title: selectedPkg.title,
+      category: "Economical",
+      total: calculateTotal(),
+      members: parseInt(bookingForm.members),
+      nights: parseInt(bookingForm.nights),   // Dynamic info
+      travelDate: bookingForm.travelDate,      // Dynamic info
+      transport: bookingForm.transport,
+      diet: bookingForm.diet,
+      img: selectedPkg.img
+    };
+
+    try {
+      const response = await fetch('http://localhost:18080/api/book/detailed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (data.status === "success") {
+        const totalFormatted = currency === 'PKR' 
+          ? `Rs ${Math.round(calculateTotal() * exchangeRate).toLocaleString('en-PK')}`
+          : `$ ${calculateTotal()}`;
+          
+        alert(`Successfully Booked ${selectedPkg.title}! Total: ${totalFormatted}`);
+        setSelectedPkg(null);
+      }
+    } catch (error) {
+      alert("Could not connect to backend server.");
+    }
   };
 
   return (
     <div className="eco-page-wrapper">
-      {/* Top Hero Section */}
       <section className="top-hero-section">
         <div className="points-column">
           <h2 className="section-title">Economical Northern Adventures</h2>
           <p className="section-subtitle">The best way to visit the mountains at an affordable price.</p>
+          
+          {/* Currency Filter Added */}
+          <div className="currency-filter">
+            <div className="currency-filter-row">
+              <span className="currency-label">Display prices in:</span>
+              <div className="currency-toggle-buttons">
+                <button 
+                  className={`currency-toggle-btn ${currency === 'USD' ? 'active' : ''}`}
+                  onClick={() => setCurrency('USD')}
+                >
+                  USD ($)
+                </button>
+                <button 
+                  className={`currency-toggle-btn ${currency === 'PKR' ? 'active' : ''}`}
+                  onClick={() => setCurrency('PKR')}
+                >
+                  PKR (Rs)
+                </button>
+              </div>
+            </div>
+            <div className="exchange-rate-info">
+              Exchange Rate: 1 USD = Rs {exchangeRate.toLocaleString()}
+            </div>
+          </div>
           
           <div className="info-point">
             <span className="point-number">01</span>
@@ -64,13 +142,11 @@ const EconomicalPackages = () => {
             </div>
           </div>
         </div>
-
         <div className="hero-visual">
           <img src="https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=800" alt="Northern Pakistan" />
         </div>
       </section>
 
-      {/* Package Grid */}
       <section className="grid-section">
         <h3 className="grid-title">Available Economical Packages</h3>
         <div className="package-grid">
@@ -83,7 +159,7 @@ const EconomicalPackages = () => {
                 <h4>{pkg.title}</h4>
                 <p>📍 {pkg.location}</p>
                 <div className="card-pricing">
-                  <span className="price-val">${pkg.basePrice}<span>/Person</span></span>
+                  <span className="price-val">{formatPrice(pkg.basePrice)}<span>/Person</span></span>
                   <button className="book-trip-btn" onClick={() => setSelectedPkg(pkg)}>Book Trip</button>
                 </div>
               </div>
@@ -92,7 +168,6 @@ const EconomicalPackages = () => {
         </div>
       </section>
 
-      {/* Detailed Booking Modal */}
       {selectedPkg && (
         <div className="booking-overlay">
           <div className="booking-card">
@@ -100,8 +175,18 @@ const EconomicalPackages = () => {
             <h3>Trip Customization: {selectedPkg.title}</h3>
             
             <div className="form-grid">
+              {/* NEW: Date Picker Field */}
               <div className="input-field">
-                <label>Number of Members</label>
+                <label>Arrival Date</label>
+                <input 
+                  type="date" 
+                  value={bookingForm.travelDate} 
+                  onChange={(e) => setBookingForm({...bookingForm, travelDate: e.target.value})} 
+                />
+              </div>
+
+              <div className="input-field">
+                <label>Guests</label>
                 <input 
                   type="number" min="1" 
                   value={bookingForm.members} 
@@ -125,7 +210,11 @@ const EconomicalPackages = () => {
                   onChange={(e) => setBookingForm({...bookingForm, diet: e.target.value})}
                 >
                   <option value="Standard">Standard (Veg + Lentils)</option>
-                  <option value="Non-Veg">Non-Veg (+ $15)</option>
+                  <option value="Non-Veg">
+                    Non-Veg (+{currency === 'PKR' 
+                      ? ` Rs ${(15 * exchangeRate).toLocaleString()}` 
+                      : ' $15'})
+                  </option>
                 </select>
               </div>
 
@@ -137,13 +226,17 @@ const EconomicalPackages = () => {
                 >
                   <option value="Bus">Public Transport (Bus)</option>
                   <option value="Jeep">Shared Jeep</option>
-                  <option value="Private Jeep">Private Jeep (+ $60)</option>
+                  <option value="Private Jeep">
+                    Private Jeep (+{currency === 'PKR' 
+                      ? ` Rs ${(60 * exchangeRate).toLocaleString()}` 
+                      : ' $60'})
+                  </option>
                 </select>
               </div>
             </div>
 
             <div className="summary-box">
-              <p>Estimated Total: <strong>${calculateTotal()}</strong></p>
+              <p>Estimated Total: <strong>{formatPrice(calculateTotal())}</strong></p>
             </div>
 
             <button className="final-book-btn" onClick={handleBookingConfirm}>

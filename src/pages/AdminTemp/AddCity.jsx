@@ -1,167 +1,122 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
 import "./AddCity.css";
 
 const AddCity = () => {
   const [cityName, setCityName] = useState("");
   const [touristSpots, setTouristSpots] = useState("");
   const [restaurants, setRestaurants] = useState("");
-
-  const [cityImages, setCityImages] = useState([]);
-  const [touristImages, setTouristImages] = useState([]);
-  const [restaurantImages, setRestaurantImages] = useState([]);
-
+  const [cityImage, setCityImage] = useState("");
   const [cities, setCities] = useState([]);
+  const [isEditing, setIsEditing] = useState(false);
+  const [oldName, setOldName] = useState("");
 
-  const handleImages = (e, setter) => {
-    setter(Array.from(e.target.files));
+  const fetchCities = async () => {
+    try {
+      const res = await fetch("http://localhost:18080/api/cities");
+      const data = await res.json();
+      setCities(data);
+    } catch (err) { console.error("Load failed"); }
   };
 
-  const handleSaveCity = (e) => {
+  useEffect(() => { fetchCities(); }, []);
+
+  const handleImage = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => setCityImage(reader.result); // Stores image data as string
+    if (file) reader.readAsDataURL(file);
+  };
+
+  const handleSaveCity = async (e) => {
     e.preventDefault();
-    if (!cityName) {
-      alert("City name required");
-      return;
+    const payload = {
+      cityName,
+      cityImage: cityImage,
+      touristSpots: touristSpots.split(",").map(s => s.trim()),
+      restaurants: restaurants.split(",").map(r => r.trim())
+    };
+
+    const url = isEditing 
+      ? `http://localhost:18080/api/admin/cities/edit/${oldName}` 
+      : "http://localhost:18080/api/admin/cities/add";
+
+    const res = await fetch(url, {
+      method: isEditing ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      resetForm();
+      fetchCities();
     }
-
-    setCities([
-      ...cities,
-      {
-        cityName,
-        touristSpots: touristSpots.split(",").map((s) => s.trim()),
-        restaurants: restaurants.split(",").map((r) => r.trim()),
-        cityImages,
-        touristImages,
-        restaurantImages,
-      },
-    ]);
-
-    // Reset form
-    setCityName("");
-    setTouristSpots("");
-    setRestaurants("");
-    setCityImages([]);
-    setTouristImages([]);
-    setRestaurantImages([]);
   };
 
-  const renderFileInput = (setter) => (
-    <div className="file-input-wrapper">
-      <input
-        type="file"
-        multiple
-        accept="image/*"
-        onChange={(e) => handleImages(e, setter)}
-      />
-    </div>
-  );
+  const handleEdit = (city) => {
+    setIsEditing(true);
+    setOldName(city.cityName);
+    setCityName(city.cityName);
+    setCityImage(city.image);
+    setTouristSpots(city.touristSpots.join(", "));
+    setRestaurants(city.restaurants.join(", "));
+  };
+
+  const handleDelete = async (name) => {
+    if (!window.confirm(`Delete ${name}?`)) return;
+    const res = await fetch(`http://localhost:18080/api/admin/cities/delete/${name}`, { method: "DELETE" });
+    if (res.ok) fetchCities();
+  };
+
+  const resetForm = () => {
+    setCityName(""); setTouristSpots(""); setRestaurants(""); setCityImage("");
+    setIsEditing(false);
+  };
 
   return (
     <div className="mp-outer">
       <div className="mp-card">
-        <h2 className="mp-title">Add New City (Pakistan)</h2>
-
+        <h2 className="mp-title">{isEditing ? "Edit City" : "Add New City (Pakistan)"}</h2>
         <form className="mp-form" onSubmit={handleSaveCity}>
           <div className="fld">
             <label>City Name</label>
-            <input
-              type="text"
-              value={cityName}
-              onChange={(e) => setCityName(e.target.value)}
-              placeholder="Enter city name"
-              required
-            />
+            <input type="text" value={cityName} onChange={(e) => setCityName(e.target.value)} required />
           </div>
-
           <div className="fld">
-            <label>City Images</label>
-            {renderFileInput(setCityImages)}
+            <label>City Image</label>
+            <div className="file-input-wrapper"><input type="file" onChange={handleImage} /></div>
           </div>
-
           <div className="fld">
             <label>Tourist Spots</label>
-            <input
-              type="text"
-              value={touristSpots}
-              onChange={(e) => setTouristSpots(e.target.value)}
-              placeholder="Naran, Kaghan, Babusar"
-            />
+            <input type="text" value={touristSpots} onChange={(e) => setTouristSpots(e.target.value)} />
           </div>
-
-          <div className="fld">
-            <label>Tourist Spot Images</label>
-            {renderFileInput(setTouristImages)}
-          </div>
-
           <div className="fld">
             <label>Restaurants</label>
-            <input
-              type="text"
-              value={restaurants}
-              onChange={(e) => setRestaurants(e.target.value)}
-              placeholder="ABC Restaurant, XYZ Cafe"
-            />
+            <input type="text" value={restaurants} onChange={(e) => setRestaurants(e.target.value)} />
           </div>
-
-          <div className="fld">
-            <label>Restaurant Images</label>
-            {renderFileInput(setRestaurantImages)}
+          <div className="form-action-buttons">
+            <button className="admin-btn-submit" type="submit">{isEditing ? "Save Changes" : "Save City"}</button>
+            {isEditing && <button className="admin-btn-cancel" onClick={resetForm}>Cancel</button>}
           </div>
-
-          <button className="btn primary" type="submit">
-            Save City
-          </button>
         </form>
       </div>
 
-      {cities.length > 0 && (
-        <div className="mp-card">
-          <h3>Added Cities</h3>
-          <div className="cities-grid">
-            {cities.map((city, idx) => (
-              <div key={idx} className="added-city-card">
-                <h4 className="city-title">{city.cityName}</h4>
-
-                <div className="image-preview">
-                  {city.cityImages.map((img, i) => (
-                    <img
-                      key={i}
-                      src={URL.createObjectURL(img)}
-                      className="preview-img"
-                      alt=""
-                    />
-                  ))}
-                </div>
-
-                <p>Tourist Spots: {city.touristSpots.join(", ")}</p>
-
-                <div className="image-preview">
-                  {city.touristImages.map((img, i) => (
-                    <img
-                      key={i}
-                      src={URL.createObjectURL(img)}
-                      className="preview-img"
-                      alt=""
-                    />
-                  ))}
-                </div>
-
-                <p>Restaurants: {city.restaurants.join(", ")}</p>
-
-                <div className="image-preview">
-                  {city.restaurantImages.map((img, i) => (
-                    <img
-                      key={i}
-                      src={URL.createObjectURL(img)}
-                      className="preview-img"
-                      alt=""
-                    />
-                  ))}
-                </div>
+      <h3 className="mp-subtitle">Registered Cities ({cities.length})</h3>
+      <div className="package-cards-container">
+        {cities.map((city, idx) => (
+          <div key={idx} className="package-card">
+            <img src={city.image} alt={city.cityName} className="pkg-img-preview" />
+            <div className="package-details">
+              <h3>{city.cityName}</h3>
+              <p><strong>Spots:</strong> {city.touristSpots.join(", ")}</p>
+              <div className="package-actions">
+                <button onClick={() => handleEdit(city)} className="edit-btn"><FaEdit /></button>
+                <button onClick={() => handleDelete(city.cityName)} className="delete-btn"><FaTrashAlt /></button>
               </div>
-            ))}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
     </div>
   );
 };

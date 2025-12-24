@@ -1,112 +1,73 @@
 import React, { useState } from "react";
-import { FaStar, FaEdit, FaTrash } from "react-icons/fa";
+import { FaStar } from "react-icons/fa";
 import "./Testimonials.css";
 
-
-const loggedInUser = "Malaika"; // simulate logged-in user
-
 const Testimonials = () => {
-  const [reviews, setReviews] = useState([]);
   const [reviewText, setReviewText] = useState("");
   const [rating, setRating] = useState(5);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const getDate = () => {
-    const d = new Date();
-    return `${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()}`;
-  };
+  // Pull the logged-in user's name from localStorage
+  const userData = JSON.parse(localStorage.getItem("user"));
+  const loggedInUser = userData ? userData.fullName : "Guest User";
 
-  const submitReview = () => {
+  const submitReview = async () => {
     if (!reviewText.trim()) return;
 
-    if (isEditing) {
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.user === loggedInUser
-            ? { ...r, text: reviewText, rating, date: getDate() }
-            : r
-        )
-      );
-      setIsEditing(false);
-    } else {
-      setReviews([
-        {
-          user: loggedInUser,
-          text: reviewText,
-          rating,
-          date: getDate(),
-        },
-        ...reviews,
-      ]);
+    const payload = { 
+      user: loggedInUser, 
+      text: reviewText, 
+      rating: rating 
+    };
+
+    try {
+      const res = await fetch("http://localhost:18080/api/testimonials/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        setIsSubmitted(true);
+        setReviewText("");
+        setRating(5);
+      }
+    } catch (err) {
+      alert("Feedback could not be saved. Ensure the C++ backend is running!");
     }
-
-    setReviewText("");
-    setRating(5);
   };
 
-  const editReview = (r) => {
-    setReviewText(r.text);
-    setRating(r.rating);
-    setIsEditing(true);
-  };
-
-  const deleteReview = () => {
-    setReviews((prev) => prev.filter((r) => r.user !== loggedInUser));
-  };
+  if (isSubmitted) {
+    return (
+      <div className="testimonial-page text-center" style={{padding: '50px'}}>
+        <h2 style={{color: '#008080'}}>Feedback Received!</h2>
+        <p>Thank you, {loggedInUser}. Your review has been saved to our records. 🎉</p>
+        <button className="btn highlight" onClick={() => setIsSubmitted(false)} style={{marginTop: '20px'}}>
+          Submit Another
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="testimonial-page">
       <h2>User Feedback</h2>
-
-      {/* ADD / EDIT REVIEW */}
       <div className="testimonial-form">
-        <textarea
-          placeholder="Share your experience..."
-          value={reviewText}
-          onChange={(e) => setReviewText(e.target.value)}
+        <textarea 
+          placeholder="Share your experience with Tourista..." 
+          value={reviewText} 
+          onChange={(e) => setReviewText(e.target.value)} 
         />
-
         <div className="rating-row">
           {[1, 2, 3, 4, 5].map((n) => (
-            <FaStar
-              key={n}
-              className={`star ${n <= rating ? "active" : ""}`}
-              onClick={() => setRating(n)}
+            <FaStar 
+              key={n} 
+              className={`star ${n <= rating ? "active" : ""}`} 
+              onClick={() => setRating(n)} 
             />
           ))}
         </div>
-
-        <button onClick={submitReview}>
-          {isEditing ? "Update Review" : "Submit Review"}
-        </button>
-      </div>
-
-      {/* DISPLAY REVIEWS */}
-      <div className="testimonial-list">
-        {reviews.map((r, i) => (
-          <div key={i} className="testimonial-card">
-            <p className="review-text">"{r.text}"</p>
-
-            <div className="review-footer">
-              <span className="review-user">{r.user}</span>
-              <span className="review-stars">
-                {"★".repeat(r.rating)}
-                {"☆".repeat(5 - r.rating)}
-              </span>
-            </div>
-
-            <div className="review-date">
-              Posted on: {r.date}
-            </div>
-
-            {r.user === loggedInUser && (
-              <div className="review-actions">
-                <FaEdit onClick={() => editReview(r)} />
-                <FaTrash onClick={deleteReview} />
-              </div>
-            )}
-          </div>
-        ))}
+        <button className="btn highlight" onClick={submitReview}>Submit Review</button>
       </div>
     </div>
   );

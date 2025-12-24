@@ -1,2 +1,5 @@
 Admin|admin@tourista.com|admin123|admin|0
 ALI|ali@example.com|ali123|user|1
+Ali Ahmed|ali@test.com|123|user|0
+Ahmed Khan|ahmed@test.com|password123|user|0
+emperor|emperor@gmail.com|emperor123|user|0

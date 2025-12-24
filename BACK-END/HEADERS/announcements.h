@@ -45,6 +45,44 @@ public:
         cout << "[Stack] Latest announcement pushed to Head (Top).\n";
     }
 
+    // --- Inside announcement_manager class in announcements.h ---
+
+    // 1. DELETE: Remove announcement by ID
+    bool delete_announcement(int target_id) {
+        announcement_node* temp = head;
+        while (temp) {
+            if (temp->id == target_id) {
+                // If it's the head (Top of Stack)
+                if (temp == head) {
+                    head = temp->next;
+                    if (head) head->prev = nullptr;
+                } else {
+                    // Bridge the gap between prev and next
+                    if (temp->prev) temp->prev->next = temp->next;
+                    if (temp->next) temp->next->prev = temp->prev;
+                }
+                delete temp;
+                cout << "[Stack] Announcement " << target_id << " deleted.\n";
+                return true;
+            }
+            temp = temp->next;
+        }
+        return false;
+    }
+
+    // 2. EDIT: Update announcement message by ID
+    // --- Inside announcements.h ---
+bool edit_announcement(int target_id, string new_msg) {
+    announcement_node* temp = head;
+    while (temp) {
+        if (temp->id == target_id) {
+            temp->message = new_msg;
+            return true; // SUCCESS
+        }
+        temp = temp->next;
+    }
+    return false; // NOT FOUND
+}
     // --- JSON SERIALIZATION (Starts from Head/Top) ---
     crow::json::wvalue get_announcements_json() {
         vector<crow::json::wvalue> list;

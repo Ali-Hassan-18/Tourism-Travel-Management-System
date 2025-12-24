@@ -70,10 +70,42 @@ const PlanTrip = () => {
     }));
   };
 
-  const handleFinalContinue = () => {
-    setShowConfirm(false);
-    setShowReceived(true);
+  const handleFinalContinue = async () => {
+  // 1. Prepare data for the C++ backend
+  const payload = {
+    email: formData.email,
+    city: formData.destination,
+    title: "Custom Planned Trip",
+    category: "Planned",
+    total: 0, // Custom trips usually have a pending bill
+    img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470", // Default map/trip image
+    members: formData.adults, // Main count
+    kids: formData.children,
+    infants: formData.infants,
+    couples: formData.couples,
+    transport: formData.travelMode,
+    travelDate: formData.startDate,
+    nights: 0, // C++ will use the dates instead
+    endDate: formData.endDate,
+    diet: "Interests: " + formData.interests.join(", ") + " | Phone: " + formData.phone
   };
+
+  try {
+    const response = await fetch('http://localhost:18080/api/book/detailed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+    if (data.status === "success") {
+      setShowConfirm(false);
+      setShowReceived(true);
+    }
+  } catch (error) {
+    alert("C++ Server is offline. Could not save request.");
+  }
+};
 
   const nextStep = () => setStep((p) => Math.min(p + 1, 4));
   const prevStep = () => setStep((p) => Math.max(p - 1, 1));
@@ -82,31 +114,44 @@ const PlanTrip = () => {
   return (
     <>
       {showConfirm && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <h2 className="modal-title">Trip Summary</h2>
-            <div className="summary-row"><strong>Destination:</strong> 
-            <span>{formData.destination || "Not selected"}</span>
-            </div>
-            <div className="summary-row"><strong>Dates:</strong> 
-            <span>{formData.startDate} → {formData.endDate}</span>
-            </div>
-            <div className="summary-row"><strong>Travelers:</strong>
-             <span>{formData.adults} Adults, {formData.children} Kids</span>
-             </div>
-            <div className="summary-row"><strong>Mode:</strong> 
-            <span>{formData.travelMode}</span>
-            </div>
-            <div className="summary-row"><strong>Interests:</strong>
-             <span>{formData.interests.length} Selected</span>
-             </div>
-            <div className="modal-actions">
-              <button className="btn secondary" onClick={() => setShowConfirm(false)}>Close</button>
-              <button className="btn highlight" onClick={handleFinalContinue}>Continue</button>
-            </div>
-          </div>
-        </div>
-      )}
+  <div className="modal-overlay">
+    <div className="modal-card">
+      <h2 className="modal-title">Trip Summary</h2>
+      
+      <div className="summary-row"><strong>Destination:</strong> 
+        <span>{formData.destination}</span>
+      </div>
+      
+      <div className="summary-row"><strong>Dates:</strong> 
+        <span>{formData.startDate} → {formData.endDate}</span>
+      </div>
+      
+      <div className="summary-row"><strong>Travelers:</strong>
+        <span>
+          {formData.adults} Adults, {formData.children} Kids, 
+          {formData.infants} Infants, {formData.couples} Couples
+        </span>
+      </div>
+
+      <div className="summary-row"><strong>Contact Info:</strong>
+        <span>{formData.email} | {formData.phone}</span>
+      </div>
+      
+      <div className="summary-row"><strong>Travel Mode:</strong> 
+        <span>{formData.travelMode}</span>
+      </div>
+      
+      <div className="summary-row"><strong>Interests:</strong>
+        <span style={{ fontSize: '0.9rem' }}>{formData.interests.join(", ")}</span>
+      </div>
+
+      <div className="modal-actions">
+        <button className="btn secondary" onClick={() => setShowConfirm(false)}>Close</button>
+        <button className="btn highlight" onClick={handleFinalContinue}>Confirm & Request</button>
+      </div>
+    </div>
+  </div>
+)}
 
       {showReceived && (
         <div className="modal-overlay">

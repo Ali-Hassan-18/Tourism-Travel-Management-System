@@ -18,6 +18,62 @@
 .disc-hero-text h1 { font-size: 2.5rem; margin: 10px 0; font-weight: 800; color: #1a1a1a; }
 .disc-hero-text p { color: #666; font-size: 1rem; }
 
+/* Currency Filter - ADDED */
+.currency-filter {
+  background: #fff7ed;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin: 15px 0;
+  border: 1px solid #fed7aa;
+  max-width: 450px;
+}
+
+.currency-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.currency-label {
+  font-weight: 700;
+  color: #ea580c;
+  font-size: 0.85rem;
+}
+
+.currency-toggle-buttons {
+  display: flex;
+  gap: 8px;
+  background: #ffedd5;
+  padding: 3px;
+  border-radius: 25px;
+  border: 1px solid #fdba74;
+}
+
+.currency-toggle-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #ea580c;
+  transition: all 0.2s;
+}
+
+.currency-toggle-btn.active {
+  background: #f97316;
+  color: white;
+}
+
+.exchange-rate-info {
+  font-size: 0.7rem;
+  color: #d97706;
+  text-align: center;
+  padding: 4px;
+}
+
 .disc-mini-feats { display: flex; gap: 15px; margin-top: 20px; }
 .d-feat { background: #fff7ed; color: #ea580c; padding: 8px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; }
 
@@ -73,18 +129,171 @@
 .old-price { font-size: 0.8rem; color: #aaa; text-decoration: line-through; }
 .new-price { font-size: 1.2rem; font-weight: 800; color: #ef4444; }
 
+/* Savings Badge - ADDED */
+.savings-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 3px;
+}
+
 .d-req-btn {
   background: #1a1a1a; color: white; border: none;
   padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer;
 }
 
-/* Modal */
-.d-total-box {
-  background: #ef4444; color: #fff; padding: 15px;
-  border-radius: 12px; text-align: center; margin-bottom: 15px;
+/* Modal Styles - UPDATED */
+.p-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
-.savings-label { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; color: #ffdada; }
+
+.p-modal {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  width: 380px;
+  position: relative;
+}
+
+.p-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: #666;
+}
+
+.p-modal-header {
+  margin-bottom: 20px;
+}
+
+.p-modal-header h2 {
+  font-size: 1.3rem;
+  color: #1a1a1a;
+  margin-bottom: 5px;
+  font-weight: 800;
+}
+
+.p-modal-header p {
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Modal Form - UPDATED */
+.p-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.p-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.p-group label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.p-group input,
+.p-group select {
+  padding: 8px 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+/* Total Box - UPDATED (Single Color) */
+.d-total-box {
+  background: #ef4444; 
+  color: #fff; 
+  padding: 15px;
+  border-radius: 12px; 
+  text-align: center; 
+  margin-bottom: 15px;
+}
+
+.savings-label { 
+  font-size: 0.75rem; 
+  font-weight: 800; 
+  color: #ffdada;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.total-display h3 {
+  font-size: 1.5rem;
+  color: white;
+  margin: 0;
+  font-weight: 800;
+}
+
 .d-confirm-btn {
-  width: 100%; background: #1a1a1a; color: #fff; border: none;
-  padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;
+  width: 100%; 
+  background: #1a1a1a; 
+  color: #fff; 
+  border: none;
+  padding: 12px; 
+  border-radius: 10px; 
+  font-weight: 700; 
+  cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .disc-hero {
+    flex-direction: column;
+    gap: 30px;
+  }
+  
+  .disc-hero-visual img {
+    height: 250px;
+  }
+  
+  .disc-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .currency-filter-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .currency-toggle-buttons {
+    width: 100%;
+  }
+  
+  .currency-toggle-btn {
+    flex: 1;
+    padding: 6px 12px;
+  }
+  
+  .p-modal {
+    width: 90%;
+    padding: 20px;
+  }
+  
+  .p-form {
+    grid-template-columns: 1fr;
+  }
 }

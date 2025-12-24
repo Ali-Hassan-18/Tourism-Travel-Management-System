@@ -26,7 +26,7 @@
   padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem; /* reduced gap for tighter spacing */
+  gap: 1rem;
 }
 
 /* PAGE TITLE */
@@ -43,14 +43,13 @@
   padding: 1.8rem;
   border-radius: var(--radius);
   box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-
 }
 
 /* FORM TITLE */
 .card-form-title {
   font-size: 1.4rem;
   font-weight: 600;
-  margin-bottom: 0.5rem; /* reduced from 1rem */
+  margin-bottom: 0.5rem;
   color: var(--teal);
 }
 
@@ -61,6 +60,7 @@
   gap: 1rem 1.5rem;
 }
 
+/* FIXED NUMERIC INPUT AND ALIGNMENT */
 .package-form-grid input,
 .package-form-grid select {
   height: 46px;
@@ -76,13 +76,23 @@
   transition: 0.25s;
 }
 
+/* Remove spin buttons for numeric price inputs */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .package-form-grid input:focus,
 .package-form-grid select:focus {
   border-color: var(--teal);
   box-shadow: 0 0 0 3px rgba(0,128,128,0.15);
 }
 
-/* FILE INPUT STYLING LIKE ADDCITY */
+/* FILE INPUT STYLING */
 .file-input-wrapper {
   height: 46px;
   border-radius: 12px;
@@ -168,7 +178,7 @@
   background-color: #eaeaea;
 }
 
-/* PACKAGE LIST TITLE */
+/* PACKAGE LIST */
 .mp-subtitle {
   font-size: 1.4rem;
   font-weight: 600;
@@ -176,7 +186,6 @@
   margin-bottom: 1rem;
 }
 
-/* EMPTY MESSAGE */
 .mp-empty {
   color: var(--muted);
   font-style: italic;
@@ -184,14 +193,12 @@
   margin-top: 1rem;
 }
 
-/* PACKAGE CARDS CONTAINER */
 .package-cards-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-/* SINGLE PACKAGE CARD */
 .package-card {
   background: #ffffff;
   border-radius: 12px;
@@ -207,7 +214,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* PACKAGE IMAGES */
 .package-images {
   display: flex;
   gap: 8px;
@@ -216,14 +222,8 @@
   margin-bottom: 0.8rem;
 }
 
-.package-images::-webkit-scrollbar {
-  height: 6px;
-}
-
-.package-images::-webkit-scrollbar-thumb {
-  background-color: var(--teal);
-  border-radius: 4px;
-}
+.package-images::-webkit-scrollbar { height: 6px; }
+.package-images::-webkit-scrollbar-thumb { background-color: var(--teal); border-radius: 4px; }
 
 .package-images img {
   flex: 0 0 auto;
@@ -231,14 +231,8 @@
   height: 90px;
   border-radius: 6px;
   object-fit: cover;
-  transition: transform 0.2s;
 }
 
-.package-images img:hover {
-  transform: scale(1.05);
-}
-
-/* PACKAGE DETAILS */
 .package-details h3 {
   margin: 0.3rem 0 0.5rem 0;
   color: #006666;
@@ -257,7 +251,6 @@
   padding-left: 0;
 }
 
-/* PACKAGE CARD ACTION BUTTONS */
 .package-actions {
   display: flex;
   gap: 8px;
@@ -273,32 +266,13 @@
   transition: 0.25s;
 }
 
-.edit-btn {
-  background-color: #e0f3f3;
-  color: #006666;
-}
+.edit-btn { background-color: #e0f3f3; color: #006666; }
+.edit-btn:hover { background-color: var(--teal); color: #fff; }
 
-.edit-btn:hover {
-  background-color: var(--teal);
-  color: #fff;
-}
+.delete-btn { background-color: #ff4c4c; color: #fff; }
+.delete-btn:hover { background-color: #cc0000; }
 
-.delete-btn {
-  background-color: #ff4c4c;
-  color: #fff;
-}
-
-.delete-btn:hover {
-  background-color: #cc0000;
-}
-
-/* RESPONSIVE */
 @media (max-width: 900px) {
-  .package-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .package-cards-container {
-    grid-template-columns: 1fr;
-  }
+  .package-form-grid { grid-template-columns: 1fr; }
+  .package-cards-container { grid-template-columns: 1fr; }
 }

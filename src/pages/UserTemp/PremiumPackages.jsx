@@ -2,34 +2,11 @@ import React, { useState, useEffect } from 'react';
 import './PremiumPackages.css';
 
 const PremiumPackages = () => {
-  const [packages] = useState([
-    { 
-      id: 1, 
-      title: "Shangrila Royal Villa", 
-      basePrice: 450, 
-      location: "Skardu", 
-      img: "https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=600&q=80",
-      features: ["Lakeside View", "Private Butler", "Helicopter Safari"]
-    },
-    { 
-      id: 2, 
-      title: "Serena Hunza Suite", 
-      basePrice: 380, 
-      location: "Hunza", 
-      img: "https://images.unsplash.com/photo-1548013146-72479768bbaa?auto=format&fit=crop&w=600&q=80",
-      features: ["Historical Tour", "Yacht Access", "SUV Transport"]
-    },
-    { 
-      id: 3, 
-      title: "Malam Jabba VIP", 
-      basePrice: 320, 
-      location: "Swat", 
-      img: "https://images.unsplash.com/photo-1627440406023-7a915159021a?auto=format&fit=crop&w=600&q=80",
-      features: ["Ski Gear Inc.", "Lounge Access", "Spa Therapy"]
-    }
-  ]);
-
+  // 1. Dynamic State from C++ Backend
+  const [packages, setPackages] = useState([]);
   const [selectedPkg, setSelectedPkg] = useState(null);
+  const [total, setTotal] = useState(0);
+
   const [bookingForm, setBookingForm] = useState({
     members: 1,
     nights: 1,
@@ -39,8 +16,15 @@ const PremiumPackages = () => {
     transport: 'Land Cruiser'
   });
 
-  const [total, setTotal] = useState(0);
+  // 2. Fetch "Premium" Tier from Doubly Linked List
+  useEffect(() => {
+    fetch('http://localhost:18080/api/packages/Premium')
+      .then(res => res.json())
+      .then(data => setPackages(data))
+      .catch(err => console.error("Failed to load premium packages:", err));
+  }, []);
 
+  // 3. Dynamic Price Calculation matching your Elite logic
   useEffect(() => {
     if (selectedPkg) {
       const base = selectedPkg.basePrice * bookingForm.members * bookingForm.nights;
@@ -48,22 +32,58 @@ const PremiumPackages = () => {
       const transportAdd = bookingForm.transport === 'Range Rover' ? 300 : 150;
       const foodTypeAdd = bookingForm.foodType === 'Gourmet/Organic' ? 50 : 0;
       
-      setTotal(base + (dietAdd * bookingForm.members * bookingForm.nights) + (transportAdd * bookingForm.nights) + (foodTypeAdd * bookingForm.members * bookingForm.nights));
+      setTotal(base + (dietAdd * bookingForm.members * bookingForm.nights) + 
+              (transportAdd * bookingForm.nights) + 
+              (foodTypeAdd * bookingForm.members * bookingForm.nights));
     }
   }, [bookingForm, selectedPkg]);
 
-  const handleConfirm = () => {
+  // 4. Submit Dynamic Metadata to C++
+  const handleConfirm = async () => {
     if(!bookingForm.travelDate) {
       alert("Please select a travel date.");
       return;
     }
-    alert(`Booking Confirmed for ${selectedPkg.title} on ${bookingForm.travelDate}! Total: $${total.toLocaleString()}`);
-    setSelectedPkg(null);
+
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (!userData) {
+      alert("Please login to book a premium trip!");
+      return;
+    }
+
+    const payload = {
+      email: userData.email,
+      city: selectedPkg.location,
+      title: selectedPkg.title,
+      category: "Premium",
+      total: total,
+      members: parseInt(bookingForm.members),
+      nights: parseInt(bookingForm.nights),
+      travelDate: bookingForm.travelDate,
+      transport: bookingForm.transport,
+      diet: `Plan: ${bookingForm.diet}, Style: ${bookingForm.foodType}`,
+      img: selectedPkg.img
+    };
+
+    try {
+      const response = await fetch('http://localhost:18080/api/book/detailed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+      if (data.status === "success") {
+        alert(`Elite Booking Confirmed for ${selectedPkg.title}!\nFinal Bill: $${total.toLocaleString()}`);
+        setSelectedPkg(null);
+      }
+    } catch (error) {
+      alert("Server connection error.");
+    }
   };
 
   return (
     <div className="prem-container">
-      {/* Hero Section */}
       <section className="prem-hero">
         <div className="prem-hero-text">
           <span className="prem-label">PREMIUM SELECTION</span>
@@ -80,7 +100,6 @@ const PremiumPackages = () => {
         </div>
       </section>
 
-      {/* 3-Column Grid */}
       <section className="prem-grid">
         {packages.map((pkg) => (
           <div key={pkg.id} className="p-card">
@@ -91,7 +110,8 @@ const PremiumPackages = () => {
               <h3>{pkg.title}</h3>
               <p className="p-loc">📍 {pkg.location}</p>
               <ul className="p-list">
-                {pkg.features.map((f, i) => (
+                {/* Dynamically splits elite features if stored as a comma-separated string in C++ */}
+                {(pkg.features || ["VIP Lounge", "Private Guide", "Luxury Suite"]).map((f, i) => (
                   <li key={i}>{f}</li>
                 ))}
               </ul>
@@ -104,7 +124,6 @@ const PremiumPackages = () => {
         ))}
       </section>
 
-      {/* Booking Modal */}
       {selectedPkg && (
         <div className="p-modal-overlay">
           <div className="p-modal">
@@ -116,11 +135,7 @@ const PremiumPackages = () => {
             <div className="p-form">
               <div className="p-group">
                 <label>Departure Date</label>
-                <input 
-                  type="date" 
-                  value={bookingForm.travelDate} 
-                  onChange={(e) => setBookingForm({...bookingForm, travelDate: e.target.value})} 
-                />
+                <input type="date" value={bookingForm.travelDate} onChange={(e) => setBookingForm({...bookingForm, travelDate: e.target.value})} />
               </div>
               <div className="p-group">
                 <label>Guests</label>

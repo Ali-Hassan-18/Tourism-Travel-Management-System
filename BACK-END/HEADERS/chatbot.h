@@ -6,73 +6,83 @@
 #include <fstream>
 #include <cstdlib>
 #include <algorithm>
-#include "utilities.h" // Essential for centralized path logic
+#include <cstdio>
+#include "utilities.h"
 
 using namespace std;
 
 class tourista_bot {
 private:
-    // Helper to escape single quotes so PowerShell command doesn't break
-    string escape_quotes(string str) {
+    // Aggressive cleaning to ensure no shell-reserved characters remain
+    string super_sanitize(string str) {
         string result = "";
         for (char c : str) {
-            if (c == '\'') {
-                result += "''"; // PowerShell handles apostrophes as double single-quotes
-            } else {
-                result += c;
-            }
+            if (c == '\'') result += " ";   // Remove single quotes entirely to be safe
+            else if (c == '\"') result += " "; // Remove double quotes
+            else if (c == '&') result += " and "; // Replace ampersands
+            else if (c == '(' || c == ')') result += " "; // Remove parentheses
+            else if (c == '\n' || c == '\r' || c == '|') result += " "; 
+            else result += c;
         }
         return result;
     }
 
-    // Fetches context from data files using the centralized path
     string get_file_context() {
-        string context = "Current Tourista Database Info: ";
+        string context = "";
         string path = tourista_utils::get_path();
-        string files[] = {"cities.txt", "packages.txt"}; // Relevant files for recommendations
         
-        for (const string& f : files) {
-            ifstream in(path + f);
-            if (!in) continue;
+        ifstream in(path + "packages.txt");
+        if (in) {
             string line;
             while (getline(in, line)) {
-                // Replace delimiters with spaces for natural language understanding
-                replace(line.begin(), line.end(), '|', ' ');
-                context += line + ". ";
+                if (line.length() < 10) continue;
+                size_t p[6]; p[0] = -1;
+                for(int i=1; i<=5; i++) p[i] = line.find('|', p[i-1]+1);
+                
+                if (p[4] != string::npos) {
+                    string city  = line.substr(p[1] + 1, p[2] - p[1] - 1);
+                    string title = line.substr(p[2] + 1, p[3] - p[2] - 1);
+                    string price = line.substr(p[3] + 1, p[4] - p[3] - 1);
+                    context += "Trip: " + title + " in " + city + " is $" + price + ". ";
+                }
             }
             in.close();
         }
-        return context;
+        return super_sanitize(context);
+    }
+
+    string exec(const char* cmd) {
+        char buffer[4096];
+        string result = "";
+        FILE* pipe = _popen(cmd, "r");
+        if (!pipe) return "Error: Connection failed.";
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+        _pclose(pipe);
+        if (!result.empty()) {
+            result.erase(result.find_last_not_of(" \n\r\t") + 1);
+            result.erase(0, result.find_first_not_of(" \n\r\t"));
+        }
+        return result;
     }
 
 public:
-    void chat() {
-        string user_query;
-        cout << "\n[Tourista AI]: Connecting to Llama 3 via local RAG bridge...\n";
-        cout << "I have read your database. Ask me anything! (type 'exit' to quit)\n";
+    string get_ai_response(string user_query) {
+        string safe_query = super_sanitize(user_query);
+        string safe_context = get_file_context();
         
-        while (true) {
-            cout << "\nYou: ";
-            getline(cin, user_query);
-            if (tourista_utils::to_lower(user_query) == "exit") break;
+        // We move instructions into the PowerShell script to avoid escaping issues
+        string command = "powershell -NoProfile -ExecutionPolicy Bypass -Command \""
+                         "$context = '" + safe_context + "'; "
+                         "$query = '" + safe_query + "'; "
+                         "$sys = 'You are a factual Tourista agent. Use ONLY the database provided. Do not invent transport or days. Prices in USD only.'; "
+                         "$prompt = $sys + ' Database: ' + $context + ' | User: ' + $query; "
+                         "$body = @{model='llama3'; prompt=$prompt; stream=$false} | ConvertTo-Json; "
+                         "$res = Invoke-RestMethod -Method Post -Uri 'http://localhost:11434/api/generate' -Body $body -ContentType 'application/json'; "
+                         "$res.response\"";
 
-            // Step 1: Sanitize and fetch context
-            string safe_query = escape_quotes(user_query);
-            string context = escape_quotes(get_file_context());
-            
-            // Step 2: Construct a Professional Prompt
-            string system_role = "You are a professional travel agent for Tourista Management System. ";
-            string instruction = "Use the following context to answer the user query. If the data is not there, say you can customize a plan. ";
-            string full_prompt = system_role + instruction + "Context Data: " + context + " | User Question: " + safe_query;
-
-            // Step 3: PowerShell Bridge to Ollama API
-            // This command sends the prompt to Llama and extracts only the 'response' field from the JSON
-            string command = "powershell -command \"$res = Invoke-RestMethod -Method Post -Uri http://localhost:11434/api/generate -Body (ConvertTo-Json @{model='llama3'; prompt='" + full_prompt + "'; stream=$false}); $res.response\"";
-
-            cout << "[Tourista AI]: Consulting database...\n";
-            system(command.c_str()); 
-            cout << endl;
-        }
+        return exec(command.c_str());
     }
 };
 

@@ -1,65 +1,74 @@
 import React, { useState, useEffect } from "react";
 import "./ManageUsers.css";
-
-const STORAGE_KEY = "touristaUsers";
-
-// Function to load users safely from localStorage and merge with default users
-const loadUsersFromLS = () => {
-  const data = localStorage.getItem(STORAGE_KEY);
-  const defaultUsers = [
-    { id: 1, name: "Ayesha Khan", email: "ayesha@example.com", package: "Premium" },
-    { id: 2, name: "Usman Baig", email: "usman@example.com", package: null },
-    { id: 3, name: "Ali", email: "ali@example.com", package: "Basic" },
-    { id: 4, name: "Sara Malik", email: "sara@example.com", package: "Standard" },
-    { id: 5, name: "Hassan Raza", email: "hassan@example.com", package: null },
-  ];
-
-  if (data) {
-    try {
-      const parsed = JSON.parse(data);
-      // Merge saved users with any default users that are missing
-      const merged = [...parsed];
-      defaultUsers.forEach((du) => {
-        if (!parsed.find((u) => u.id === du.id)) merged.push(du);
-      });
-      return merged;
-    } catch {
-      return defaultUsers;
-    }
-  }
-  return defaultUsers;
-};
-
-// Save users to localStorage
-const saveUsersToLS = (users) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(users));
-};
+import { FaSearch, FaUserCircle } from "react-icons/fa";
 
 const ManageUsers = () => {
-  const [users, setUsers] = useState(loadUsersFromLS());
+  const [users, setUsers] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const fetchUsers = async () => {
+    try {
+      const res = await fetch("http://localhost:18080/api/admin/users");
+      const data = await res.json();
+      setUsers(data); 
+    } catch (err) {
+      console.error("Failed to fetch users from C++ backend.");
+    }
+  };
 
   useEffect(() => {
-    saveUsersToLS(users);
-  }, [users]);
+    fetchUsers();
+  }, []);
+
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="mp-outer">
       <div className="mp-card">
-        <h2 className="mp-title">Manage Users</h2>
-
-        {users.length === 0 && <p className="mp-empty">No users found.</p>}
-
-        <div className="mp-list">
-          {users.map((user) => (
-            <div className="mp-package" key={user.id}>
-              <div className="mp-body">
-                <h3>{user.name}</h3>
-                <p><strong>Email:</strong> {user.email}</p>
-                <p><strong>Package:</strong> {user.package ? user.package : "Not Availing"}</p>
-              </div>
-            </div>
-          ))}
+        <div className="mu-header">
+          <h2 className="mp-title">Registered Users</h2>
+          
+          <div className="mu-search-wrapper">
+            <FaSearch className="mu-search-icon" />
+            <input
+              type="text"
+              className="mu-search-input"
+              placeholder="Search by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
         </div>
+
+        {filteredUsers.length === 0 ? (
+          <p className="mp-empty">No users found matching your search.</p>
+        ) : (
+          <div className="mp-list">
+            {filteredUsers.map((user, index) => (
+              <div className="mp-package" key={index}>
+                <div className="mu-user-info">
+                  <div className="mu-avatar">
+                    {user.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="mp-body">
+                    <h3>{user.name}</h3>
+                    <p className="mu-email">{user.email}</p>
+                  </div>
+                </div>
+                
+                <div className="mu-status">
+                  <span className="mu-label">Packages:</span>
+                  <span className={`mu-badge ${user.trips > 0 ? 'active' : 'inactive'}`}>
+                    {user.trips} Trips
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

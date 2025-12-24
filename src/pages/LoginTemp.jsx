@@ -56,28 +56,38 @@ const LoginTemporary = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      if (isLogin) {
-        // Admin Login
-        if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-            console.log("Admin login successful");
-            navigate("/admin-dashboard");
-            return;
-        }
+    const endpoint = isLogin ? "/api/login" : "/api/signup";
+    const payload = isLogin 
+      ? { email, password } 
+      : { fullName, email, password };
 
-        // Regular User Login
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log("User login successful:", userCredential.user.email);
-        navigate("/dashboard");
+    try {
+      const response = await fetch(`http://localhost:18080${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        console.log(`${isLogin ? "Login" : "Sign up"} successful:`, data.user.email);
+        
+        // Save user data to localStorage so other pages can see who is logged in
+        localStorage.setItem("user", JSON.stringify(data.user));
+
+        // Navigate based on role returned by C++
+        if (data.user.role === "admin") {
+          navigate("/admin-dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
-        // Sign Up
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        console.log("Sign up successful:", userCredential.user.email);
-        navigate("/dashboard");
+        alert("Authentication Failed: " + data.message);
       }
     } catch (error) {
-        console.error("Authentication failed:", error.code, error.message);
-        alert("Authentication Failed: " + error.message); // Temporary for debugging
+      console.error("Connection to C++ Backend failed:", error);
+      alert("Backend Server is not running on port 18080");
     }
   };
 

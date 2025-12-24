@@ -42,10 +42,31 @@ const Dashboard = () => {
 
   // Re-show red dot if the number of announcements increases
   useEffect(() => {
-    if (announcements.length > lastViewedCount) {
-      setHasNewNotifications(true);
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await fetch("http://localhost:18080/api/announcements");
+      const data = await res.json();
+      
+      // Update state with the latest stack from C++
+      setAnnouncements(data.map(a => ({ 
+        id: a.id, 
+        message: a.message, 
+        time: a.time 
+      })));
+    } catch (err) {
+      console.error("Fetch failed");
     }
-  }, [announcements.length, lastViewedCount]);
+  };
+
+  // 1. Initial fetch
+  fetchAnnouncements();
+
+  // 2. Set up Polling (Check every 5 seconds)
+  const interval = setInterval(fetchAnnouncements, 5000);
+
+  // 3. Cleanup to prevent memory leaks
+  return () => clearInterval(interval);
+}, []);
 
   const handleAnnounceToggle = () => {
     const isOpening = !announceOpen;
@@ -88,31 +109,39 @@ const Dashboard = () => {
     }
   };
 
-  /* ================= SIMPLE BOT LOGIC ================= */
-  const botReply = (text) => {
-    const msg = text.toLowerCase();
-    if (msg.includes("hunza")) return "Hunza Valley is famous for Karimabad, Passu Cones, and Attabad Lake.";
-    if (msg.includes("naran")) return "Naran Kaghan is best visited between May and September.";
-    if (msg.includes("discount")) return "Currently, a 20% winter discount is available 🎉";
-    if (msg.includes("weather")) return "Weather varies by region. Northern areas are cold in winter.";
-    if (msg.includes("package")) return "You can explore economical and premium packages from the sidebar.";
-    return "I'm still learning 🤖 Please ask about cities, packages, or weather.";
-  };
+  const sendMessage = async () => {
+  if (!chatInput.trim()) return;
 
-  const sendMessage = () => {
-    if (!chatInput.trim()) return;
+  // 1. Add the user's message to the chat UI immediately
+  const userMessage = { sender: "user", text: chatInput };
+  setMessages((prev) => [...prev, userMessage]);
+  setChatInput("");
+  setIsTyping(true); // Show the "..." typing indicator
 
-    const userMessage = { sender: "user", text: chatInput };
-    setMessages((prev) => [...prev, userMessage]);
-    setChatInput("");
-    setIsTyping(true);
+  try {
+    // 2. Call your C++ Backend Chat API
+    const response = await fetch("http://localhost:18080/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: userMessage.text }),
+    });
 
-    setTimeout(() => {
-      const response = botReply(userMessage.text);
-      setMessages((prev) => [...prev, { sender: "bot", text: response }]);
-      setIsTyping(false);
-    }, 1000);
-  };
+    if (!response.ok) throw new Error("Backend Offline");
+
+    const data = await response.json();
+    
+    // 3. Add the AI's real response to the chat
+    setMessages((prev) => [...prev, { sender: "bot", text: data.reply }]);
+  } catch (error) {
+    // Fallback error message if the C++ server or Ollama is down
+    setMessages((prev) => [
+      ...prev, 
+      { sender: "bot", text: "I'm having trouble connecting to the AI engine. Please ensure the C++ backend and Ollama are running." }
+    ]);
+  } finally {
+    setIsTyping(false); // Hide the typing indicator
+  }
+};
 
   const renderContent = () => {
     switch (selectedOption) {
