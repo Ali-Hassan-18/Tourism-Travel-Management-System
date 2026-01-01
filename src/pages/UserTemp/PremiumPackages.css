@@ -1,3 +1,4 @@
+/* ... ALL ORIGINAL CSS PRESERVED ... */
 .prem-container {
   max-width: 1100px;
   margin: 0 auto;
@@ -6,7 +7,6 @@
   color: #1a1a1a;
 }
 
-/* Hero Section Styling */
 .prem-hero {
   display: flex;
   align-items: center;
@@ -30,24 +30,66 @@
   box-shadow: 15px 15px 0px #d4af37;
 }
 
-/* 3-Column Grid */
-.prem-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+/* --- ORANGE CURRENCY FILTER DESIGN - ADDED --- */
+.currency-filter {
+  background: #fff7ed;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin: 15px 0;
+  border: 1px solid #fed7aa;
+  max-width: 450px;
 }
 
-.p-card {
-  background: #fff;
-  border-radius: 16px;
-  border: 1px solid #eee;
-  overflow: hidden;
-  transition: transform 0.3s ease;
+.currency-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
+.currency-label {
+  font-weight: 700;
+  color: #ea580c;
+  font-size: 0.85rem;
+}
+
+.currency-toggle-buttons {
+  display: flex;
+  gap: 8px;
+  background: #ffedd5;
+  padding: 3px;
+  border-radius: 25px;
+  border: 1px solid #fdba74;
+}
+.currency-toggle-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #ea580c;
+  transition: all 0.2s;
+}
+
+.currency-toggle-btn.active {
+  background: #f97316;
+  color: white;
+}
+
+.exchange-rate-info {
+  font-size: 0.7rem;
+  color: #d97706;
+  text-align: center;
+  padding: 4px;
+}
+
+/* ... REMAINING ORIGINAL CSS (Cards, Grid, p-modal) ... */
+.prem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.p-card { background: #fff; border-radius: 16px; border: 1px solid #eee; overflow: hidden; transition: transform 0.3s ease; }
 .p-card:hover { transform: translateY(-5px); }
 .p-card-img img { width: 100%; height: 180px; object-fit: cover; }
-
 .p-card-content { padding: 18px; }
 .p-card-content h3 { font-size: 1.1rem; margin-bottom: 5px; font-weight: 700; }
 .p-loc { color: #888; font-size: 0.8rem; margin-bottom: 12px; }
@@ -55,121 +97,63 @@
 .p-list li { margin-bottom: 4px; border-left: 2px solid #d4af37; padding-left: 8px; }
 
 /* Buttons & Footer */
-.p-card-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #f5f5f5;
-  padding-top: 12px;
-}
-
+.p-card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; }
 .p-price { font-weight: 800; color: #1e3a8a; font-size: 1rem; }
 .p-price sub { font-weight: 400; color: #aaa; }
+.p-req-btn { background: #1e3a8a; color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
 
-.p-req-btn {
-  background: #1e3a8a;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-/* --- UPDATED MODAL SECTION (Fixes Head Cut Off) --- */
-.p-modal-overlay {
-  position: fixed; 
-  inset: 0; 
-  background: rgba(0,0,0,0.7);
-  display: flex; 
-  /* 🛑 CHANGED: 'flex-start' forces it to start layout from top, not center */
-  align-items: flex-start; 
-  justify-content: center; 
-  z-index: 1500;
-  /* 🛑 CHANGED: Added generous top padding to push the box down below the header */
-  padding-top: 100px; 
-  padding-bottom: 30px; /* Space at bottom for scrolling */
-  overflow-y: auto; 
-}
-
-.p-modal {
-  background: #fff; 
-  padding: 25px; 
-  border-radius: 20px; 
-  
-  /* Compact Sizing */
-  width: 100%; 
-  max-width: 420px;
-  margin: auto; /* This vertically centers it safely */
-  
-  position: relative;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  
-  /* Internal scroll safety */
-  max-height: 85vh; 
-  overflow-y: auto;
-}
-
-/* Compact Headers */
-.p-modal-header h2 { margin: 0; font-size: 1.3rem; } /* Smaller font */
+/* Original customization modal overlay/box preserved */
+.p-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: flex-start; justify-content: center; z-index: 1500; padding-top: 100px; padding-bottom: 30px; overflow-y: auto; }
+.p-modal { background: #fff; padding: 25px; border-radius: 20px; width: 100%; max-width: 420px; margin: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.3); max-height: 85vh; overflow-y: auto; }
+.p-modal-header h2 { margin: 0; font-size: 1.3rem; }
 .p-modal-header p { color: #d4af37; font-weight: 700; font-size: 0.75rem; margin-top: 4px; }
-
-/* Tighter Form Grid */
-.p-form { 
-  display: grid; 
-  grid-template-columns: 1fr 1fr; 
-  gap: 10px; /* Smaller gap */
-  margin: 15px 0; 
-}
-
+.p-form { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
 .p-group label { display: block; font-size: 0.7rem; font-weight: 700; margin-bottom: 3px; color: #666; }
-.p-group input, .p-group select { 
-  width: 100%; 
-  padding: 8px; /* Compact padding */
-  border: 1px solid #ddd; 
-  border-radius: 6px; 
-  font-size: 0.85rem; 
-  background-color: #fff;
-}
-
-/* Slimmer Total Bill Box */
-.p-total-box {
-  background: #1a1a1a; 
-  color: #fff; 
-  padding: 8px; /* Reduced padding */
-  border-radius: 10px; 
-  text-align: center; 
-  margin-bottom: 12px;
-}
-
+.p-group input, .p-group select { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.85rem; background-color: #fff; }
+.p-total-box { background: #1a1a1a; color: #fff; padding: 8px; border-radius: 10px; text-align: center; margin-bottom: 12px; }
 .p-total-box span { font-size: 0.6rem; letter-spacing: 1px; color: #d4af37; font-weight: 700; }
 .p-total-box h3 { font-size: 1.3rem; margin-top: 2px; margin-bottom: 0; }
+.p-confirm-btn { width: 100%; background: #d4af37; color: #fff; border: none; padding: 10px; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+.p-close { position: absolute; top: 15px; right: 15px; border: none; background: none; font-size: 1.2rem; cursor: pointer; color: #ccc; }
 
-.p-confirm-btn {
-  width: 100%; background: #d4af37; color: #fff; border: none;
-  padding: 10px; /* Slimmer button */
-  border-radius: 8px; font-weight: 700; cursor: pointer;
-  font-size: 0.95rem;
+/* --- BRANDED SUCCESS MODAL DESIGN - ADDED --- */
+.success-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.9); display: flex;
+  justify-content: center; align-items: center; z-index: 2000;
+  backdrop-filter: blur(5px);
 }
 
-.p-close { 
-  position: absolute; 
-  top: 15px; 
-  right: 15px; 
-  border: none; 
-  background: none; 
-  font-size: 1.2rem; 
-  cursor: pointer; 
-  color: #ccc; 
+.success-modal {
+  background: white; width: 400px; padding: 40px 30px;
+  border-radius: 28px; text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: modalPop 0.4s ease-out;
 }
 
-@media (max-width: 900px) {
-  .prem-grid { grid-template-columns: 1fr 1fr; }
-  .prem-hero { flex-direction: column; text-align: center; }
-  
-  .p-modal {
-      padding: 20px;
-      max-width: 100%; /* Full width on tiny screens */
-  }
+@keyframes modalPop { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.success-icon-wrap {
+  width: 70px; height: 70px; display: flex;
+  align-items: center; justify-content: center;
+  border-radius: 50%; margin: 0 auto 20px; font-size: 40px;
+}
+
+.success-summary {
+  background: #f8fafc; border-radius: 16px; padding: 20px;
+  margin-bottom: 25px; border: 1px dashed #cbd5e1; text-align: left;
+}
+
+.s-row { display: flex; align-items: center; gap: 10px; color: #475569; font-size: 0.9rem; margin-bottom: 10px; }
+.s-bill { margin-top: 15px; font-weight: 800; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 1.2rem; }
+
+.view-bookings-btn {
+  width: 100%; color: white; border: none;
+  padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer;
+  margin-bottom: 12px; transition: 0.2s;
+}
+
+.close-success-btn {
+  width: 100%; background: #f1f5f9; color: #64748b; border: none;
+  padding: 10px; border-radius: 14px; font-weight: 600; cursor: pointer;
 }

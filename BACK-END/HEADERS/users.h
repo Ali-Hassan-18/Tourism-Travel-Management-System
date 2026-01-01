@@ -47,6 +47,22 @@ public:
     user_node* get_all_users_head() { return head; }
 
     // --- FRONTEND LINKAGE: AUTHENTICATION ---
+    bool update_admin_credentials(string currentPassword, string newPassword) {
+        // Assuming the first node (head) is always the Admin
+        if (!head) return false;
+
+        // 1. Verify the current password
+        if (head->password != currentPassword) {
+            return false; // Authentication failed
+        }
+
+        // 2. Update to new password
+        head->password = newPassword;
+
+        // 3. Immediately persist to users.txt
+        save_users(); 
+        return true;
+    }
 
     crow::json::wvalue authenticate_json(string email, string pass) {
         // Hardcoded Admin logic to match LoginTemporary.jsx
@@ -98,11 +114,35 @@ public:
     }
 
     // --- CORE LOGIC & PERSISTENCE (UNCHANGED) ---
-    user_node* find_by_email(string e) {
-        user_node* temp = head;
-        while (temp) { if (temp->email == e) return temp; temp = temp->next; }
-        return nullptr;
+    user_node* find_by_email(string email) {
+    user_node* temp = head;
+    while (temp) {
+        if (temp->email == email) return temp;
+        temp = temp->next;
     }
+    return nullptr;
+}
+
+void sync_external_user(string name, string email) {
+    // Check if user already exists in the Doubly Linked List
+    if (find_by_email(email)) return; 
+
+    // Create a new node for the Google User
+    // We use a specific flag "EXTERNAL_AUTH" instead of a password
+    user_node* new_user = new user_node(name, email, "EXTERNAL_AUTH", "Tourist");
+    
+    if (!head) {
+        head = new_user;
+    } else {
+        user_node* temp = head;
+        while (temp->next) temp = temp->next;
+        temp->next = new_user;
+        new_user->prev = temp;
+    }
+    
+    // Immediately persist to users.txt so history is linked on next restart
+    save_users();
+}
 
     void register_user(string n, string e, string p, string r = "user") {
         user_node* new_node = new user_node(n, e, p, r);

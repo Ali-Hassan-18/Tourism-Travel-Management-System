@@ -1,3 +1,7 @@
+/* ==========================================================================
+   EconomicalPackages.css - Restored Original Design
+   ========================================================================== */
+
 /* Container Wrapper */
 .eco-page-wrapper {
   max-width: 1200px;
@@ -7,7 +11,7 @@
   color: #1a202c;
 }
 
-/* Hero Section: 3 Points Left, Image Right */
+/* --- HERO SECTION --- */
 .top-hero-section {
   display: flex;
   justify-content: space-between;
@@ -27,10 +31,24 @@
   box-shadow: 0 20px 40px rgba(0,0,0,0.1);
 }
 
-.section-title { font-size: 2.8rem; font-weight: 800; line-height: 1.1; margin-bottom: 10px; }
-.section-subtitle { color: #718096; margin-bottom: 30px; }
+.section-title {
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
 
-.info-point { display: flex; gap: 20px; margin-bottom: 30px; }
+.section-subtitle {
+  color: #718096;
+  margin-bottom: 30px;
+}
+
+.info-point {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
 .point-number {
   background: #ebf8ff;
   color: #2b6cb0;
@@ -43,8 +61,68 @@
   font-weight: bold;
 }
 
-/* Package Grid */
-.grid-title { margin-bottom: 30px; font-size: 1.8rem; }
+/* --- CURRENCY FILTER (ORANGE DESIGN) --- */
+.currency-filter {
+  background: #fff7ed;
+  border-radius: 12px;
+  padding: 12px 15px;
+  margin: 15px 0 30px; /* Added bottom margin */
+  border: 1px solid #fed7aa;
+  max-width: 450px;
+}
+
+.currency-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.currency-label {
+  font-weight: 700;
+  color: #ea580c;
+  font-size: 0.85rem;
+}
+
+.currency-toggle-buttons {
+  display: flex;
+  gap: 8px;
+  background: #ffedd5;
+  padding: 3px;
+  border-radius: 25px;
+  border: 1px solid #fdba74;
+}
+
+.currency-toggle-btn {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: transparent;
+  color: #ea580c;
+  transition: all 0.2s;
+}
+
+.currency-toggle-btn.active {
+  background: #f97316;
+  color: white;
+}
+
+.exchange-rate-info {
+  font-size: 0.7rem;
+  color: #d97706;
+  text-align: center;
+  padding: 4px;
+}
+
+/* --- PACKAGE GRID --- */
+.grid-title {
+  margin-bottom: 30px;
+  font-size: 1.8rem;
+}
+
 .package-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -60,7 +138,13 @@
 }
 
 .eco-card:hover { transform: translateY(-8px); }
-.card-image-box img { width: 100%; height: 200px; object-fit: cover; }
+
+.card-image-box img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
 .card-content { padding: 20px; }
 
 .card-pricing {
@@ -72,8 +156,16 @@
   padding-top: 15px;
 }
 
-.price-val { font-size: 1.3rem; font-weight: 800; color: #38a169; }
-.price-val span { font-size: 0.8rem; color: #a0aec0; }
+.price-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #38a169;
+}
+
+.price-val span {
+  font-size: 0.8rem;
+  color: #a0aec0;
+}
 
 .book-trip-btn {
   background: #3182ce;
@@ -85,88 +177,162 @@
   font-weight: 600;
 }
 
-/* Detailed Modal UI */
+/* --- BOOKING MODAL FIXES --- */
 .booking-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   z-index: 1000;
   backdrop-filter: blur(4px);
-  padding: 20px; /* Ensures card never touches screen edges */
+  overflow-y: auto;
+  padding: 20px;
 }
 
-/* --- FIX FOR CUT-OFF CONTENT --- */
 .booking-card {
   background: #fff;
-  padding: 25px 30px; /* Reduced padding (was 40px) to save space */
-  border-radius: 20px;
+  padding: 25px 30px;
+  border-radius: 16px;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   position: relative;
-  
-  /* These lines ensure the card fits on screen */
-  max-height: 85vh;       /* Maximum height is 85% of viewport */
-  overflow-y: auto;       /* Adds scrollbar INSIDE card if content is too long */
+  margin-top: 100px;
+  margin-bottom: 40px;
+  height: fit-content;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+}
+
+.booking-card h3 {
+  font-size: 1.25rem;
+  margin-bottom: 15px;
+  color: #2d3748;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 10px;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px; /* Reduced gap slightly */
-  margin-top: 20px;
+  gap: 12px;
+  margin-bottom: 15px;
 }
 
-.input-field label { display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; color: #4a5568; }
+.input-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  color: #4a5568;
+}
+
 .input-field input, .input-field select {
   width: 100%;
-  padding: 10px; /* Reduced padding slightly */
+  padding: 8px 12px;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 0.95rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.input-field:last-child {
+  grid-column: span 2;
 }
 
 .summary-box {
   background: #f0fff4;
-  padding: 15px; /* Reduced padding */
-  border-radius: 15px;
-  margin: 20px 0;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 20px;
   text-align: center;
   border: 1px dashed #48bb78;
 }
 
+.summary-box p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
 .final-book-btn {
   width: 100%;
-  padding: 14px;
+  padding: 12px;
   background: #38a169;
   color: #fff;
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.final-book-btn:hover {
+  background: #2f855a;
 }
 
 .close-modal {
   position: absolute;
-  top: 15px; right: 15px;
-  font-size: 1.8rem;
-  background: none; border: none; cursor: pointer; color: #cbd5e0;
-  z-index: 10;
+  top: 15px;
+  right: 15px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #a0aec0;
+}
+
+/* --- BRANDED SUCCESS MODAL --- */
+.success-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(15, 23, 42, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(5px);
+}
+
+.success-modal {
+  background: white;
+  width: 400px;
+  padding: 40px 30px;
+  border-radius: 28px;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.success-icon-wrap {
+  width: 70px; height: 70px;
+  background: #ebf8ff; color: #3182ce;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; margin: 0 auto 20px; font-size: 40px;
+}
+
+.success-summary {
+  background: #f7fafc; border-radius: 16px; padding: 20px;
+  margin-bottom: 25px; border: 1px dashed #cbd5e1; text-align: left;
+}
+
+.s-row { display: flex; align-items: center; gap: 10px; color: #4a5568; font-size: 0.9rem; margin-bottom: 10px; }
+.s-bill { margin-top: 15px; font-weight: 800; border-top: 1px solid #edf2f7; padding-top: 10px; color: #38a169; }
+
+.view-bookings-btn {
+  width: 100%; background: #3182ce; color: white; border: none;
+  padding: 12px; border-radius: 14px; font-weight: 700; cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.close-success-btn {
+  width: 100%; background: #edf2f7; color: #4a5568; border: none;
+  padding: 10px; border-radius: 14px; font-weight: 600; cursor: pointer;
 }
 
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .top-hero-section { flex-direction: column; text-align: center; }
   .form-grid { grid-template-columns: 1fr; }
-  
-  .booking-card {
-    padding: 20px;
-    max-height: 90vh; /* Allow slightly more height on mobile */
-  }
+  .booking-card { margin-top: 80px; }
 }

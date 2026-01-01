@@ -1,7 +1,7 @@
 #define CROW_MAIN
 #define ASIO_STANDALONE
 #include "crow_all.h"
-#include "HEADERS/cities.h"
+//#include "HEADERS/cities.h"
 #include "HEADERS/packages.h"
 #include "HEADERS/announcements.h"
 #include "HEADERS/testimonials.h"
@@ -30,7 +30,7 @@ int main() {
     tourista_bot ai_bot;
 
     // --- 2. INITIALIZE MANAGERS ---
-    city_manager city_sys;
+    //city_manager city_sys;
     package_manager pack_sys;
     announcement_manager ann_sys;
     testimonial_manager test_sys;
@@ -38,7 +38,7 @@ int main() {
     booking_manager book_sys;
 
     // --- 3. PERSISTENCE: LOAD DATA ---
-    city_sys.load_cities();
+    //city_sys.load_cities();
     pack_sys.load_packages();
     ann_sys.load_from_file();
     test_sys.load_testimonials();
@@ -121,7 +121,6 @@ int main() {
         auto x = crow::json::load(req.body);
         if (!x) return crow::response(400);
         
-        // Maps UI fields to C++ add_package (Category, City, Title, Price, Days, Mode, Img, Discount, Stops)
         pack_sys.add_package(
             x["type"].s(), x["city"].s(), x["title"].s(), 
             x["price"].d(), x["days"].i(), x["travelMode"].s(), 
@@ -154,7 +153,7 @@ int main() {
         return crow::response(404);
     });
 
-    // --- 9. USER HISTORY & TESTIMONIALS ---
+    // --- 9. USER MANAGEMENT & TESTIMONIALS ---
     CROW_ROUTE(app, "/api/history/<string>").methods("GET"_method)
     ([&](string email){ return book_sys.get_user_history_json(email, user_sys); });
 
@@ -162,50 +161,274 @@ int main() {
     ([&](){ return test_sys.get_all_json(); });
 
     CROW_ROUTE(app, "/api/admin/users").methods("GET"_method)
-([&user_sys](){
-    return user_sys.get_all_users_json();
+    ([&user_sys](){
+        return user_sys.get_all_users_json();
+    });
+
+    // // --- 10. CITY MANAGEMENT ROUTES ---
+    // CROW_ROUTE(app, "/api/cities").methods("GET"_method)
+    // ([&city_sys](){ return city_sys.get_all_cities_json(); });
+
+    // CROW_ROUTE(app, "/api/admin/cities/add").methods("POST"_method)
+    // ([&city_sys](const crow::request& req){
+    //     auto x = crow::json::load(req.body);
+    //     if (!x) return crow::response(400);
+
+    //     string name = x["cityName"].s();
+    //     city_sys.add_city(name, x["cityImage"].s());
+
+    //     for (auto& spot : x["touristSpots"]) city_sys.add_spot_to_city(name, spot.s());
+    //     for (auto& res : x["restaurants"]) city_sys.add_dining_to_city(name, res.s());
+
+    //     city_sys.save_cities();
+    //     return crow::response(200, "{\"status\":\"success\"}");
+    // });
+
+    // CROW_ROUTE(app, "/api/admin/cities/delete/<string>").methods("DELETE"_method)
+    // ([&city_sys](string name){
+    //     if (city_sys.delete_city(name)) {
+    //         city_sys.save_cities();
+    //         return crow::response(200, "{\"status\":\"deleted\"}");
+    //     }
+    //     return crow::response(404);
+    // });
+
+    // CROW_ROUTE(app, "/api/admin/cities/edit/<string>").methods("PUT"_method)
+    // ([&city_sys](const crow::request& req, string old_name){
+    //     auto x = crow::json::load(req.body);
+    //     if (city_sys.edit_city(old_name, x["cityName"].s(), x["cityImage"].s())) {
+    //         city_sys.save_cities();
+    //         return crow::response(200, "{\"status\":\"updated\"}");
+    //     }
+    //     return crow::response(404);
+    // });
+
+    // --- 11. BOOKING ROUTE (Resolves 405 Error) ---
+    CROW_ROUTE(app, "/api/book/detailed").methods("POST"_method)
+([&book_sys, &user_sys](const crow::request& req){
+    auto x = crow::json::load(req.body);
+    if (!x) return crow::response(400, "Invalid JSON");
+
+    string email = x["email"].s();
+    string city = x["city"].s();
+    string title = x["title"].s();
+    double price = x["total"].d();
+    string img = x["img"].s();
+    string category = x["category"].s();
+    
+    // --- PERSISTENCE FIX: DATES ---
+    string startDate = x["travelDate"].s();
+    // For custom trips, we capture the endDate, otherwise default to "Stay Ends"
+    string endDate = x.has("endDate") ? x["endDate"].s() : std::string("Stay Ends");
+
+    // --- TRAVELER FIX: BREAKDOWN ---
+    // Extract multi-traveler data if available (Custom Plan), else use 'members' (Standard)
+    int a = x.has("members") ? x["members"].i() : 1;
+    int k = x.has("kids") ? x["kids"].i() : 0;
+    int i = x.has("infants") ? x["infants"].i() : 0;
+    int c = x.has("couples") ? x["couples"].i() : 0;
+
+    // --- INTERESTS/DETAILS FIX ---
+    string details = x.has("diet") ? x["diet"].s() : std::string("No special requests.");
+
+    // Call updated manager logic
+    if (book_sys.add_booking_detailed(email, city, title, price, img, category, 
+                                      startDate, endDate, a, k, i, c, details, user_sys)) {
+        book_sys.save_bookings(user_sys); 
+        user_sys.save_users();
+        return crow::response(200, "{\"status\":\"success\"}");
+    }
+
+    return crow::response(404, "{\"status\":\"error\",\"message\":\"User not found\"}");
 });
 
-// Admin: Add New City
-CROW_ROUTE(app, "/api/admin/cities/add").methods("POST"_method)
-([&city_sys](const crow::request& req){
+CROW_ROUTE(app, "/api/book/custom").methods("POST"_method)
+([&book_sys, &user_sys](const crow::request& req){
     auto x = crow::json::load(req.body);
-    if (!x) return crow::response(400);
+    if (!x) return crow::response(400, "Invalid JSON");
 
-    string name = x["cityName"].s();
-    city_sys.add_city(name, x["cityImage"].s());
+    // Standardize key extraction to match PlanTrip.jsx payload
+    book_sys.create_booking(
+        x["email"].s(), 
+        x["city"].s(), 
+        x["title"].s(), 
+        x["total"].d(), 
+        x["img"].s(), 
+        x["category"].s(),
+        x["adults"].i(), 
+        x["kids"].i(), 
+        x["infants"].i(), 
+        x["couples"].i(),
+        x["transport"].s(), 
+        x["travelDate"].s(), 
+        x["endDate"].s(), 
+        x["diet"].s(), // This contains the joined Interests string
+        user_sys
+    );
 
-    // Add Spots and Restaurants to the Linked List
-    for (auto& spot : x["touristSpots"]) city_sys.add_spot_to_city(name, spot.s());
-    for (auto& res : x["restaurants"]) city_sys.add_dining_to_city(name, res.s());
-
-    city_sys.save_cities();
+    book_sys.save_bookings(user_sys); 
     return crow::response(200, "{\"status\":\"success\"}");
 });
 
-// --- Inside main_api.cpp ---
-
-// Delete City Route
-CROW_ROUTE(app, "/api/admin/cities/delete/<string>").methods("DELETE"_method)
-([&city_sys](string name){
-    if (city_sys.delete_city(name)) {
-        city_sys.save_cities();
-        return crow::response(200, "{\"status\":\"deleted\"}");
-    }
-    return crow::response(404);
-});
-
-// Edit City Route
-CROW_ROUTE(app, "/api/admin/cities/edit/<string>").methods("PUT"_method)
-([&city_sys](const crow::request& req, string old_name){
+CROW_ROUTE(app, "/api/testimonials/add").methods("POST"_method)
+([&test_sys, &user_sys](const crow::request& req){
     auto x = crow::json::load(req.body);
-    if (city_sys.edit_city(old_name, x["cityName"].s(), x["cityImage"].s())) {
-        city_sys.save_cities();
-        return crow::response(200, "{\"status\":\"updated\"}");
-    }
-    return crow::response(404);
+    if (!x) return crow::response(400);
+
+    // Persist and Save
+    test_sys.add_testimonial(x["user"].s(), x["text"].s(), x["rating"].i());
+    test_sys.save_testimonials();
+    
+    return crow::response(200, "{\"status\":\"success\"}");
 });
 
+// --- ADD TO main_api.cpp ---
+CROW_ROUTE(app, "/api/auth/sync-google").methods("POST"_method)
+([&user_sys](const crow::request& req){
+    auto x = crow::json::load(req.body);
+    if (!x || !x.has("email") || !x.has("fullName")) 
+        return crow::response(400, "Missing user data");
+
+    string email = x["email"].s();
+    string name = x["fullName"].s();
+
+    // Synchronization logic using the updated user_manager
+    user_sys.sync_external_user(name, email);
+    
+    return crow::response(200, "{\"status\":\"success\"}");
+});
+
+CROW_ROUTE(app, "/api/admin/all-bookings").methods("GET"_method)
+([&user_sys]() {
+    std::vector<crow::json::wvalue> all_history;
+    
+    // Traverse the User Doubly Linked List
+    user_node* curr_user = user_sys.get_all_users_head(); 
+    while (curr_user) {
+        // Traverse each user's personal Booking Doubly Linked List
+        booking_node* curr_book = curr_user->history_head;
+        while (curr_book) {
+            crow::json::wvalue b;
+            b["id"] = curr_book->booking_id;
+            b["email"] = curr_book->user_email;
+            b["city"] = curr_book->city_name;
+            b["title"] = curr_book->package_title;
+            b["bill"] = curr_book->total_bill;
+            b["status"] = curr_book->status;
+            b["cat"] = curr_book->category;
+            b["start_date"] = curr_book->start_date;
+            
+            // Critical breakdown for "Travelers Count" in UI
+            b["adults"] = curr_book->adults;
+            b["kids"] = curr_book->kids;
+            b["infants"] = curr_book->infants;
+            b["couples"] = curr_book->couples;
+            b["interests"] = curr_book->interests;
+
+            all_history.push_back(std::move(b));
+            curr_book = curr_book->next;
+        }
+        curr_user = curr_user->next;
+    }
+    return crow::response(crow::json::wvalue(all_history));
+});
+
+// 2. Route to Update Status (Approve/Reject)
+CROW_ROUTE(app, "/api/admin/update-booking").methods("POST"_method)
+([&book_sys, &user_sys](const crow::request& req) {
+    auto x = crow::json::load(req.body);
+    if (!x || !x.has("bookingId") || !x.has("status")) 
+        return crow::response(400, "Invalid Request");
+
+    int b_id = x["bookingId"].i();
+    string new_status = x["status"].s();
+
+    if (book_sys.update_status(b_id, new_status, user_sys)) {
+        return crow::response(200, "{\"status\":\"success\"}");
+    }
+    return crow::response(404, "Booking ID not found");
+});
+
+CROW_ROUTE(app, "/api/admin/bookings/process").methods("GET"_method)
+([&book_sys, &user_sys](const crow::request& req) {
+    
+    string query = req.url_params.get("q") ? req.url_params.get("q") : "";
+    string sort_type = req.url_params.get("sort") ? req.url_params.get("sort") : "none";
+
+    vector<booking_node*> results = book_sys.search_bookings(query, user_sys);
+
+    // 3. Apply the Corrected Date Sort Logic
+    if (sort_type == "date_newest") {
+        book_sys.sort_by_date(results, true); // true = newest first (Greater strings at front)
+    } else if (sort_type == "date_oldest") {
+        book_sys.sort_by_date(results, false); // false = oldest first (Smaller strings at front)
+    }
+
+    // 4. Map the memory nodes to a JSON array for React
+    vector<crow::json::wvalue> json_list;
+    for (auto* node : results) {
+        crow::json::wvalue b;
+        b["id"] = node->booking_id;
+        b["email"] = node->user_email;
+        b["city"] = node->city_name;      // Matches booking_node::city_name
+        b["title"] = node->package_title;  // Matches booking_node::package_title
+        b["bill"] = node->total_bill;
+        b["status"] = node->status;        // Used for badge colors
+        b["date"] = node->start_date;      // Used for sorting verification
+        
+        // Critical for the "Travelers Count" footer in the UI card
+        b["adults"] = node->adults;
+        b["kids"] = node->kids;
+        
+        json_list.push_back(std::move(b));
+    }
+
+    return crow::response(crow::json::wvalue(json_list));
+});
+
+CROW_ROUTE(app, "/api/admin/update-password").methods("POST"_method)
+([&user_sys](const crow::request& req){
+    auto x = crow::json::load(req.body);
+    if (!x || !x.has("currentPassword") || !x.has("newPassword")) 
+        return crow::response(400, "Invalid Request");
+
+    string currentPass = x["currentPassword"].s();
+    string newPass = x["newPassword"].s();
+
+    if (user_sys.update_admin_credentials(currentPass, newPass)) {
+        return crow::response(200, "{\"status\":\"success\", \"message\":\"Password updated\"}");
+    } else {
+        return crow::response(401, "{\"status\":\"error\", \"message\":\"Incorrect current password\"}");
+    }
+});
+
+CROW_ROUTE(app, "/api/admin/user-reviews/<string>")
+([&test_sys, &user_sys](string email) {
+    // 1. Map email to name
+    user_node* user = user_sys.find_by_email(email);
+    if (!user) return crow::response(404, "User not found");
+
+    string target_name = user->full_name;
+    vector<crow::json::wvalue> reviews_list;
+
+    // 2. Search the Testimonial List
+    testimonials_node* curr = test_sys.get_head();
+    while (curr) {
+        if (curr->user_name == target_name) {
+            crow::json::wvalue r;
+            r["text"] = curr->review_text; // Matches rev.text in JSX
+            r["rating"] = curr->rating;
+            r["date"] = curr->date;
+            r["city"] = "Testimonial";     // Formatting for the modal card
+            r["title"] = "Feedback";
+            r["status"] = "confirmed";
+            reviews_list.push_back(std::move(r));
+        }
+        curr = curr->next;
+    }
+
+    return crow::response(crow::json::wvalue(reviews_list));
+});
     cout << "============================================" << endl;
     cout << "    TOURISTA BACKEND FULLY RESTORED         " << endl;
     cout << "    Listening on Port 18080                 " << endl;

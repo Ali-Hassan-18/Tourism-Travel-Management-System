@@ -80,16 +80,16 @@ public:
         return false;
     }
 
-    bool edit_package(int id, string cat, string city, string title, double price, 
-                      int days, string mode, string img, double disc, string stops) {
+    // Inside package_manager class in packages.h
+    bool edit_package(int id, string cat, string city, string title, double price, int days, string mode, string img, double disc, string stops) {
         package_node* temp = head;
         while (temp) {
             if (temp->id == id) {
-                // FIX: If there is a discount, force category to "Special"
+                // Logic to handle category overrides for Special Deals
                 if (disc > 0) {
                     temp->category = "Special";
                 } else {
-                    temp->category = cat; 
+                    temp->category = cat;
                 }
 
                 temp->city_target = city;
@@ -100,7 +100,12 @@ public:
                 temp->image_url = img;
                 temp->discount_percent = disc;
                 temp->elite_features = stops;
+                
+                // Recalculate price based on discount
                 temp->current_price = price - (price * (disc / 100));
+
+                // CRITICAL: Force save to file so chatbot.h sees the new data
+                save_packages();
                 return true;
             }
             temp = temp->next;

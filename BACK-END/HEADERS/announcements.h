@@ -5,6 +5,8 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <ctime>      // Added for real-time capture
+#include <iomanip>    // Added for formatting
 #include "../crow_all.h" 
 #include "utilities.h" 
 
@@ -25,44 +27,50 @@ private:
     announcement_node* head; // Head is the TOP of our Stack
     int id_counter;
 
+    // Helper to get actual system time
+    string get_system_time() {
+        time_t now = time(0);
+        tm *ltm = localtime(&now);
+        
+        string period = (ltm->tm_hour >= 12) ? "PM" : "AM";
+        int hour = ltm->tm_hour % 12;
+        if (hour == 0) hour = 12;
+
+        stringstream ss;
+        ss << hour << ":" << setfill('0') << setw(2) << ltm->tm_min << " " << period;
+        return ss.str();
+    }
+
 public:
     announcement_manager() : head(nullptr), id_counter(100) {}
 
     // --- STACK OPERATION: PUSH (Insert at Head) ---
     void add_announcement(string msg) {
-        announcement_node* new_node = new announcement_node(id_counter++, msg, "8:11 PM");
+        // Captures real system time upon creation
+        announcement_node* new_node = new announcement_node(id_counter++, msg, get_system_time());
         
         if (!head) {
             head = new_node;
         } else {
-            // The new node points to the current head
             new_node->next = head;
-            // The current head points back to the new node
             head->prev = new_node;
-            // The new node becomes the NEW head (Top of Stack)
             head = new_node;
         }
-        cout << "[Stack] Latest announcement pushed to Head (Top).\n";
     }
-
-    // --- Inside announcement_manager class in announcements.h ---
 
     // 1. DELETE: Remove announcement by ID
     bool delete_announcement(int target_id) {
         announcement_node* temp = head;
         while (temp) {
             if (temp->id == target_id) {
-                // If it's the head (Top of Stack)
                 if (temp == head) {
                     head = temp->next;
                     if (head) head->prev = nullptr;
                 } else {
-                    // Bridge the gap between prev and next
                     if (temp->prev) temp->prev->next = temp->next;
                     if (temp->next) temp->next->prev = temp->prev;
                 }
                 delete temp;
-                cout << "[Stack] Announcement " << target_id << " deleted.\n";
                 return true;
             }
             temp = temp->next;
@@ -70,23 +78,25 @@ public:
         return false;
     }
 
-    // 2. EDIT: Update announcement message by ID
-    // --- Inside announcements.h ---
-bool edit_announcement(int target_id, string new_msg) {
-    announcement_node* temp = head;
-    while (temp) {
-        if (temp->id == target_id) {
-            temp->message = new_msg;
-            return true; // SUCCESS
+    // 2. EDIT: Update announcement message AND time
+    bool edit_announcement(int target_id, string new_msg) {
+        announcement_node* temp = head;
+        while (temp) {
+            if (temp->id == target_id) {
+                temp->message = new_msg;
+                // Dynamically updates time to reflect the edit moment
+                temp->timestamp = get_system_time(); 
+                return true; 
+            }
+            temp = temp->next;
         }
-        temp = temp->next;
+        return false; 
     }
-    return false; // NOT FOUND
-}
-    // --- JSON SERIALIZATION (Starts from Head/Top) ---
+
+    // --- JSON SERIALIZATION ---
     crow::json::wvalue get_announcements_json() {
         vector<crow::json::wvalue> list;
-        announcement_node* temp = head; // Start at the Top
+        announcement_node* temp = head; 
 
         while (temp) {
             crow::json::wvalue a;
@@ -100,7 +110,6 @@ bool edit_announcement(int target_id, string new_msg) {
     }
 
     // --- PERSISTENCE ---
-
     void save_to_file() {
         string path = tourista_utils::get_path() + "announcements.txt";
         ofstream out(path);
@@ -119,7 +128,6 @@ bool edit_announcement(int target_id, string new_msg) {
         ifstream in(path);
         if (!in) return;
         
-        // Memory cleanup
         while(head) {
             announcement_node* t = head;
             head = head->next;
@@ -134,12 +142,10 @@ bool edit_announcement(int target_id, string new_msg) {
             if (p1 != string::npos) {
                 int f_id = stoi(line.substr(0, p1));
                 string f_msg = line.substr(p1 + 1, p2 - p1 - 1);
-                string f_time = (p2 != string::npos) ? line.substr(p2 + 1) : "8:11 PM";
+                string f_time = (p2 != string::npos) ? line.substr(p2 + 1) : "12:00 AM";
 
                 announcement_node* new_node = new announcement_node(f_id, f_msg, f_time);
                 
-                // When loading from a file that was saved Head-to-Tail,
-                // we use Append logic to maintain that exact order.
                 if (!head) {
                     head = new_node;
                 } else {

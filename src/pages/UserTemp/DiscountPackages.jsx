@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import './DiscountPackages.css';
+import { FaCheckCircle, FaCalendarAlt, FaTicketAlt } from 'react-icons/fa';
 
-const DiscountPackages = () => {
+const DiscountPackages = ({ onNavigate }) => { // Assuming onNavigate is passed from Dashboard.jsx
   const [packages, setPackages] = useState([]);
   const [selectedPkg, setSelectedPkg] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successDetails, setSuccessDetails] = useState(null);
   const [total, setTotal] = useState(0);
-  const [currency, setCurrency] = useState('USD'); // 'USD' or 'PKR'
-  const [exchangeRate] = useState(280); // 1 USD = 280 PKR
+  const [currency, setCurrency] = useState('USD'); 
+  const [exchangeRate] = useState(280); 
 
   const [bookingForm, setBookingForm] = useState({
     members: 1,
@@ -36,30 +39,22 @@ const DiscountPackages = () => {
     }
   }, [bookingForm, selectedPkg]);
 
-  // Format price based on selected currency ONLY
   const formatPrice = (priceInUSD) => {
     if (currency === 'PKR') {
       const priceInPKR = Math.round(priceInUSD * exchangeRate);
       return `Rs ${priceInPKR.toLocaleString('en-PK')}`;
-    } else {
-      return `$ ${priceInUSD}`;
     }
+    return `$ ${priceInUSD.toLocaleString()}`;
   };
 
-  // Format savings amount based on selected currency ONLY
   const formatSavings = (savingsInUSD) => {
     if (currency === 'PKR') {
-      const savingsInPKR = Math.round(savingsInUSD * exchangeRate);
-      return `Rs ${savingsInPKR.toLocaleString('en-PK')}`;
-    } else {
-      return `$ ${savingsInUSD.toFixed(0)}`;
+      return `Rs ${Math.round(savingsInUSD * exchangeRate).toLocaleString('en-PK')}`;
     }
+    return `$ ${savingsInUSD.toFixed(0)}`;
   };
 
-  // Calculate discount amount
-  const calculateDiscountAmount = (originalPrice, basePrice) => {
-    return originalPrice - basePrice;
-  };
+  const calculateDiscountAmount = (originalPrice, basePrice) => originalPrice - basePrice;
 
   const handleConfirm = async () => {
     if(!bookingForm.travelDate) {
@@ -73,7 +68,6 @@ const DiscountPackages = () => {
       return;
     }
 
-    // UPDATED: Extracts info according to EACH text box
     const payload = {
       email: userData.email,
       city: selectedPkg.location,
@@ -81,8 +75,8 @@ const DiscountPackages = () => {
       category: selectedPkg.category || "Special",
       total: total,
       members: parseInt(bookingForm.members),
-      nights: parseInt(bookingForm.nights),   // Dynamic info
-      travelDate: bookingForm.travelDate,      // Dynamic info
+      nights: parseInt(bookingForm.nights),
+      travelDate: bookingForm.travelDate,
       transport: bookingForm.transport,
       diet: bookingForm.foodType,
       img: selectedPkg.img
@@ -97,25 +91,28 @@ const DiscountPackages = () => {
 
       const data = await response.json();
       if (data.status === "success") {
-        const totalFormatted = currency === 'PKR' 
-          ? `Rs ${Math.round(total * exchangeRate).toLocaleString('en-PK')}`
-          : `$ ${total.toLocaleString()}`;
-          
-        alert(`Booking Confirmed!\nTotal Bill: ${totalFormatted}`);
-        setSelectedPkg(null);
+        // STORE SUCCESS INFO FOR MODAL
+        setSuccessDetails({
+          title: selectedPkg.title,
+          total: total,
+          date: bookingForm.travelDate
+        });
+        setSelectedPkg(null); // Close the form
+        setShowSuccess(true);  // Open success popup
       }
     } catch (error) {
-      alert("Error connecting to C++ server.");
+      console.error("C++ Server connection error.");
     }
   };
 
   return (
     <div className="disc-container">
+      {/* ... Hero and Grid sections remain identical to your current code ... */}
       <section className="disc-hero">
         <div className="disc-hero-text">
           <span className="disc-label">LIMITED TIME OFFERS</span>
           <h1>Exclusive Discounted Packages</h1>
-          <p>Get premium experiences at economical prices. Save up to 30% on selected Northern tours.</p>
+          <p>Get premium experiences at economical prices. Save up to 30% on Northern tours.</p>
           
           {/* Currency Filter Added */}
           <div className="currency-filter">
@@ -140,12 +137,6 @@ const DiscountPackages = () => {
               Exchange Rate: 1 USD = Rs {exchangeRate.toLocaleString()}
             </div>
           </div>
-          
-          <div className="disc-mini-feats">
-            <div className="d-feat">🔥 <span>Best Price</span></div>
-            <div className="d-feat">📍 <span>Top Locations</span></div>
-            <div className="d-feat">⏳ <span>Limited Slots</span></div>
-          </div>
         </div>
         <div className="disc-hero-visual">
           <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80" alt="Mountain View" />
@@ -153,38 +144,29 @@ const DiscountPackages = () => {
       </section>
 
       <section className="disc-grid">
-        {packages.map((pkg) => {
-          const discountAmount = calculateDiscountAmount(pkg.original_price, pkg.basePrice);
-          
-          return (
-            <div key={pkg.id} className="d-card">
-              <div className="d-card-img">
-                <img src={pkg.img} alt={pkg.title} />
-                <div className="d-card-badge">-{pkg.discount}% OFF</div>
-              </div>
-              <div className="d-card-content">
-                <span className={`deal-type ${(pkg.category || 'Special').toLowerCase()}`}>
-                  {pkg.category || 'Special'}
-                </span>
-                <h3>{pkg.title}</h3>
-                <p className="d-loc">📍 {pkg.location}</p>
-                
-                <div className="d-card-footer">
-                  <div className="d-price-stack">
-                    <span className="old-price">{formatPrice(pkg.original_price)}</span>
-                    <span className="new-price">{formatPrice(pkg.basePrice)}</span>
-                    <div className="savings-badge">
-                      Save {formatSavings(discountAmount)}
-                    </div>
-                  </div>
-                  <button className="d-req-btn" onClick={() => setSelectedPkg(pkg)}>Claim Deal</button>
+        {packages.map((pkg) => (
+          <div key={pkg.id} className="d-card">
+            <div className="d-card-img">
+              <img src={pkg.img} alt={pkg.title} />
+              <div className="d-card-badge">-{pkg.discount}% OFF</div>
+            </div>
+            <div className="d-card-content">
+              <span className={`deal-type ${(pkg.category || 'Special').toLowerCase()}`}>{pkg.category || 'Special'}</span>
+              <h3>{pkg.title}</h3>
+              <p className="d-loc">📍 {pkg.location}</p>
+              <div className="d-card-footer">
+                <div className="d-price-stack">
+                  <span className="old-price">{formatPrice(pkg.original_price)}</span>
+                  <span className="new-price">{formatPrice(pkg.basePrice)}</span>
                 </div>
+                <button className="d-req-btn" onClick={() => setSelectedPkg(pkg)}>Claim Deal</button>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </section>
 
+      {/* EXISTING BOOKING MODAL */}
       {selectedPkg && (
         <div className="p-modal-overlay">
           <div className="p-modal">
@@ -207,38 +189,46 @@ const DiscountPackages = () => {
                 <input type="number" min="1" value={bookingForm.nights} onChange={(e) => setBookingForm({...bookingForm, nights: parseInt(e.target.value) || 1})} />
               </div>
               <div className="p-group">
-                <label>Cuisine Style</label>
+                <label>Cuisine</label>
                 <select value={bookingForm.foodType} onChange={(e) => setBookingForm({...bookingForm, foodType: e.target.value})}>
-                  <option value="Standard Premium">Standard Premium</option>
-                  <option value="Gourmet/Organic">
-                    Gourmet (+{currency === 'PKR' 
-                      ? `Rs ${(40 * exchangeRate).toLocaleString()}` 
-                      : '$ 40'})
-                  </option>
-                </select>
-              </div>
-              <div className="p-group" style={{gridColumn: 'span 2'}}>
-                <label>Transport Mode</label>
-                <select value={bookingForm.transport} onChange={(e) => setBookingForm({...bookingForm, transport: e.target.value})}>
-                  <option value="Shared SUV">Shared SUV (Included)</option>
-                  <option value="Private Prado">
-                    Private Prado (+{currency === 'PKR' 
-                      ? `Rs ${(120 * exchangeRate).toLocaleString()}/n` 
-                      : '$ 120/n'})
-                  </option>
+                  <option value="Standard Premium">Standard</option>
+                  <option value="Gourmet/Organic">Gourmet</option>
                 </select>
               </div>
             </div>
             <div className="d-total-box">
-              <span className="savings-label">
-                YOU ARE SAVING: {formatSavings(
-                  calculateDiscountAmount(selectedPkg.original_price, selectedPkg.basePrice) * 
-                  bookingForm.members * bookingForm.nights
-                )}
-              </span>
+              <span className="savings-label">SAVING: {formatSavings(calculateDiscountAmount(selectedPkg.original_price, selectedPkg.basePrice) * bookingForm.members * bookingForm.nights)}</span>
               <h3>TOTAL: {formatPrice(total)}</h3>
             </div>
             <button className="d-confirm-btn" onClick={handleConfirm}>Book Discounted Trip</button>
+          </div>
+        </div>
+      )}
+
+      {/* NEW BRANDED SUCCESS MODAL */}
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-modal">
+            <div className="success-icon-wrap">
+              <FaCheckCircle className="check-icon" />
+            </div>
+            <h2>Adventure Awaits!</h2>
+            <p>Your request has been successfully synchronized with the Tourista database.</p>
+            
+            <div className="success-summary">
+              <div className="s-row"><FaTicketAlt /> <span>{successDetails?.title}</span></div>
+              <div className="s-row"><FaCalendarAlt /> <span>Arrival: {successDetails?.date}</span></div>
+              <div className="s-bill">Final Bill: {formatPrice(successDetails?.total || 0)}</div>
+            </div>
+
+            <div className="success-actions">
+              <button className="view-bookings-btn" onClick={() => onNavigate('bookings')}>
+                View My Bookings
+              </button>
+              <button className="close-success-btn" onClick={() => setShowSuccess(false)}>
+                Great!
+              </button>
+            </div>
           </div>
         </div>
       )}

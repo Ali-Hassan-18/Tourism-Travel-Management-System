@@ -50,6 +50,120 @@
   border: 1px solid #fdba74;
 }
 
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(15, 23, 42, 0.85); /* Darker backdrop for focus */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(4px);
+}
+
+.success-modal {
+  background: white;
+  width: 400px;
+  padding: 40px 30px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  animation: modalPop 0.3s ease-out;
+}
+
+@keyframes modalPop {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.success-icon-wrap {
+  width: 70px;
+  height: 70px;
+  background: #dcfce7;
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 20px;
+  font-size: 40px;
+}
+
+.success-modal h2 {
+  color: #0f172a;
+  margin-bottom: 10px;
+  font-size: 1.6rem;
+}
+
+.success-modal p {
+  color: #64748b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.success-summary {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px dashed #cbd5e1;
+}
+
+.s-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #334155;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+
+.s-bill {
+  margin-top: 12px;
+  font-weight: 800;
+  color: #008080; /* Teal Theme */
+  font-size: 1.1rem;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.view-bookings-btn {
+  background: #008080;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.view-bookings-btn:hover {
+  background: #006666;
+}
+
+.close-success-btn {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  padding: 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.close-success-btn:hover {
+  background: #f1f5f9;
+}
+
 .currency-toggle-btn {
   padding: 6px 16px;
   border: none;

@@ -168,6 +168,10 @@
   color: #a0aec0;
 }
 
+.badge-premium { background-color: #ffd700; color: black; } /* Gold */
+.badge-economical { background-color: #4caf50; color: white; } /* Green */
+.badge-special, .badge-discounted { background-color: #ff4757; color: white; } /* Red */
+
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }

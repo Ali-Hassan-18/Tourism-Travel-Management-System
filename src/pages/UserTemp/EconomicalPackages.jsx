@@ -1,36 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import './EconomicalPackages.css';
+import { FaCheckCircle, FaCalendarAlt, FaUsers, FaTicketAlt } from 'react-icons/fa';
 
-const EconomicalPackages = () => {
-  const [packages, setPackages] = useState([]); 
+const EconomicalPackages = ({ onNavigate }) => {
+  const [packages, setPackages] = useState([]);
   const [selectedPkg, setSelectedPkg] = useState(null);
-  const [currency, setCurrency] = useState('USD'); // 'USD' or 'PKR'
-  const [exchangeRate] = useState(280); // 1 USD = 280 PKR
-  
-  // Fetch from C++ Doubly Linked List
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successInfo, setSuccessInfo] = useState(null);
+  const [currency, setCurrency] = useState('USD'); 
+  const [exchangeRate] = useState(280);
+ 
   useEffect(() => {
     fetch('http://localhost:18080/api/packages/Economical')
       .then(res => res.json())
       .then(data => setPackages(data))
       .catch(err => console.error("Failed to load packages:", err));
   }, []);
-  
+ 
   const [bookingForm, setBookingForm] = useState({
     members: 1,
     nights: 1,
-    travelDate: '', 
+    travelDate: '',
     diet: 'Standard',
     transport: 'Bus',
   });
 
-  // Format price based on selected currency ONLY
   const formatPrice = (priceInUSD) => {
     if (currency === 'PKR') {
-      const priceInPKR = Math.round(priceInUSD * exchangeRate);
-      return `Rs ${priceInPKR.toLocaleString('en-PK')}`;
-    } else {
-      return `$ ${priceInUSD}`;
+      return `Rs ${Math.round(priceInUSD * exchangeRate).toLocaleString('en-PK')}`;
     }
+    return `$ ${priceInUSD.toLocaleString()}`;
   };
 
   const calculateTotal = () => {
@@ -53,16 +52,16 @@ const EconomicalPackages = () => {
       return;
     }
 
-    // UPDATED: Full dynamic payload from text boxes
+    const totalBill = calculateTotal();
     const payload = {
       email: userData.email,
       city: selectedPkg.location,
       title: selectedPkg.title,
       category: "Economical",
-      total: calculateTotal(),
+      total: totalBill,
       members: parseInt(bookingForm.members),
-      nights: parseInt(bookingForm.nights),   // Dynamic info
-      travelDate: bookingForm.travelDate,      // Dynamic info
+      nights: parseInt(bookingForm.nights),
+      travelDate: bookingForm.travelDate,
       transport: bookingForm.transport,
       diet: bookingForm.diet,
       img: selectedPkg.img
@@ -77,12 +76,13 @@ const EconomicalPackages = () => {
 
       const data = await response.json();
       if (data.status === "success") {
-        const totalFormatted = currency === 'PKR' 
-          ? `Rs ${Math.round(calculateTotal() * exchangeRate).toLocaleString('en-PK')}`
-          : `$ ${calculateTotal()}`;
-          
-        alert(`Successfully Booked ${selectedPkg.title}! Total: ${totalFormatted}`);
+        setSuccessInfo({
+          title: selectedPkg.title,
+          bill: totalBill,
+          date: bookingForm.travelDate
+        });
         setSelectedPkg(null);
+        setShowSuccess(true);
       }
     } catch (error) {
       alert("Could not connect to backend server.");
@@ -95,31 +95,7 @@ const EconomicalPackages = () => {
         <div className="points-column">
           <h2 className="section-title">Economical Northern Adventures</h2>
           <p className="section-subtitle">The best way to visit the mountains at an affordable price.</p>
-          
-          {/* Currency Filter Added */}
-          <div className="currency-filter">
-            <div className="currency-filter-row">
-              <span className="currency-label">Display prices in:</span>
-              <div className="currency-toggle-buttons">
-                <button 
-                  className={`currency-toggle-btn ${currency === 'USD' ? 'active' : ''}`}
-                  onClick={() => setCurrency('USD')}
-                >
-                  USD ($)
-                </button>
-                <button 
-                  className={`currency-toggle-btn ${currency === 'PKR' ? 'active' : ''}`}
-                  onClick={() => setCurrency('PKR')}
-                >
-                  PKR (Rs)
-                </button>
-              </div>
-            </div>
-            <div className="exchange-rate-info">
-              Exchange Rate: 1 USD = Rs {exchangeRate.toLocaleString()}
-            </div>
-          </div>
-          
+         
           <div className="info-point">
             <span className="point-number">01</span>
             <div className="point-text">
@@ -141,7 +117,32 @@ const EconomicalPackages = () => {
               <p>Authentic local experiences at half the market cost.</p>
             </div>
           </div>
+
+          {/* CURRENCY CONVERTER - Restored Design Classes */}
+          <div className="currency-filter">
+            <div className="currency-filter-row">
+              <span className="currency-label">Display prices in:</span>
+              <div className="currency-toggle-buttons">
+                <button
+                  className={`currency-toggle-btn ${currency === 'USD' ? 'active' : ''}`}
+                  onClick={() => setCurrency('USD')}
+                >
+                  USD ($)
+                </button>
+                <button
+                  className={`currency-toggle-btn ${currency === 'PKR' ? 'active' : ''}`}
+                  onClick={() => setCurrency('PKR')}
+                >
+                  PKR (Rs)
+                </button>
+              </div>
+            </div>
+            <div className="exchange-rate-info">
+              Exchange Rate: 1 USD = Rs {exchangeRate.toLocaleString()}
+            </div>
+          </div>
         </div>
+
         <div className="hero-visual">
           <img src="https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=800" alt="Northern Pakistan" />
         </div>
@@ -168,69 +169,43 @@ const EconomicalPackages = () => {
         </div>
       </section>
 
+      {/* BOOKING MODAL (Original Design) */}
       {selectedPkg && (
         <div className="booking-overlay">
           <div className="booking-card">
             <button className="close-modal" onClick={() => setSelectedPkg(null)}>&times;</button>
             <h3>Trip Customization: {selectedPkg.title}</h3>
-            
+           
             <div className="form-grid">
-              {/* NEW: Date Picker Field */}
               <div className="input-field">
                 <label>Arrival Date</label>
-                <input 
-                  type="date" 
-                  value={bookingForm.travelDate} 
-                  onChange={(e) => setBookingForm({...bookingForm, travelDate: e.target.value})} 
-                />
+                <input type="date" value={bookingForm.travelDate} onChange={(e) => setBookingForm({...bookingForm, travelDate: e.target.value})} />
               </div>
 
               <div className="input-field">
                 <label>Guests</label>
-                <input 
-                  type="number" min="1" 
-                  value={bookingForm.members} 
-                  onChange={(e) => setBookingForm({...bookingForm, members: parseInt(e.target.value) || 1})} 
-                />
+                <input type="number" min="1" value={bookingForm.members} onChange={(e) => setBookingForm({...bookingForm, members: parseInt(e.target.value) || 1})} />
               </div>
 
               <div className="input-field">
                 <label>Number of Nights</label>
-                <input 
-                  type="number" min="1" 
-                  value={bookingForm.nights} 
-                  onChange={(e) => setBookingForm({...bookingForm, nights: parseInt(e.target.value) || 1})} 
-                />
+                <input type="number" min="1" value={bookingForm.nights} onChange={(e) => setBookingForm({...bookingForm, nights: parseInt(e.target.value) || 1})} />
               </div>
 
               <div className="input-field">
                 <label>Dietary Plan</label>
-                <select 
-                  value={bookingForm.diet} 
-                  onChange={(e) => setBookingForm({...bookingForm, diet: e.target.value})}
-                >
+                <select value={bookingForm.diet} onChange={(e) => setBookingForm({...bookingForm, diet: e.target.value})} >
                   <option value="Standard">Standard (Veg + Lentils)</option>
-                  <option value="Non-Veg">
-                    Non-Veg (+{currency === 'PKR' 
-                      ? ` Rs ${(15 * exchangeRate).toLocaleString()}` 
-                      : ' $15'})
-                  </option>
+                  <option value="Non-Veg">Non-Veg (+{formatPrice(15)})</option>
                 </select>
               </div>
 
               <div className="input-field">
                 <label>Transport Mode</label>
-                <select 
-                  value={bookingForm.transport} 
-                  onChange={(e) => setBookingForm({...bookingForm, transport: e.target.value})}
-                >
+                <select value={bookingForm.transport} onChange={(e) => setBookingForm({...bookingForm, transport: e.target.value})} >
                   <option value="Bus">Public Transport (Bus)</option>
                   <option value="Jeep">Shared Jeep</option>
-                  <option value="Private Jeep">
-                    Private Jeep (+{currency === 'PKR' 
-                      ? ` Rs ${(60 * exchangeRate).toLocaleString()}` 
-                      : ' $60'})
-                  </option>
+                  <option value="Private Jeep">Private Jeep (+{formatPrice(60)})</option>
                 </select>
               </div>
             </div>
@@ -242,6 +217,34 @@ const EconomicalPackages = () => {
             <button className="final-book-btn" onClick={handleBookingConfirm}>
               Confirm Detailed Booking
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* SUCCESS MODAL */}
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-modal">
+            <div className="success-icon-wrap">
+              <FaCheckCircle />
+            </div>
+            <h2>Journey Confirmed!</h2>
+            <p>Your request has been successfully synchronized with the Tourista database.</p>
+            
+            <div className="success-summary">
+              <div className="s-row"><FaTicketAlt /> <span>{successInfo?.title}</span></div>
+              <div className="s-row"><FaCalendarAlt /> <span>Arrival: {successInfo?.date}</span></div>
+              <div className="s-bill">Total Bill: {formatPrice(successInfo?.bill || 0)}</div>
+            </div>
+
+            <div className="success-actions">
+              <button className="view-bookings-btn" onClick={() => onNavigate('bookings')}>
+                View My Bookings
+              </button>
+              <button className="close-success-btn" onClick={() => setShowSuccess(false)}>
+                Great!
+              </button>
+            </div>
           </div>
         </div>
       )}

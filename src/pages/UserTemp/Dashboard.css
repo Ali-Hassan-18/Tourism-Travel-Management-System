@@ -430,3 +430,86 @@
     background: #ccc;
     border-radius: 10px;
 }
+
+/* --- Branded Logout Modal --- */
+.logout-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 3000; /* Highest priority */
+    backdrop-filter: blur(6px);
+}
+
+.logout-modal {
+    background: white;
+    width: 350px;
+    padding: 35px;
+    border-radius: 24px;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    animation: modalPopUp 0.3s ease-out;
+}
+
+@keyframes modalPopUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.logout-icon-box {
+    width: 60px;
+    height: 60px;
+    background: #f1f5f9;
+    color: #008080; /* Teal theme color */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 0 auto 20px;
+    font-size: 24px;
+}
+
+.logout-modal h2 {
+    color: #0f172a;
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+}
+
+.logout-modal p {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+}
+
+.logout-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.btn-confirm-logout {
+    background: #ef4444; /* Alert Red */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-confirm-logout:hover {
+    background: #dc2626;
+}
+
+.btn-cancel {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}

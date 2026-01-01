@@ -126,12 +126,19 @@
 }
 
 .section-title {
-  font-size: 32px;
-  font-weight: 700;
-  color: #0f5452;     
-  text-align: center;
-  margin-bottom: 30px;
-  position: relative;
+  font-size: 38px !important;
+  font-weight: 800;
+  color: #0f5452;
+  margin-bottom: 50px;
+  
+  /* Centering Magic */
+  display: flex !important;           /* Turn the element into a flex container */
+  justify-content: center !important; /* Force content to the exact middle */
+  align-items: center !important;     /* Force vertical alignment if needed */
+  width: 100% !important;             /* Force it to span the entire screen width */
+  text-align: center !important;      /* Fallback for text alignment */
+  margin-left: auto !important;       /* auto margins help center block elements */
+  margin-right: auto !important;
 }
 
 /* =================== PREMIUM TRAVEL TESTIMONIALS =================== */
@@ -487,6 +494,5 @@
   border: none;
   font-weight: 600;
 }
-
 
 

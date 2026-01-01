@@ -8,9 +8,7 @@ import { initializeApp } from "firebase/app";
 import { 
   getAuth, 
   GoogleAuthProvider, 
-  signInWithPopup, 
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword 
+  signInWithPopup 
 } from "firebase/auth";
 
 // Firebase Configuration (DO NOT CHANGE)
@@ -28,10 +26,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
-
-// Temporary Admin Credentials
-const ADMIN_EMAIL = "admin@example.com";
-const ADMIN_PASSWORD = "admin123";
 
 const LoginTemporary = () => {
   const [email, setEmail] = useState("");
@@ -52,7 +46,6 @@ const LoginTemporary = () => {
       resetForm();         
   };
 
-  // ✅ Updated handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,12 +64,7 @@ const LoginTemporary = () => {
       const data = await response.json();
 
       if (data.status === "success") {
-        console.log(`${isLogin ? "Login" : "Sign up"} successful:`, data.user.email);
-        
-        // Save user data to localStorage so other pages can see who is logged in
         localStorage.setItem("user", JSON.stringify(data.user));
-
-        // Navigate based on role returned by C++
         if (data.user.role === "admin") {
           navigate("/admin-dashboard");
         } else {
@@ -95,19 +83,41 @@ const LoginTemporary = () => {
     navigate("/");
   };
 
-  // ✅ Updated Google Sign-In
+  // ✅ INTEGRATED: Google Sign-In with C++ Sync Logic
   const handleGoogleSignIn = async () => {
     try {
       const result = await signInWithPopup(auth, provider);
-      console.log("Google Sign-In successful:", result.user.email);
-      navigate("/dashboard");
+      const user = result.user;
+
+      const userData = {
+          fullName: user.displayName,
+          email: user.email,
+          photo: user.photoURL,
+          role: "Tourist" // Default role for Google users
+      };
+
+      // --- CRITICAL: Sync with C++ Doubly Linked List ---
+      const syncResponse = await fetch("http://localhost:18080/api/auth/sync-google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(userData)
+      });
+
+      if (syncResponse.ok) {
+          // Save to local storage for the Dashboard/History to use
+          localStorage.setItem("user", JSON.stringify(userData));
+          console.log("Google user synchronized with C++ backend.");
+          navigate("/dashboard");
+      } else {
+          console.error("Firebase authenticated, but C++ sync failed.");
+          alert("Authentication synced failed on server.");
+      }
     } catch (error) {
       console.error("Google Sign-In failed:", error.message);
-      alert("Google Sign-In Failed: " + error.message); // Temporary for debugging
+      alert("Google Sign-In Failed: " + error.message);
     }
   };
 
-  // Dynamic Text for UI
   const titleText = isLogin ? "Welcome Back!" : "Create Your Account";
   const buttonText = isLogin ? "Log In" : "Sign Up";
   const toggleText = isLogin ? "New user? Create an account" : "Already have an account? Log In";
@@ -148,9 +158,7 @@ const LoginTemporary = () => {
           </h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div 
-                className={`full-name-field-wrapper ${isLogin ? 'is-login-mode' : ''}`}
-            >
+            <div className={`full-name-field-wrapper ${isLogin ? 'is-login-mode' : ''}`}>
                 <input
                     type="text"
                     placeholder="Full Name"

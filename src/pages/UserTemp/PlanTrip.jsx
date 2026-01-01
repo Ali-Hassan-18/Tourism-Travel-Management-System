@@ -71,27 +71,27 @@ const PlanTrip = () => {
   };
 
   const handleFinalContinue = async () => {
-  // 1. Prepare data for the C++ backend
   const payload = {
     email: formData.email,
     city: formData.destination,
     title: "Custom Planned Trip",
     category: "Planned",
-    total: 0, // Custom trips usually have a pending bill
-    img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470", // Default map/trip image
-    members: formData.adults, // Main count
+    total: 0, 
+    img: "https://images.unsplash.com/photo-1501785888041-af3ef285b470", 
+    adults: formData.adults, 
     kids: formData.children,
     infants: formData.infants,
     couples: formData.couples,
     transport: formData.travelMode,
     travelDate: formData.startDate,
-    nights: 0, // C++ will use the dates instead
     endDate: formData.endDate,
-    diet: "Interests: " + formData.interests.join(", ") + " | Phone: " + formData.phone
+    interests: formData.interests.join(", "),
+    diet: `Interests: ${formData.interests.join(", ")} | Phone: ${formData.phone}`
   };
 
   try {
-    const response = await fetch('http://localhost:18080/api/book/detailed', {
+    // UPDATED: Now targeting the specialized custom route
+    const response = await fetch('http://localhost:18080/api/book/custom', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
@@ -106,7 +106,6 @@ const PlanTrip = () => {
     alert("C++ Server is offline. Could not save request.");
   }
 };
-
   const nextStep = () => setStep((p) => Math.min(p + 1, 4));
   const prevStep = () => setStep((p) => Math.max(p - 1, 1));
   const handleGenerateClick = () => setShowConfirm(true);

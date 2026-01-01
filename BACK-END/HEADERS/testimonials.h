@@ -43,6 +43,7 @@ private:
 
 public:
     testimonial_manager() : head(nullptr) {}
+    testimonials_node* get_head() { return head; }
 
     void add_testimonial(string user, string review, int rating) {
         string date = get_current_date();
@@ -51,34 +52,34 @@ public:
         head = newNode;
     }
 
-    bool edit_testimonial(string user, string new_review, int new_rating) {
-        testimonials_node* temp = head;
-        while (temp) {
-            if (temp->user_name == user) {
-                temp->review_text = new_review;
-                temp->rating = new_rating;
-                temp->date = get_current_date();
-                return true;
-            }
-            temp = temp->next;
-        }
-        return false;
-    }
+    // bool edit_testimonial(string user, string new_review, int new_rating) {
+    //     testimonials_node* temp = head;
+    //     while (temp) {
+    //         if (temp->user_name == user) {
+    //             temp->review_text = new_review;
+    //             temp->rating = new_rating;
+    //             temp->date = get_current_date();
+    //             return true;
+    //         }
+    //         temp = temp->next;
+    //     }
+    //     return false;
+    // }
 
-    bool delete_testimonial(string user) {
-        testimonials_node *curr = head, *prev = nullptr;
-        while (curr) {
-            if (curr->user_name == user) {
-                if (!prev) head = curr->next;
-                else prev->next = curr->next;
-                delete curr;
-                return true;
-            }
-            prev = curr;
-            curr = curr->next;
-        }
-        return false;
-    }
+    // bool delete_testimonial(string user) {
+    //     testimonials_node *curr = head, *prev = nullptr;
+    //     while (curr) {
+    //         if (curr->user_name == user) {
+    //             if (!prev) head = curr->next;
+    //             else prev->next = curr->next;
+    //             delete curr;
+    //             return true;
+    //         }
+    //         prev = curr;
+    //         curr = curr->next;
+    //     }
+    //     return false;
+    // }
 
     crow::json::wvalue get_all_json() {
         vector<crow::json::wvalue> list;
@@ -102,51 +103,39 @@ public:
         out.close();
     }
     
-// --- Inside testimonials.h ---
 void load_testimonials() {
-    string path = tourista_utils::get_path() + "testimonials.txt";
-    ifstream in(path);
-    if (!in) return;
-    
-    string line;
-    while (getline(in, line)) {
-        // 1. HARD SKIP: Ignore if the line is effectively empty or just whitespace
-        if (line.empty() || line.find_first_not_of(" \t\n\r") == string::npos) {
-            continue; 
+        string path = tourista_utils::get_path() + "testimonials.txt";
+        ifstream in(path);
+        if (!in) return;
+
+        // FIX: Clear existing memory to prevent DUPLICATION
+        while (head) {
+            testimonials_node* temp = head;
+            head = head->next;
+            delete temp;
         }
 
-        size_t p1 = line.find('|');
-        size_t p2 = line.find('|', p1 + 1);
-        size_t p3 = line.find('|', p2 + 1);
+        string line;
+        while (getline(in, line)) {
+            if (line.empty() || line.find_first_not_of(" \t\n\r") == string::npos) continue;
 
-        // 2. STRUCTURAL CHECK: Only proceed if all 3 delimiters exist
-        if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
-            string name = line.substr(0, p1);
-            string review = line.substr(p1 + 1, p2 - p1 - 1);
-            string rateStr = line.substr(p2 + 1, p3 - p2 - 1);
-            string date = line.substr(p3 + 1);
+            size_t p1 = line.find('|');
+            size_t p2 = line.find('|', p1 + 1);
+            size_t p3 = line.find('|', p2 + 1);
 
-            // 3. NUMERIC CHECK: Only call stoi if the string is purely digits
-            bool isNumeric = !rateStr.empty() && 
-                             rateStr.find_first_not_of("0123456789") == string::npos;
+            if (p1 != string::npos && p2 != string::npos && p3 != string::npos) {
+                string name = line.substr(0, p1);
+                string review = line.substr(p1 + 1, p2 - p1 - 1);
+                int rate = stoi(line.substr(p2 + 1, p3 - p2 - 1));
+                string date = line.substr(p3 + 1);
 
-            if (isNumeric) {
-                try {
-                    int rate = tourista_utils::safe_stoi(rateStr);
-                    if (rate > 0) {
-                        add_testimonial(name, review, rate);
-                    }
-                    // Add directly to the linked list
-                    testimonials_node* newNode = new testimonials_node(name, review, rate, date);
-                    newNode->next = head;
-                    head = newNode;
-                } catch (...) {
-                    continue; // Silently skip if anything still goes wrong
-                }
+                // Add to memory list
+                testimonials_node* newNode = new testimonials_node(name, review, rate, date);
+                newNode->next = head;
+                head = newNode;
             }
         }
+        in.close();
     }
-    in.close();
-}
 };
 #endif

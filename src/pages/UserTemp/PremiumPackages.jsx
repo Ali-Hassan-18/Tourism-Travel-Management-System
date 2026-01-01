@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './PremiumPackages.css';
+import { FaCheckCircle, FaCalendarAlt, FaCrown, FaGem } from 'react-icons/fa';
 
-const PremiumPackages = () => {
+const PremiumPackages = ({ onNavigate }) => {
   // 1. Dynamic State from C++ Backend
   const [packages, setPackages] = useState([]);
   const [selectedPkg, setSelectedPkg] = useState(null);
   const [total, setTotal] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successDetails, setSuccessDetails] = useState(null);
+  const [currency, setCurrency] = useState('USD'); 
+  const [exchangeRate] = useState(280); 
 
   const [bookingForm, setBookingForm] = useState({
     members: 1,
@@ -16,7 +21,7 @@ const PremiumPackages = () => {
     transport: 'Land Cruiser'
   });
 
-  // 2. Fetch "Premium" Tier from Doubly Linked List
+  // 2. Fetch "Premium" Tier from Doubly Linked List 
   useEffect(() => {
     fetch('http://localhost:18080/api/packages/Premium')
       .then(res => res.json())
@@ -37,6 +42,15 @@ const PremiumPackages = () => {
               (foodTypeAdd * bookingForm.members * bookingForm.nights));
     }
   }, [bookingForm, selectedPkg]);
+
+  // Format price based on selected currency
+  const formatPrice = (priceInUSD) => {
+    if (currency === 'PKR') {
+      const priceInPKR = Math.round(priceInUSD * exchangeRate);
+      return `Rs ${priceInPKR.toLocaleString('en-PK')}`;
+    }
+    return `$ ${priceInUSD.toLocaleString()}`;
+  };
 
   // 4. Submit Dynamic Metadata to C++
   const handleConfirm = async () => {
@@ -74,8 +88,13 @@ const PremiumPackages = () => {
 
       const data = await response.json();
       if (data.status === "success") {
-        alert(`Elite Booking Confirmed for ${selectedPkg.title}!\nFinal Bill: $${total.toLocaleString()}`);
+        setSuccessDetails({
+          title: selectedPkg.title,
+          total: total,
+          date: bookingForm.travelDate
+        });
         setSelectedPkg(null);
+        setShowSuccess(true);
       }
     } catch (error) {
       alert("Server connection error.");
@@ -94,6 +113,30 @@ const PremiumPackages = () => {
             <div className="m-feat">🚙 <span>Luxury Fleet</span></div>
             <div className="m-feat">🍽️ <span>Elite Dining</span></div>
           </div>
+
+          {/* CURRENCY CONVERTER - Using original design classes */}
+          <div className="currency-filter">
+            <div className="currency-filter-row">
+              <span className="currency-label">Display prices in:</span>
+              <div className="currency-toggle-buttons">
+                <button 
+                  className={`currency-toggle-btn ${currency === 'USD' ? 'active' : ''}`} 
+                  onClick={() => setCurrency('USD')}
+                >
+                  USD ($)
+                </button>
+                <button 
+                  className={`currency-toggle-btn ${currency === 'PKR' ? 'active' : ''}`} 
+                  onClick={() => setCurrency('PKR')}
+                >
+                  PKR (Rs)
+                </button>
+              </div>
+            </div>
+            <div className="exchange-rate-info">
+              Exchange Rate: 1 USD = Rs {exchangeRate.toLocaleString()}
+            </div>
+          </div>
         </div>
         <div className="prem-hero-visual">
           <img src="https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=800&q=80" alt="Northern Skies" />
@@ -110,13 +153,12 @@ const PremiumPackages = () => {
               <h3>{pkg.title}</h3>
               <p className="p-loc">📍 {pkg.location}</p>
               <ul className="p-list">
-                {/* Dynamically splits elite features if stored as a comma-separated string in C++ */}
                 {(pkg.features || ["VIP Lounge", "Private Guide", "Luxury Suite"]).map((f, i) => (
                   <li key={i}>{f}</li>
                 ))}
               </ul>
               <div className="p-card-footer">
-                <span className="p-price">${pkg.basePrice} <sub>/pp</sub></span>
+                <span className="p-price">{formatPrice(pkg.basePrice)} <sub>/pp</sub></span>
                 <button className="p-req-btn" onClick={() => setSelectedPkg(pkg)}>Request</button>
               </div>
             </div>
@@ -124,6 +166,7 @@ const PremiumPackages = () => {
         ))}
       </section>
 
+      {/* LUXURY CUSTOMIZATION MODAL - DESIGN PRESERVED */}
       {selectedPkg && (
         <div className="p-modal-overlay">
           <div className="p-modal">
@@ -169,9 +212,37 @@ const PremiumPackages = () => {
             </div>
             <div className="p-total-box">
               <span>ESTIMATED ELITE BILL</span>
-              <h3>${total.toLocaleString()}</h3>
+              <h3>{formatPrice(total)}</h3>
             </div>
             <button className="p-confirm-btn" onClick={handleConfirm}>Confirm Booking</button>
+          </div>
+        </div>
+      )}
+
+      {/* NEW SUCCESS MODAL - AFTER BOOKING THING */}
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-modal">
+            <div className="success-icon-wrap" style={{background: '#fef3c7', color: '#d4af37'}}>
+              <FaCrown />
+            </div>
+            <h2>Elite Journey Confirmed!</h2>
+            <p>Your premium request has been successfully synchronized with the Tourista database.</p>
+            
+            <div className="success-summary">
+              <div className="s-row"><FaGem style={{color: '#d4af37'}}/> <span>{successDetails?.title}</span></div>
+              <div className="s-row"><FaCalendarAlt /> <span>Arrival: {successDetails?.date}</span></div>
+              <div className="s-bill" style={{color: '#1e3a8a'}}>Final Bill: {formatPrice(successDetails?.total || 0)}</div>
+            </div>
+
+            <div className="success-actions">
+              <button className="view-bookings-btn" style={{background: '#1e3a8a'}} onClick={() => onNavigate('bookings')}>
+                View My Bookings
+              </button>
+              <button className="close-success-btn" onClick={() => setShowSuccess(false)}>
+                Great!
+              </button>
+            </div>
           </div>
         </div>
       )}

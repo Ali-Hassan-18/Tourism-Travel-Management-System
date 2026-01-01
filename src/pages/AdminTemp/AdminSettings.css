@@ -9,7 +9,7 @@
   --radius: 14px;
 }
 
-/* Outer container */
+/* Original Layout */
 .mp-outer {
   width: 100%;
   padding: 2rem 1rem;
@@ -20,13 +20,12 @@
   box-sizing: border-box;
 }
 
-/* Card */
 .mp-card.settings-card {
   width: 100%;
-  max-width: 1100px; /* Increased width */
+  max-width: 1100px; 
   background: white;
   border-radius: var(--radius);
-  padding: 3rem 3.5rem; /* More padding */
+  padding: 3rem 3.5rem; 
   box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
@@ -34,16 +33,14 @@
   color: var(--text);
 }
 
-/* Title */
 .mp-title {
-  font-size: 2rem; /* Slightly larger */
+  font-size: 2rem; 
   color: var(--teal);
   font-weight: 700;
   margin-bottom: 1.5rem;
   text-align: left;
 }
 
-/* Form */
 .mp-form {
   display: flex;
   flex-direction: column;
@@ -78,7 +75,6 @@
   box-shadow: 0 0 0 3px rgba(0, 128, 128, 0.15);
 }
 
-/* Buttons */
 .btn {
   padding: 14px 22px;
   border-radius: 12px;
@@ -98,17 +94,41 @@
   transform: translateY(-1px);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .mp-card.settings-card {
-    max-width: 900px;
-    padding: 2.5rem 2.5rem;
-  }
+/* Modal Styling - Synced with TripReview design */
+.admin-confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.9); 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5000;
+    backdrop-filter: blur(8px);
 }
 
-@media (max-width: 768px) {
-  .mp-card.settings-card {
-    max-width: 100%;
-    padding: 1.8rem;
-  }
+.admin-confirm-modal-v2 {
+    background: white;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px;
+    border-radius: 28px;
+    text-align: center;
+    box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.45);
 }
+
+.modal-status-icon {
+    width: 70px; height: 70px; border-radius: 50%;
+    margin: 0 auto 20px; display: flex; align-items: center; justify-content: center;
+    font-size: 28px; color: white;
+}
+
+.modal-status-icon.confirmed { background: #10b981; }
+.modal-status-icon.rejected { background: #ef4444; }
+
+.modal-confirm-btn {
+    width: 100%; padding: 14px; border-radius: 14px; border: none;
+    color: white; font-weight: 700; cursor: pointer;
+}
+
+.modal-confirm-btn.confirmed { background: var(--teal); }
+.modal-confirm-btn.rejected { background: #ef4444; }

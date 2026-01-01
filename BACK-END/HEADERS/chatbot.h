@@ -35,14 +35,21 @@ private:
         if (in) {
             string line;
             while (getline(in, line)) {
-                if (line.length() < 10) continue;
-                size_t p[6]; p[0] = -1;
-                for(int i=1; i<=5; i++) p[i] = line.find('|', p[i-1]+1);
+                if (line.empty() || line.length() < 10) continue;
+
+                // We need 6 pipes to safely reach the price field
+                size_t p[7]; p[0] = -1;
+                for(int i = 1; i <= 6; i++) p[i] = line.find('|', p[i-1] + 1);
                 
-                if (p[4] != string::npos) {
-                    string city  = line.substr(p[1] + 1, p[2] - p[1] - 1);
-                    string title = line.substr(p[2] + 1, p[3] - p[2] - 1);
-                    string price = line.substr(p[3] + 1, p[4] - p[3] - 1);
+                // Alignment based on packages.h: id|cat|city|title|price|days
+                if (p[5] != string::npos) {
+                    // city is Field 2 (between pipe 2 and 3)
+                    string city  = line.substr(p[2] + 1, p[3] - p[2] - 1);
+                    // title is Field 3 (between pipe 3 and 4)
+                    string title = line.substr(p[3] + 1, p[4] - p[3] - 1);
+                    // price is Field 4 (between pipe 4 and 5)
+                    string price = line.substr(p[4] + 1, p[5] - p[4] - 1);
+                    
                     context += "Trip: " + title + " in " + city + " is $" + price + ". ";
                 }
             }

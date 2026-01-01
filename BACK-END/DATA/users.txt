@@ -1,5 +1,7 @@
 Admin|admin@tourista.com|admin123|admin|0
-ALI|ali@example.com|ali123|user|1
-Ali Ahmed|ali@test.com|123|user|0
-Ahmed Khan|ahmed@test.com|password123|user|0
-emperor|emperor@gmail.com|emperor123|user|0
+test|test@gmail.com|test123|user|1
+Emperor|emperorseer07@gmail.com|EXTERNAL_AUTH|Tourist|4
+Ali|ali17@gmail.com|ali1234|user|3
+Aamna|aamna@gmail.com|bongiseraiki|user|2
+Ali|alihassan@gmail.com|ali123|user|2
+Ali Hassan|alihassan17@gmail.com|ali123|user|2

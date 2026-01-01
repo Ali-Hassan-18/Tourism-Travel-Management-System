@@ -16,7 +16,7 @@ struct booking_node {
     string user_email;
     string city_name;
     string package_title;
-    string category; // NEW: Stores "Economical", "Premium", or "Special"
+    string category; 
     int adults, kids, infants, couples;
     string travel_mode, start_date, end_date, interests;
     double total_bill;
@@ -24,7 +24,6 @@ struct booking_node {
     string image_url;
     booking_node *next, *prev;
 
-    // Updated Constructor
     booking_node(int id, string email, string city, string title, double bill, string img, string cat)
         : booking_id(id), user_email(email), city_name(city), 
           package_title(title), total_bill(bill), image_url(img), 
@@ -37,7 +36,7 @@ struct booking_node {
         j["id"] = booking_id;
         j["city"] = city_name;
         j["package"] = package_title;
-        j["category"] = category;
+        j["category"] = category; 
         j["bill"] = total_bill;
         j["status"] = status; 
         j["dates"] = start_date + " to " + end_date;
@@ -49,7 +48,7 @@ struct booking_node {
         
         j["travelers"] = traveler_info;
         j["details"] = interests; 
-        j["img"] = image_url;
+        j["img"] = image_url; 
         return j;
     }
 };
@@ -62,6 +61,86 @@ private:
 public:
     booking_manager() : head(nullptr), tail(nullptr), id_counter(9000) {}
 
+    bool add_booking_detailed(string email, string city, string title, double bill, string img, string cat, string start, string end, int a, int k, int i, int c, string ints, user_manager& u_sys) {
+        user_node* user = u_sys.find_by_email(email);
+        if (!user) return false;
+
+        booking_node* new_node = new booking_node(id_counter++, email, city, title, bill, img, cat);
+        new_node->status = "Confirmed";
+        
+        new_node->adults = a; 
+        new_node->kids = k; 
+        new_node->infants = i; 
+        new_node->couples = c;
+        
+        new_node->start_date = start; 
+        new_node->end_date = end; 
+        new_node->interests = ints;
+
+        user->packages_availed++;
+        new_node->next = user->history_head;
+        if (user->history_head) user->history_head->prev = new_node;
+        user->history_head = new_node;
+
+        return true;
+    }
+
+    // UPDATED: Search Logic utilizing members of booking_node correctly
+    vector<booking_node*> search_bookings(string query, user_manager& u_sys) {
+        vector<booking_node*> results;
+        string lower_query = tourista_utils::to_lower(query);
+        
+        user_node* u = u_sys.get_all_users_head();
+        while (u) {
+            booking_node* b = u->history_head;
+            while (b) {
+                if (query == "" || 
+                    tourista_utils::to_lower(b->user_email).find(lower_query) != string::npos ||
+                    tourista_utils::to_lower(b->city_name).find(lower_query) != string::npos ||
+                    tourista_utils::to_lower(b->package_title).find(lower_query) != string::npos) {
+                    results.push_back(b);
+                }
+                b = b->next;
+            }
+            u = u->next;
+        }
+        return results;
+    }
+
+    // NEW: FIFO Queue Retrieval (Backend Implementation)
+    vector<booking_node*> get_bookings_queue(user_manager& u_sys) {
+        vector<booking_node*> queue;
+        user_node* u = u_sys.get_all_users_head();
+        while (u) {
+            booking_node* b = u->history_head;
+            while (b) {
+                queue.push_back(b);
+                b = b->next;
+            }
+            u = u->next;
+        }
+        return queue; 
+    }
+
+    // UPDATED: Corrected Date Sorting Logic
+    void sort_by_date(vector<booking_node*>& list, bool newest_first = true) {
+        int n = list.size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                bool condition;
+                if (newest_first) {
+                    condition = (list[j]->start_date < list[j+1]->start_date);
+                } else {
+                    condition = (list[j]->start_date > list[j+1]->start_date);
+                }
+
+                if (condition) {
+                    swap(list[j], list[j+1]);
+                }
+            }
+        }
+    }
+
     crow::json::wvalue get_user_history_json(string email, user_manager& u_sys) {
         vector<crow::json::wvalue> history;
         user_node* user = u_sys.find_by_email(email);
@@ -73,100 +152,122 @@ public:
                 h_temp = h_temp->next;
             }
         }
-
-        booking_node* q_temp = head;
-        while (q_temp) {
-            if (q_temp->user_email == email) {
-                history.push_back(q_temp->to_json());
-            }
-            q_temp = q_temp->next;
-        }
         return crow::json::wvalue(history);
     }
 
-    // Updated with 'cat' parameter
-    void create_booking(string email, string city, string title, double bill, string img, string cat, int a, int k, int i, int c, string mode, string start, string end, string ints) {
+    bool update_status(int id, string new_status, user_manager& u_sys) {
+    // 1. Traverse all users to find the specific booking by ID
+    user_node* u = u_sys.get_all_users_head();
+    while (u) {
+        booking_node* b = u->history_head;
+        while (b) {
+            // 2. Check for the specific booking ID
+            if (b->booking_id == id) {
+                b->status = new_status; // Update the memory node
+                
+                // 3. Immediately save the entire list to file to persist changes
+                save_bookings(u_sys);
+                return true; 
+            }
+            b = b->next;
+        }
+        u = u->next;
+    }
+    return false; // ID not found
+}
+    void create_booking(string email, string city, string title, double bill, string img, string cat, int a, int k, int i, int c, string mode, string start, string end, string ints, user_manager& u_sys) {
         booking_node* new_node = new booking_node(id_counter++, email, city, title, bill, img, cat);
-        new_node->adults = a; new_node->kids = k; new_node->infants = i; new_node->couples = c;
-        new_node->travel_mode = mode; new_node->start_date = start; 
-        new_node->end_date = end; new_node->interests = ints;
+        
+        if (cat == "Planned") {
+            new_node->status = "Pending";
+        } else {
+            new_node->status = "Confirmed";
+        }
 
-        if (!head) { head = tail = new_node; } 
-        else { tail->next = new_node; new_node->prev = tail; tail = new_node; }
+        new_node->adults = a; 
+        new_node->kids = k; 
+        new_node->infants = i; 
+        new_node->couples = c;
+        new_node->travel_mode = mode; 
+        new_node->start_date = start; 
+        new_node->end_date = end; 
+        new_node->interests = ints;
+
+        user_node* user = u_sys.find_by_email(email);
+        if (user) {
+            new_node->next = user->history_head;
+            if (user->history_head) user->history_head->prev = new_node;
+            user->history_head = new_node;
+            user->packages_availed++;
+        }
     }
 
-    void save_all_bookings(user_manager& u_sys) {
+    void save_bookings(user_manager& u_sys) {
         string path = tourista_utils::get_path() + "bookings_data.txt";
         ofstream out(path); 
         if (!out) return;
 
-        booking_node* temp = head;
-        while (temp) { write_to_file(out, temp); temp = temp->next; }
-        
-        user_node* curr_u = u_sys.get_all_users_head(); 
-        while (curr_u) {
-            booking_node* h = curr_u->history_head;
-            while (h) { write_to_file(out, h); h = h->next; }
-            curr_u = curr_u->next;
+        user_node* u_temp = u_sys.get_all_users_head();
+        while (u_temp) {
+            booking_node* b_temp = u_temp->history_head;
+            while (b_temp) {
+                write_to_file(out, b_temp);
+                b_temp = b_temp->next;
+            }
+            u_temp = u_temp->next;
         }
         out.close();
     }
 
     void load_bookings(user_manager& u_sys) {
-        while (head) { booking_node* n = head->next; delete head; head = n; }
-        head = tail = nullptr;
-
         string path = tourista_utils::get_path() + "bookings_data.txt";
         ifstream in(path);
         if (!in) return;
         
         string line;
         while (getline(in, line)) {
-            // CRITICAL FIX: Skip empty lines to prevent stoi/stod crashes
-            if (line.empty() || line.length() < 10) continue;
+            if (line.empty() || line.find_first_not_of(" \t\n\r") == string::npos) continue;
 
-            size_t p[16]; p[0] = -1;
-            for(int i=1; i<=15; i++) p[i] = line.find('|', p[i-1]+1);
+            vector<size_t> p;
+            size_t pos = line.find('|');
+            while (pos != string::npos) {
+                p.push_back(pos);
+                pos = line.find('|', pos + 1);
+            }
 
-            if (p[15] != string::npos) {
-                string email = line.substr(0, p[1]);
-                string city  = line.substr(p[1] + 1, p[2] - p[1] - 1);
-                string title = line.substr(p[2] + 1, p[3] - p[2] - 1);
+            if (p.size() >= 15) {
+                string email = line.substr(0, p[0]);
+                string city = line.substr(p[0] + 1, p[1] - p[0] - 1);
+                string title = line.substr(p[1] + 1, p[2] - p[1] - 1);
                 
-                // Use safe parsing for all numeric fields
-                string bill_str = line.substr(p[3] + 1, p[4] - p[3] - 1);
-                double bill = bill_str.empty() ? 0.0 : stod(bill_str); 
+                double bill = 0;
+                try { bill = stod(line.substr(p[2] + 1, p[3] - p[2] - 1)); } catch (...) { bill = 0; }
 
-                int a = tourista_utils::safe_stoi(line.substr(p[4] + 1, p[5] - p[4] - 1));
-                int k = tourista_utils::safe_stoi(line.substr(p[5] + 1, p[6] - p[5] - 1));
-                int i = tourista_utils::safe_stoi(line.substr(p[6] + 1, p[7] - p[6] - 1));
-                int c = tourista_utils::safe_stoi(line.substr(p[7] + 1, p[8] - p[7] - 1));
+                booking_node* new_node = new booking_node(9000, email, city, title, bill, "", "");
                 
-                string mode = line.substr(p[8] + 1, p[9] - p[8] - 1);
-                string s_date = line.substr(p[9] + 1, p[10] - p[9] - 1);
-                string e_date = line.substr(p[10] + 1, p[11] - p[10] - 1);
-                string ints = line.substr(p[11] + 1, p[12] - p[11] - 1);
-                string stat = line.substr(p[12] + 1, p[13] - p[12] - 1);
-                
-                int f_id = tourista_utils::safe_stoi(line.substr(p[13] + 1, p[14] - p[13] - 1));
-                string f_img = line.substr(p[14] + 1, p[15] - p[14] - 1);
-                string f_cat = line.substr(p[15] + 1);
+                new_node->adults      = tourista_utils::safe_stoi(line.substr(p[3] + 1, p[4] - p[3] - 1));
+                new_node->kids        = tourista_utils::safe_stoi(line.substr(p[4] + 1, p[5] - p[4] - 1));
+                new_node->infants     = tourista_utils::safe_stoi(line.substr(p[5] + 1, p[6] - p[5] - 1));
+                new_node->couples     = tourista_utils::safe_stoi(line.substr(p[6] + 1, p[7] - p[6] - 1));
+                new_node->travel_mode = line.substr(p[7] + 1, p[8] - p[7] - 1);
+                new_node->start_date  = line.substr(p[8] + 1, p[9] - p[8] - 1);
+                new_node->end_date    = line.substr(p[9] + 1, p[10] - p[9] - 1);
+                new_node->interests   = line.substr(p[10] + 1, p[11] - p[10] - 1);
+                new_node->status      = line.substr(p[11] + 1, p[12] - p[11] - 1);
+                new_node->booking_id  = tourista_utils::safe_stoi(line.substr(p[12] + 1, p[13] - p[12] - 1));
+                new_node->image_url   = line.substr(p[13] + 1, p[14] - p[13] - 1);
+                new_node->category    = line.substr(p[14] + 1); 
 
-                booking_node* new_node = new booking_node(f_id, email, city, title, bill, f_img, f_cat);
-                new_node->adults = a; new_node->kids = k; new_node->infants = i; new_node->couples = c;
-                new_node->travel_mode = mode; new_node->start_date = s_date; 
-                new_node->end_date = e_date; new_node->interests = ints; new_node->status = stat;
-
-                if (f_id >= id_counter) id_counter = f_id + 1;
-
-                if (stat == "Confirmed") {
-                    user_node* target = u_sys.find_by_email(email);
-                    if (target) { new_node->next = target->history_head; target->history_head = new_node; }
-                    else delete new_node;
+                user_node* target = u_sys.find_by_email(email);
+                if (target) {
+                    new_node->next = target->history_head;
+                    if (target->history_head) target->history_head->prev = new_node;
+                    target->history_head = new_node;
                 } else {
-                    if (!head) { head = tail = new_node; } 
-                    else { tail->next = new_node; new_node->prev = tail; tail = new_node; }
+                    delete new_node; 
                 }
+
+                if (new_node->booking_id >= id_counter) id_counter = new_node->booking_id + 1;
             }
         }
         in.close();

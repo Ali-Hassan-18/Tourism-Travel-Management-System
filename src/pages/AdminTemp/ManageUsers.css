@@ -159,3 +159,46 @@
   .mp-package { flex-direction: column; align-items: flex-start; gap: 1rem; }
   .mu-status { align-self: flex-end; }
 }
+/* --- MODAL EXTENSIONS --- */
+.admin-confirm-overlay {
+    position: fixed; inset: 0;
+    background: rgba(15, 23, 42, 0.9);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 5000; backdrop-filter: blur(8px);
+}
+
+.admin-confirm-modal-v2 {
+    background: white; width: 100%; max-width: 500px;
+    padding: 30px; border-radius: 20px;
+}
+
+.modal-header-row {
+    display: flex; justify-content: space-between;
+    align-items: center; margin-bottom: 20px;
+}
+
+.close-x { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #999; }
+
+.reviews-list-container {
+    max-height: 400px; overflow-y: auto;
+    margin-bottom: 20px; text-align: left;
+}
+
+.review-item-card {
+    background: #f8fafc; padding: 15px;
+    border-radius: 12px; margin-bottom: 10px;
+    border: 1px solid #edf2f7;
+}
+
+.review-item-card p { font-style: italic; color: #4a5568; margin: 10px 0; }
+.rev-meta { font-size: 0.85rem; color: var(--teal); }
+
+.status-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; }
+.status-tag.pending { background: #fff3e0; color: #ff9800; }
+.status-tag.confirmed { background: #e8f5e9; color: #4caf50; }
+
+.modal-confirm-btn.confirmed {
+    width: 100%; padding: 12px; border: none;
+    background: var(--teal); color: white;
+    border-radius: 12px; font-weight: 600; cursor: pointer;
+}
